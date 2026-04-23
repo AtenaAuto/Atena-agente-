@@ -1,0 +1,6 @@
+✅ Bootstrap: todas as dependências mínimas já estão instaladas.
+🔧 ATENA bootstrap: verificando dependências mínimas...
+🧠 Memórias persistidas: 3
+- 2026-04-06 23:38:33.562741 | score=0.7 | tags=success | prompt=Atena, você ignorou meu pedido anterior. Por favor, use seu módulo de Browser Ag
+- 2026-04-06 23:36:56.847470 | score=0.7 | tags=success | prompt=Atena, preciso que você realize uma tarefa complexa na internet: Pesquise sobre 
+- 2026-04-05 17:23:10.574040 | score=0.75 | tags=success | prompt=Gere um script Python mínimo que imprima 'ok'

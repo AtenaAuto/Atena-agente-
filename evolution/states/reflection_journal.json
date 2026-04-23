@@ -1,0 +1,82 @@
+[
+  {
+    "timestamp": "2026-04-02T17:19:39.612091",
+    "generation": 1,
+    "mutation": "QSA-Rastrigin",
+    "success": true,
+    "score": 2.342805518892675,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:39.637835",
+    "generation": 2,
+    "mutation": "QuantumTSP-20cities",
+    "success": true,
+    "score": -26.956208741561294,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:39.816301",
+    "generation": 3,
+    "mutation": "QuantumPortfolio-Markowitz",
+    "success": true,
+    "score": 8.604000000000001,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:44.583609",
+    "generation": 1,
+    "mutation": "QSA-Rastrigin",
+    "success": true,
+    "score": 1.3610846013435633,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:44.609856",
+    "generation": 2,
+    "mutation": "QuantumTSP-20cities",
+    "success": true,
+    "score": -21.21830268151279,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:44.783872",
+    "generation": 3,
+    "mutation": "QuantumPortfolio-Markowitz",
+    "success": true,
+    "score": 8.943,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:50.590488",
+    "generation": 1,
+    "mutation": "QSA-Rastrigin",
+    "success": true,
+    "score": -6.336608359982776,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:50.616387",
+    "generation": 2,
+    "mutation": "QuantumTSP-20cities",
+    "success": true,
+    "score": -17.797292051170167,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:19:50.847274",
+    "generation": 3,
+    "mutation": "QuantumPortfolio-Markowitz",
+    "success": true,
+    "score": 9.192,
+    "thought": "Melhoria incremental detectada. Explorar varia\u00e7\u00f5es deste padr\u00e3o."
+  },
+  {
+    "timestamp": "2026-04-02T17:28:17.651714",
+    "generation": 344,
+    "mutation": "Logging adicionado",
+    "success": true,
+    "score": 99.73333333333333,
+    "thought": "Excelente progresso. O padr\u00e3o atual \u00e9 altamente eficiente. Manter estrat\u00e9gia."
+  }
+]

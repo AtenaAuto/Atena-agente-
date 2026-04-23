@@ -1,0 +1,51 @@
+name: 🚦 ATENA Production Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production_gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 🧠 Restore ATENA Brain Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            atena_evolution/knowledge
+            atena_evolution/logs
+          key: atena-brain-production-${{ github.run_id }}
+          restore-keys: |
+            atena-brain-production-
+
+      - name: 🔧 Install deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f setup/requirements.txt ]; then
+            python -m pip install -r setup/requirements.txt
+          fi
+
+      - name: 📂 Ensure evolution dirs
+        run: |
+          mkdir -p atena_evolution/knowledge atena_evolution/logs
+
+      - name: ✅ Run production gate
+        run: |
+          chmod +x atena
+          ./atena production-ready

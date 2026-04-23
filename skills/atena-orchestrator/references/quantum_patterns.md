@@ -1,0 +1,1 @@
+# Quantum Patterns for Atena Ω\n\n## QTN (Quantum Tensor Networks)\n- Use TT-Decomposition for AST compression.\n- Map Python nodes to tensor states.\n\n## Grover Search\n- Implement O(sqrt(N)) search in episodic memory.\n- Use quantum superposition for candidate selection.

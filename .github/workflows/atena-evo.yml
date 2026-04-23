@@ -1,0 +1,73 @@
+name: ATENA-EVO
+
+on:
+  workflow_dispatch:
+    inputs:
+      generations:
+        description: "Quantidade de ciclos automáticos"
+        default: "500"
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: atena-evo-main
+  cancel-in-progress: false
+
+jobs:
+  run-evolution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Deps
+        run: |
+          pip install requests torch transformers accelerate faiss-cpu astor sentence-transformers aiosqlite aiohttp
+
+      - name: Stagnation guard
+        id: guard
+        run: |
+          python core/evolution_stagnation_guard.py \
+            --input analysis_reports/mutation_history.json \
+            --window 60 \
+            --output analysis_reports/EVOLUTION_STAGNATION_GUARD.json
+
+      - name: Run
+        run: |
+          export PYTHONPATH="$PYTHONPATH:$(pwd):$(pwd)/core"
+          CYCLES="${{ github.event.inputs.generations || steps.guard.outputs.recommended_cycles || '30' }}"
+          EXTRA_FLAGS="${{ steps.guard.outputs.recommended_extra_flags }}"
+          echo "Guard mode: ${{ steps.guard.outputs.mode }}"
+          echo "Running cycles=${CYCLES} extra_flags='${EXTRA_FLAGS}'"
+          python core/main.py --auto --cycles "${CYCLES}" ${EXTRA_FLAGS}
+
+      - name: Commit evolution state
+        run: |
+          git config user.name "atena-evo-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add atena_evolution analysis_reports/EVOLUTION_STAGNATION_GUARD.json || true
+          if git diff --cached --quiet; then
+            echo "No evolution changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(evo): auto-evolution snapshot [skip ci]"
+          git push origin HEAD:main
+
+      - name: Save
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atena-brain
+          path: atena_evolution/

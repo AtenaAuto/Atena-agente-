@@ -1,0 +1,131 @@
+# Pre-commit hooks para ATENA Ω
+# Instale com: pip install pre-commit && pre-commit install
+
+repos:
+  # Black - Formatação de código
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.10
+        args: ['--line-length=100']
+  
+  # isort - Organização de imports
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--line-length', '100']
+  
+  # Flake8 - Linting
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: [
+          '--max-line-length=100',
+          '--ignore=E203,W503,E501',
+          '--max-complexity=10'
+        ]
+        exclude: ^(evolution/|reference_dna/)
+  
+  # Pylint - Análise estática
+  - repo: https://github.com/PyCQA/pylint
+    rev: v3.0.3
+    hooks:
+      - id: pylint
+        args: [
+          '--max-line-length=100',
+          '--disable=C0111,C0103,R0913',
+          '--fail-under=7.0'
+        ]
+        exclude: ^(tests/|evolution/|reference_dna/)
+  
+  # Mypy - Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        args: ['--ignore-missing-imports', '--no-error-summary']
+        additional_dependencies: [types-requests]
+        exclude: ^(tests/|evolution/|reference_dna/)
+  
+  # Bandit - Security linting
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
+    hooks:
+      - id: bandit
+        args: ['-ll', '-i']
+        exclude: ^tests/
+  
+  # General pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Verifica sintaxe YAML
+      - id: check-yaml
+        exclude: ^(evolution/|reference_dna/)
+      
+      # Verifica sintaxe JSON
+      - id: check-json
+        exclude: ^(evolution/|reference_dna/)
+      
+      # Verifica sintaxe TOML
+      - id: check-toml
+      
+      # Previne commits de arquivos grandes
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      
+      # Previne commits em branches protegidos
+      - id: no-commit-to-branch
+        args: ['--branch', 'main', '--branch', 'master']
+      
+      # Remove espaços em branco trailing
+      - id: trailing-whitespace
+        exclude: ^(evolution/|reference_dna/)
+      
+      # Garante arquivo termina com newline
+      - id: end-of-file-fixer
+        exclude: ^(evolution/|reference_dna/)
+      
+      # Verifica merge conflicts
+      - id: check-merge-conflict
+      
+      # Previne commits de chaves privadas
+      - id: detect-private-key
+      
+      # Verifica encoding UTF-8
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+      
+      # Verifica Python AST
+      - id: check-ast
+        exclude: ^(evolution/|reference_dna/)
+      
+      # Previne debug statements
+      - id: debug-statements
+        exclude: ^tests/
+  
+  # Verificação de requirements
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.4
+    hooks:
+      - id: forbid-crlf
+      - id: remove-crlf
+  
+  # Documentação
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args: ['--ignore=D100,D101,D102,D103,D104,D105,D107']
+        exclude: ^(tests/|evolution/|reference_dna/)
+
+# Configuração global
+default_language_version:
+  python: python3.10
+
+# Executar em paralelo para velocidade
+default_install_hook_types: [pre-commit, pre-push]
+fail_fast: false

@@ -1,0 +1,7 @@
+✅ Bootstrap: todas as dependências mínimas já estão instaladas.
+🔧 ATENA bootstrap: verificando dependências mínimas...
+📊 ATENA Evolution Scorecard
+Status: warn
+Score: 56.9/100
+JSON: /workspace/ATENA-/analysis_reports/ATENA_Evolution_Scorecard.json
+MD: /workspace/ATENA-/analysis_reports/ATENA_Evolution_Scorecard.md

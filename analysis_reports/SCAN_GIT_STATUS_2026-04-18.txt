@@ -1,0 +1,2 @@
+?? analysis_reports/SCAN_GIT_STATUS_2026-04-18.txt
+?? analysis_reports/SCAN_SISTEMA_2026-04-18.txt

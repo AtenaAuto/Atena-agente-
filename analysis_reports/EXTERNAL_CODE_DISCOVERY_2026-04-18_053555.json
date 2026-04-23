@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-04-18T05:35:55.594659+00:00",
+  "query": "ai safety red teaming benchmarks",
+  "count": 4,
+  "repos": [
+    {
+      "name": "Babelscape/ALERT",
+      "url": "https://github.com/Babelscape/ALERT",
+      "description": "Official repository for the paper \"ALERT: A Comprehensive Benchmark for Assessing Large Language Models’ Safety through Red Teaming\"",
+      "stars": 59,
+      "updated_at": "2026-04-05T20:10:30Z",
+      "clone_url": "https://github.com/Babelscape/ALERT.git",
+      "language": "Python"
+    },
+    {
+      "name": "kogunlowo123/ai-evaluation-prompts",
+      "url": "https://github.com/kogunlowo123/ai-evaluation-prompts",
+      "description": "Prompt evaluation framework with accuracy, coherence, safety rubrics, and red-teaming guides",
+      "stars": 0,
+      "updated_at": "2026-03-15T18:20:38Z",
+      "clone_url": "https://github.com/kogunlowo123/ai-evaluation-prompts.git",
+      "language": "Python"
+    },
+    {
+      "name": "dragons-blood/JUDG3_PR0B3",
+      "url": "https://github.com/dragons-blood/JUDG3_PR0B3",
+      "description": "LLM-as-a-Judge Integrity Tester — Meta-red-teaming for AI safety benchmarks. If the judge is blind, the benchmark is worthless.",
+      "stars": 0,
+      "updated_at": "2026-04-02T21:49:47Z",
+      "clone_url": "https://github.com/dragons-blood/JUDG3_PR0B3.git",
+      "language": "Python"
+    },
+    {
+      "name": "Aftermath-Technologies-Ltd/aasms",
+      "url": "https://github.com/Aftermath-Technologies-Ltd/aasms",
+      "description": "🔄 Local-first AI system that evolves its own codebase through adversarial Red/Blue team dynamics. Ollama-powered, Docker-isolated, with cryptographic safety guards. Research prototype exploring recursive self-improvement via benchmark-driven code evolution.",
+      "stars": 0,
+      "updated_at": "2026-02-21T23:39:29Z",
+      "clone_url": "https://github.com/Aftermath-Technologies-Ltd/aasms.git",
+      "language": "Python"
+    }
+  ]
+}

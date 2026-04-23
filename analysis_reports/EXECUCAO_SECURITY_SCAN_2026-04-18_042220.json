@@ -1,0 +1,49 @@
+{
+  "status": "ok",
+  "scope": "system",
+  "generated_at": "2026-04-18T04:22:27.857456+00:00",
+  "results": [
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_SYSTEM_2026-04-18_042220.txt",
+      "command": "uname -a && cat /etc/os-release && python3 --version",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_ATENA_DOCTOR_2026-04-18_042220.txt",
+      "command": "./atena doctor",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_SECRET_SCAN_2026-04-18_042220.txt",
+      "command": "./atena secret-scan",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_CODE_MARKERS_2026-04-18_042220.txt",
+      "command": "rg -n \"TODO|FIXME|HACK|XXX|password|secret|token|eval\\(|exec\\(|subprocess\\.Popen\\(|os\\.system\\(\" core modules protocols",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_WORLD_WRITABLE_2026-04-18_042220.txt",
+      "command": "find . -xdev -type f -perm -0002",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_SUID_TOP200_2026-04-18_042220.txt",
+      "command": "find / -xdev -type f -perm -4000 2>/dev/null | head -n 200",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    }
+  ]
+}

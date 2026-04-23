@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-04-18T05:18:16.388747+00:00",
+  "query": "SuperAGI autonomous AI agent framework",
+  "count": 5,
+  "repos": [
+    {
+      "name": "TransformerOptimus/SuperAGI",
+      "url": "https://github.com/TransformerOptimus/SuperAGI",
+      "description": "<⚡️> SuperAGI - A dev-first open source autonomous AI agent framework. Enabling developers to build, manage & run useful autonomous agents quickly and reliably.",
+      "stars": 17455,
+      "updated_at": "2026-04-17T19:39:41Z",
+      "clone_url": "https://github.com/TransformerOptimus/SuperAGI.git",
+      "language": "Python"
+    },
+    {
+      "name": "JPDucky/SuperAGI",
+      "url": "https://github.com/JPDucky/SuperAGI",
+      "description": "<⚡️> SuperAGI - A dev-first open source autonomous AI agent framework. Enabling developers to build, manage & run useful autonomous agents quickly and reliably.",
+      "stars": 3,
+      "updated_at": "2024-08-15T01:47:56Z",
+      "clone_url": "https://github.com/JPDucky/SuperAGI.git",
+      "language": "Python"
+    },
+    {
+      "name": "Aryasb-art/superagi.aria",
+      "url": "https://github.com/Aryasb-art/superagi.aria",
+      "description": "<⚡️> SuperAGI - A dev-first open source autonomous AI agent framework. Enabling developers to build, manage & run useful autonomous agents quickly and reliably.",
+      "stars": 0,
+      "updated_at": "2025-08-13T08:34:28Z",
+      "clone_url": "https://github.com/Aryasb-art/superagi.aria.git",
+      "language": "Python"
+    },
+    {
+      "name": "seemslegit42/Cauldron-Agents",
+      "url": "https://github.com/seemslegit42/Cauldron-Agents",
+      "description": "<⚡️> SuperAGI - A dev-first open source autonomous AI agent framework. Enabling developers to build, manage & run useful autonomous agents quickly and reliably.",
+      "stars": 0,
+      "updated_at": "2025-04-20T20:13:06Z",
+      "clone_url": "https://github.com/seemslegit42/Cauldron-Agents.git",
+      "language": null
+    },
+    {
+      "name": "HAMEEMM/super_agi",
+      "url": "https://github.com/HAMEEMM/super_agi",
+      "description": "SuperAGI is a framework that helps developers quickly build, manage, and deploy reliable autonomous AI agents for various tasks.",
+      "stars": 0,
+      "updated_at": "2026-01-29T22:29:03Z",
+      "clone_url": "https://github.com/HAMEEMM/super_agi.git",
+      "language": "Python"
+    }
+  ]
+}

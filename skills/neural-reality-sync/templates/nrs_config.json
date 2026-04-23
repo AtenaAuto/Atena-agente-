@@ -1,0 +1,1 @@
+{\n  "sync_rate": "1000Hz",\n  "tensor_dim": 128,\n  "safety_level": "high"\n}

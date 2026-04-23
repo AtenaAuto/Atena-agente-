@@ -1,0 +1,12 @@
+Linux 6f9269b0be90 6.12.47 #1 SMP Mon Oct 27 10:01:15 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+Sat Apr 18 02:47:26 UTC 2026
+root
+/workspace/ATENA-
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda         63G   36G   24G  60% /
+tmpfs            64M     0   64M   0% /dev
+shm             989M     0  989M   0% /dev/shm
+kataShared      3.0M   36K  3.0M   2% /etc/hosts
+               total        used        free      shared  buff/cache   available
+Mem:            17Gi       1.3Gi       6.0Gi       5.0Mi        10Gi        16Gi
+Swap:             0B          0B          0B

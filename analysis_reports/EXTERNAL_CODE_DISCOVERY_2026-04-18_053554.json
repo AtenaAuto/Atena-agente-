@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-04-18T05:35:54.092340+00:00",
+  "query": "open-source llm platforms and inference",
+  "count": 5,
+  "repos": [
+    {
+      "name": "RecursionAI/courier-oss",
+      "url": "https://github.com/RecursionAI/courier-oss",
+      "description": "Open source API controlled inference engine for hosting LLMs in production and connecting them to n8n. Connects to the Courier API Platform for remotely managing models.",
+      "stars": 4,
+      "updated_at": "2026-03-04T02:06:22Z",
+      "clone_url": "https://github.com/RecursionAI/courier-oss.git",
+      "language": "Python"
+    },
+    {
+      "name": "jakkcoder/llm-forecasting-feature-store-pipeline",
+      "url": "https://github.com/jakkcoder/llm-forecasting-feature-store-pipeline",
+      "description": "A modern LLM-driven forecasting platform that transforms embeddings into powerful latent features using autoencoders. Features are stored in Feast, monitored via MLflow, and orchestrated with Airflow. Supports scalable ingestion, training, and inference flows. A complete open-source blueprint for building real-world forecasting pipelines.",
+      "stars": 1,
+      "updated_at": "2025-12-14T12:09:49Z",
+      "clone_url": "https://github.com/jakkcoder/llm-forecasting-feature-store-pipeline.git",
+      "language": "Python"
+    },
+    {
+      "name": "sochaty/llm-governance-engine",
+      "url": "https://github.com/sochaty/llm-governance-engine",
+      "description": "A robust LLM Governance & ROI Evaluation platform designed to benchmark Frontier models against local open-source models. Built with an enterprise microservices architecture and cloud-ready for Kubernetes, this tool helps organizations optimize AI spend by calculating the accuracy-vs-cost tradeoff of local vs. cloud inference",
+      "stars": 1,
+      "updated_at": "2026-03-21T03:10:18Z",
+      "clone_url": "https://github.com/sochaty/llm-governance-engine.git",
+      "language": "Python"
+    },
+    {
+      "name": "AkshayReddyChethireddy/aether",
+      "url": "https://github.com/AkshayReddyChethireddy/aether",
+      "description": "Production-grade open-source AI platform — multi-agent orchestration, streaming inference, persistent memory, and full observability",
+      "stars": 0,
+      "updated_at": "2026-03-28T20:54:04Z",
+      "clone_url": "https://github.com/AkshayReddyChethireddy/aether.git",
+      "language": "Python"
+    },
+    {
+      "name": "ramsred/agentic-platform-mcp",
+      "url": "https://github.com/ramsred/agentic-platform-mcp",
+      "description": "A production-grade, open-source agentic AI platform built on Model Context Protocol (MCP). Supports multi-MCP servers, local LLM inference, agent orchestration (LangGraph), retrieval-augmented generation, Kubernetes deployment, and full observability.",
+      "stars": 0,
+      "updated_at": "2025-12-23T23:15:52Z",
+      "clone_url": "https://github.com/ramsred/agentic-platform-mcp.git",
+      "language": "Python"
+    }
+  ]
+}

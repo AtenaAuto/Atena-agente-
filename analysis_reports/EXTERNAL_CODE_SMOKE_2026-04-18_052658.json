@@ -1,0 +1,357 @@
+{
+  "generated_at": "2026-04-18T05:27:09.084949+00:00",
+  "source_discovery": "analysis_reports/EXTERNAL_CODE_DISCOVERY_2026-04-18_052621.json",
+  "max_repos": 3,
+  "max_py_files": 20,
+  "status": "ok",
+  "results": [
+    {
+      "repo": "FoundationAgents/MetaGPT",
+      "url": "https://github.com/FoundationAgents/MetaGPT",
+      "clone_url": "https://github.com/FoundationAgents/MetaGPT.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/FoundationAgents__MetaGPT",
+      "clone_step": {
+        "action": "clone",
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "Cloning into '/workspace/ATENA-/atena_evolution/external_repos/FoundationAgents__MetaGPT'...\n"
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "examples/aflow/optimize.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_creator.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/android_assistant/run_assistant.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/build_customized_agent.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/build_customized_multi_agents.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/cr.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/dalle_gpt4v_agent.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/debate.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/debate_simple.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/InfiAgent-DABench/DABench.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/InfiAgent-DABench/run_InfiAgent-DABench.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/InfiAgent-DABench/run_InfiAgent-DABench_all.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/InfiAgent-DABench/run_InfiAgent-DABench_single.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/arxiv_reader.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/atomization_capacity_plan.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/automated_planning_of_tasks.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/crawl_webpage.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/custom_tool.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/data_analyst_write_code.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/di/data_visualization.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "repo": "TauricResearch/TradingAgents",
+      "url": "https://github.com/TauricResearch/TradingAgents",
+      "clone_url": "https://github.com/TauricResearch/TradingAgents.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/TauricResearch__TradingAgents",
+      "clone_step": {
+        "action": "clone",
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "Cloning into '/workspace/ATENA-/atena_evolution/external_repos/TauricResearch__TradingAgents'...\n"
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "cli/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "cli/announcements.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "cli/config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "cli/main.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "cli/models.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "cli/stats_handler.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "cli/utils.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "main.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "test.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tests/test_google_api_key.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tests/test_model_validation.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tests/test_ticker_symbol_handling.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/agents/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/agents/analysts/fundamentals_analyst.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/agents/analysts/market_analyst.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/agents/analysts/news_analyst.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/agents/analysts/social_media_analyst.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/agents/managers/portfolio_manager.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "tradingagents/agents/managers/research_manager.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "repo": "openai/openai-agents-python",
+      "url": "https://github.com/openai/openai-agents-python",
+      "clone_url": "https://github.com/openai/openai-agents-python.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/openai__openai-agents-python",
+      "clone_step": {
+        "action": "clone",
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "Cloning into '/workspace/ATENA-/atena_evolution/external_repos/openai__openai-agents-python'...\n"
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": ".agents/skills/runtime-behavior-probe/templates/python_probe.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": ".codex/hooks/stop_repo_tidy.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": ".github/scripts/pr_labels.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": ".github/scripts/select-release-milestone.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "docs/scripts/generate_ref_files.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "docs/scripts/translate_docs.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/agents_as_tools.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/agents_as_tools_conditional.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/agents_as_tools_streaming.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/agents_as_tools_structured.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/deterministic.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/forcing_tool_use.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/human_in_the_loop.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/human_in_the_loop_custom_rejection.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/human_in_the_loop_stream.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/input_guardrails.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/llm_as_a_judge.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/output_guardrails.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "examples/agent_patterns/parallelization.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    }
+  ]
+}

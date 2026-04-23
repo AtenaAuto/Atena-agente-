@@ -1,0 +1,93 @@
+{
+  "mission": "QACO-AGI",
+  "timestamp": "2026-04-02T17:19:50.301283",
+  "atena_version": "v40.6 Singularity",
+  "phases": {
+    "perception": {
+      "curiosity_active": true,
+      "insight": "Curiosidade ativada: explorando 'transformers optimization' após 'quantum optimization'"
+    },
+    "rastrigin_optimization": {
+      "best_energy": 106.33660835998278,
+      "iterations": 604,
+      "quantum_metrics": {
+        "tunnel_events": 761,
+        "entanglement_updates": 3295,
+        "decoherence_events": 3204,
+        "quantum_advantage": 1.259933774834437
+      },
+      "council_validation": 0.9333333333333332,
+      "history_points": 13
+    },
+    "tsp_optimization": {
+      "best_distance": 547.8026605269292,
+      "greedy_distance": 465.0384155596449,
+      "improvement_percent": -17.797292051170167,
+      "time_seconds": 0.02049398422241211,
+      "best_tour": [
+        2,
+        10,
+        6,
+        15,
+        19,
+        17,
+        1,
+        12,
+        0,
+        5,
+        16,
+        3,
+        8,
+        13,
+        4,
+        9,
+        11,
+        14,
+        18,
+        7
+      ]
+    },
+    "portfolio_optimization": {
+      "best_sharpe_portfolio": {
+        "weights": [
+          0.0,
+          0.1184935142590804,
+          0.0,
+          0.1307935347221791,
+          0.3528654473605759,
+          0.36914155834069623,
+          0.0038406766992941373,
+          0.02486526861817429
+        ],
+        "return": 0.1841,
+        "risk": 0.1786,
+        "sharpe_ratio": 0.9192,
+        "risk_target": 0.05,
+        "quantum_metrics": {
+          "tunnel_events": 385,
+          "entanglement_updates": 486,
+          "decoherence_events": 121,
+          "quantum_advantage": 2.319277108433735
+        }
+      },
+      "frontier_points": 5,
+      "assets": [
+        "PETR4",
+        "VALE3",
+        "ITUB4",
+        "BBDC4",
+        "ABEV3",
+        "WEGE3",
+        "MGLU3",
+        "B3SA3"
+      ]
+    }
+  },
+  "summary": {
+    "problems_solved": 3,
+    "total_tunnel_events": 761,
+    "total_entanglement_updates": 3295,
+    "cognitive_modules_active": 4,
+    "mission_success": true
+  }
+}

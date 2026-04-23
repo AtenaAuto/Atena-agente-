@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-04-18T04:51:22.976211+00:00",
+  "query": "llm multi-agent frameworks",
+  "count": 8,
+  "repos": [
+    {
+      "name": "FoundationAgents/MetaGPT",
+      "url": "https://github.com/FoundationAgents/MetaGPT",
+      "description": "🌟 The Multi-Agent Framework: First AI Software Company, Towards Natural Language Programming",
+      "stars": 67186,
+      "updated_at": "2026-04-18T04:00:35Z",
+      "clone_url": "https://github.com/FoundationAgents/MetaGPT.git",
+      "language": "Python"
+    },
+    {
+      "name": "TauricResearch/TradingAgents",
+      "url": "https://github.com/TauricResearch/TradingAgents",
+      "description": "TradingAgents: Multi-Agents LLM Financial Trading Framework",
+      "stars": 51259,
+      "updated_at": "2026-04-18T04:46:59Z",
+      "clone_url": "https://github.com/TauricResearch/TradingAgents.git",
+      "language": "Python"
+    },
+    {
+      "name": "openai/openai-agents-python",
+      "url": "https://github.com/openai/openai-agents-python",
+      "description": "A lightweight, powerful framework for multi-agent workflows",
+      "stars": 21894,
+      "updated_at": "2026-04-18T04:46:08Z",
+      "clone_url": "https://github.com/openai/openai-agents-python.git",
+      "language": "Python"
+    },
+    {
+      "name": "raga-ai-hub/RagaAI-Catalyst",
+      "url": "https://github.com/raga-ai-hub/RagaAI-Catalyst",
+      "description": "Python SDK for Agent AI Observability, Monitoring and Evaluation Framework. Includes features like agent, llm and tools tracing, debugging multi-agentic system, self-hosted dashboard and advanced analytics with timeline and execution graph view ",
+      "stars": 16139,
+      "updated_at": "2026-04-18T04:27:16Z",
+      "clone_url": "https://github.com/raga-ai-hub/RagaAI-Catalyst.git",
+      "language": "Python"
+    },
+    {
+      "name": "trypromptly/LLMStack",
+      "url": "https://github.com/trypromptly/LLMStack",
+      "description": "No-code multi-agent framework to build LLM Agents, workflows and applications with your data",
+      "stars": 2291,
+      "updated_at": "2026-04-15T20:00:56Z",
+      "clone_url": "https://github.com/trypromptly/LLMStack.git",
+      "language": "Python"
+    },
+    {
+      "name": "agentuniverse-ai/agentUniverse",
+      "url": "https://github.com/agentuniverse-ai/agentUniverse",
+      "description": "agentUniverse is a LLM multi-agent framework that allows developers to easily build multi-agent applications. ",
+      "stars": 2202,
+      "updated_at": "2026-04-18T03:52:55Z",
+      "clone_url": "https://github.com/agentuniverse-ai/agentUniverse.git",
+      "language": "Python"
+    },
+    {
+      "name": "ZHangZHengEric/Sage",
+      "url": "https://github.com/ZHangZHengEric/Sage",
+      "description": "Multi-Agent System Framework For Complex Tasks",
+      "stars": 1224,
+      "updated_at": "2026-04-18T03:37:22Z",
+      "clone_url": "https://github.com/ZHangZHengEric/Sage.git",
+      "language": "Python"
+    },
+    {
+      "name": "wanxingai/LightAgent",
+      "url": "https://github.com/wanxingai/LightAgent",
+      "description": "LightAgent: Lightweight AI agent framework with memory, tools & tree-of-thought. Supports multi-agent collaboration, self-learning, and major LLMs (OpenAI/DeepSeek/Qwen). Open-source with MCP/SSE protocol integration.",
+      "stars": 859,
+      "updated_at": "2026-04-18T02:35:29Z",
+      "clone_url": "https://github.com/wanxingai/LightAgent.git",
+      "language": "Python"
+    }
+  ]
+}

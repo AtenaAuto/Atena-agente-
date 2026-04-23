@@ -1,0 +1,48 @@
+protocols/atena_invoke.py:286:        dangerous = ["os.system(", "subprocess.call(", "__import__(", "eval(", "exec("]
+modules/council_orchestrator.py:28:        has_unsafe = "eval(" in code or "exec(" in code
+protocols/atena_security_mission.py:65:        security_ok = "eval(" not in code and "exec(" not in code
+modules/Voice.py:283:                        proc = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+protocols/modules/atena_advanced_portfolio_optimizer.py:319:    print("MÉTODO: SIMULAÇÃO DE MONTE CARLO")
+protocols/modules/atena_advanced_portfolio_optimizer.py:327:    print("\nMÉTODO: ALGORITMO GENÉTICO")
+modules/missions/atena_stress_test.py:53:        "def unsafe_func(): eval('os.system(\"rm -rf /\")')",
+modules/hyper_evolution.py:78:            if "eval(" in code or "exec(" in code:
+core/security_validator.py:265:        >>> is_valid, violations = validate_code_safe("import os; os.system('ls')")
+core/security_validator.py:293:os.system('rm -rf /')
+core/security_validator.py:298:eval(user_input)
+core/atena_terminal_assistant.py:745:            "rg -n \"TODO|FIXME|HACK|XXX|password|secret|token|eval\\(|exec\\(\" core modules protocols",
+core/atena_terminal_assistant.py:866:def run_task_exec(router: AtenaLLMRouter, objective: str) -> tuple[str, str]:
+core/atena_terminal_assistant.py:1194:            "rg -n \"TODO|FIXME|HACK|XXX|password|secret|token|eval\\(|exec\\(|subprocess\\.Popen\\(|os\\.system\\(\" core modules protocols",
+core/atena_terminal_assistant.py:1282:            if any(token in ln for token in ("eval(", "exec(", "os.system(", "subprocess.Popen("))
+core/atena_terminal_assistant.py:1371:                os.system("clear")
+core/atena_terminal_assistant.py:1528:                    status, report_path = run_task_exec(router, objective)
+core/atena_neuro_symbolic_verifier.py:91:    unsafe_code = "import os\ndef hack():\n    os.system('rm -rf /')"
+core/atena_local_lm.py:337:PATTERN = re.compile(r"\\b(TODO|FIXME)\\b[:\\s-]*(.*)", re.IGNORECASE)
+core/atena_local_lm.py:472:PATTERN = re.compile(r"\\b(TODO|FIXME)\\b[:\\s-]*(.*)", re.IGNORECASE)
+core/atena_local_lm.py:526:    lines = ["# Relatório TODO/FIXME", "", f"Total: **{len(items)}**", ""]
+core/atena_local_lm.py:541:    parser = argparse.ArgumentParser(description="Scanner TODO/FIXME com saída markdown + json")
+core/main.py:465:    HACKER_RECON_DELAY: float = 1.0
+core/main.py:466:    HACKER_RECON_MAX_RESULTS: int = 10
+core/main.py:467:    HACKER_RECON_MIN_CODE_LENGTH: int = 50
+core/main.py:830:    def get_cached_eval(self, code_hash: str) -> Optional[Dict]:
+core/main.py:842:    def set_cached_eval(self, code_hash: str, result: Dict):
+core/main.py:1394:        cached_db = self.kb.get_cached_eval(code_hash)
+core/main.py:1431:            self.kb.set_cached_eval(code_hash, result)
+core/main.py:1480:        self.kb.set_cached_eval(code_hash, result)
+core/main.py:1782:            "# TODO: otimizar",
+core/main.py:2150:                result = eval(compile(ast.Expression(body=node), '<string>', 'eval'))
+core/main.py:2160:                result = eval(compile(ast.Expression(body=node), '<string>', 'eval'))
+core/main.py:2388:exec(open('{tmp}').read())
+core/main.py:3188:            exec(compile(active.source_code, "<scorer>", "exec"), namespace)
+core/main.py:3195:            exec(compile(self.BASE_SCORER_SOURCE, "<base_scorer>", "exec"), namespace)
+core/main.py:3211:        exec(compile(self.BASE_SCORER_SOURCE, "<fallback>", "exec"), namespace)
+core/main.py:3321:                    exec(compile(new_source, "<test>", "exec"), ns)
+core/main.py:3348:            exec(compile(new_source, "<cross>", "exec"), ns)
+core/main.py:4005:                description="Bloqueia eval()  pode ser relaxado para casos especficos",
+core/main.py:4012:                description="Bloqueia exec()  necessrio para meta-programao legtima",
+core/main.py:5444:# HACKER RECON MODULE
+core/main.py:5458:        max_r = max_results or Config.HACKER_RECON_MAX_RESULTS
+core/main.py:5490:        wait = Config.HACKER_RECON_DELAY - (time.time() - last)
+core/main.py:5514:            if len(text) >= Config.HACKER_RECON_MIN_CODE_LENGTH and self._is_code(text):
+core/main.py:6708:                        subprocess.Popen(["python3", "atena_google_search.py", search_term])
+core/atena_ultimate.py:211:            self.model.eval()
+core/atena_daemon.py:42:                    self.process = subprocess.Popen(

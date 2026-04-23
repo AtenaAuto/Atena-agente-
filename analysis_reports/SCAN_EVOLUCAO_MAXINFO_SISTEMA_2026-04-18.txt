@@ -1,0 +1,11 @@
+Linux 8d310ca66705 6.12.47 #1 SMP Mon Oct 27 10:01:15 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda         63G   34G   26G  58% /
+tmpfs            64M     0   64M   0% /dev
+shm             989M     0  989M   0% /dev/shm
+kataShared      3.0M   36K  3.0M   2% /etc/hosts
+               total        used        free      shared  buff/cache   available
+Mem:            17Gi       1.0Gi       7.1Gi       5.0Mi        10Gi        16Gi
+Swap:             0B          0B          0B
+Python 3.10.19
+pip 25.3 from /root/.pyenv/versions/3.10.19/lib/python3.10/site-packages/pip (python 3.10)
