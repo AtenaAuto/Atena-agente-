@@ -994,6 +994,39 @@ def _next_evolution_topic(base_topic: str, last_payload: dict[str, object], cycl
     )
 
 
+def _build_topic_variants(topic: str) -> list[str]:
+    raw = (topic or "").strip()
+    if not raw:
+        return ["artificial intelligence"]
+    lowered = raw.lower()
+    replacements = {
+        "segurança": "security",
+        "cibersegurança": "cybersecurity",
+        "vulnerabilidades": "vulnerabilities",
+        "regulatórios": "regulatory",
+        "regulatório": "regulatory",
+        "bancos": "banking",
+        "agentes": "agents",
+        "autônomos": "autonomous",
+        "mitigação": "mitigation",
+        "validação": "validation",
+    }
+    normalized = lowered
+    for src, dst in replacements.items():
+        normalized = normalized.replace(src, dst)
+    variants = [raw]
+    if normalized != raw.lower():
+        variants.append(normalized)
+    if " | " in raw:
+        variants.append(raw.split(" | ", 1)[0].strip())
+    dedup: list[str] = []
+    for item in variants:
+        item = item.strip()
+        if item and item not in dedup:
+            dedup.append(item)
+    return dedup
+
+
 def run_continuous_internet_evolution(topic: str, cycles: int = 3) -> dict[str, object]:
     """
     Executa ciclos contínuos de internet challenge com refinamento automático de tópico.
@@ -1011,11 +1044,23 @@ def run_continuous_internet_evolution(topic: str, cycles: int = 3) -> dict[str, 
         for cycle_idx in range(1, safe_cycles + 1):
             os.environ["ATENA_INTERNET_RETRIES"] = str(adaptive_retries)
             os.environ["ATENA_INTERNET_BACKOFF_S"] = f"{adaptive_backoff:.2f}"
-            payload = run_internet_challenge(current_topic)
+            candidate_topics = _build_topic_variants(current_topic)
+            payload = run_internet_challenge(candidate_topics[0])
+            used_topic = candidate_topics[0]
+            for candidate in candidate_topics[1:]:
+                if float(payload.get("weighted_confidence", 0.0) or 0.0) >= 0.35:
+                    break
+                alt_payload = run_internet_challenge(candidate)
+                if float(alt_payload.get("weighted_confidence", 0.0) or 0.0) > float(
+                    payload.get("weighted_confidence", 0.0) or 0.0
+                ):
+                    payload = alt_payload
+                    used_topic = candidate
             runs.append(
                 {
                     "cycle": cycle_idx,
                     "topic": current_topic,
+                    "query_variant_used": used_topic,
                     "status": payload.get("status"),
                     "weighted_confidence": payload.get("weighted_confidence"),
                     "difficulty_score": payload.get("difficulty_score"),

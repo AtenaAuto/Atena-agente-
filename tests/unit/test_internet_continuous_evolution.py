@@ -34,6 +34,7 @@ def test_run_continuous_internet_evolution_builds_report(monkeypatch, tmp_path):
     assert report["delta_weighted_confidence"] == 0.3
     assert report["quality_gate"]["passed"] is True
     assert len(report["runs"]) == 3
+    assert "query_variant_used" in report["runs"][0]
     assert report["report_path"] == "analysis_reports/ATENA_Continuous_Internet_Evolution.json"
 
     report_path = tmp_path / report["report_path"]
@@ -75,3 +76,27 @@ def test_run_continuous_internet_evolution_sets_quality_gate_fail(monkeypatch, t
     report = internet_challenge.run_continuous_internet_evolution("ai agents", cycles=2)
     assert report["quality_gate"]["passed"] is False
     assert "final_confidence_below_0_3" in report["quality_gate"]["reasons"]
+
+
+def test_run_continuous_prefers_better_query_variant(monkeypatch, tmp_path):
+    monkeypatch.setattr(internet_challenge, "ROOT", tmp_path)
+
+    def _fake_run(topic: str):
+        weighted = 0.1
+        if "security" in topic.lower():
+            weighted = 0.5
+        return {
+            "status": "ok" if weighted >= 0.5 else "partial",
+            "weighted_confidence": weighted,
+            "difficulty_score": 1 - weighted,
+            "synthesis": {"high_quality_sources": [], "failed_sources": []},
+            "best_api_sources": [],
+            "connectivity_summary": {"ok_ratio": weighted},
+            "evolution_signal": {"trend": "stable"},
+        }
+
+    monkeypatch.setattr(internet_challenge, "run_internet_challenge", _fake_run)
+    report = internet_challenge.run_continuous_internet_evolution("segurança agentes", cycles=1)
+
+    assert report["runs"][0]["query_variant_used"] == "security agents"
+    assert report["final_weighted_confidence"] == 0.5
