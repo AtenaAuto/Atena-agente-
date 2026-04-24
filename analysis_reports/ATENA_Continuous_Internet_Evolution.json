@@ -1,0 +1,190 @@
+{
+  "generated_at_utc": "2026-04-24T22:09:15.074245+00:00",
+  "base_topic": "Arquiteturas de agentes autônomos para descoberta de vulnerabilidades zero-day com validação formal e mitigação automática",
+  "cycles": 4,
+  "best_weighted_confidence": 0.22,
+  "first_weighted_confidence": 0.22,
+  "final_weighted_confidence": 0.16,
+  "delta_weighted_confidence": -0.06,
+  "trend": "degrading",
+  "runs": [
+    {
+      "cycle": 1,
+      "topic": "Arquiteturas de agentes autônomos para descoberta de vulnerabilidades zero-day com validação formal e mitigação automática",
+      "status": "partial",
+      "weighted_confidence": 0.22,
+      "difficulty_score": 0.78,
+      "high_quality_sources": [],
+      "failed_sources": [
+        "wikipedia",
+        "hackernews",
+        "arxiv",
+        "crossref",
+        "openalex",
+        "semantic_scholar",
+        "openlibrary",
+        "wikidata",
+        "duckduckgo",
+        "stackoverflow",
+        "reddit",
+        "npm",
+        "pubmed",
+        "clinicaltrials",
+        "zenodo",
+        "gutenberg",
+        "europepmc"
+      ],
+      "evolution_signal": {
+        "trend": "stable",
+        "improving": false,
+        "current_window_avg_weighted_confidence": 0.22,
+        "previous_window_avg_weighted_confidence": 0.22,
+        "samples": 1,
+        "signal_path": "analysis_reports/public_api_catalog/evolution_signal.json"
+      }
+    },
+    {
+      "cycle": 2,
+      "topic": "Arquiteturas de agentes autônomos para descoberta de vulnerabilidades zero-day com validação formal e mitigação automática | ciclo 2 | validar com fontes confiáveis e recuperar cobertura em wikipedia, hackernews",
+      "status": "partial",
+      "weighted_confidence": 0.16,
+      "difficulty_score": 0.83,
+      "high_quality_sources": [],
+      "failed_sources": [
+        "wikipedia",
+        "github",
+        "hackernews",
+        "arxiv",
+        "crossref",
+        "openalex",
+        "semantic_scholar",
+        "openlibrary",
+        "wikidata",
+        "duckduckgo",
+        "stackoverflow",
+        "reddit",
+        "npm",
+        "pubmed",
+        "clinicaltrials",
+        "zenodo",
+        "gutenberg",
+        "europepmc"
+      ],
+      "evolution_signal": {
+        "trend": "stable",
+        "improving": false,
+        "current_window_avg_weighted_confidence": 0.19,
+        "previous_window_avg_weighted_confidence": 0.19,
+        "samples": 2,
+        "signal_path": "analysis_reports/public_api_catalog/evolution_signal.json"
+      }
+    },
+    {
+      "cycle": 3,
+      "topic": "Arquiteturas de agentes autônomos para descoberta de vulnerabilidades zero-day com validação formal e mitigação automática | ciclo 3 | validar com fontes confiáveis e recuperar cobertura em wikipedia, github",
+      "status": "partial",
+      "weighted_confidence": 0.16,
+      "difficulty_score": 0.83,
+      "high_quality_sources": [],
+      "failed_sources": [
+        "wikipedia",
+        "github",
+        "hackernews",
+        "arxiv",
+        "crossref",
+        "openalex",
+        "semantic_scholar",
+        "openlibrary",
+        "wikidata",
+        "duckduckgo",
+        "stackoverflow",
+        "reddit",
+        "npm",
+        "pubmed",
+        "clinicaltrials",
+        "zenodo",
+        "gutenberg",
+        "europepmc"
+      ],
+      "evolution_signal": {
+        "trend": "stable",
+        "improving": false,
+        "current_window_avg_weighted_confidence": 0.18,
+        "previous_window_avg_weighted_confidence": 0.18,
+        "samples": 3,
+        "signal_path": "analysis_reports/public_api_catalog/evolution_signal.json"
+      }
+    },
+    {
+      "cycle": 4,
+      "topic": "Arquiteturas de agentes autônomos para descoberta de vulnerabilidades zero-day com validação formal e mitigação automática | ciclo 4 | validar com fontes confiáveis e recuperar cobertura em wikipedia, github",
+      "status": "partial",
+      "weighted_confidence": 0.16,
+      "difficulty_score": 0.83,
+      "high_quality_sources": [],
+      "failed_sources": [
+        "wikipedia",
+        "github",
+        "hackernews",
+        "arxiv",
+        "crossref",
+        "openalex",
+        "semantic_scholar",
+        "openlibrary",
+        "wikidata",
+        "duckduckgo",
+        "stackoverflow",
+        "reddit",
+        "npm",
+        "pubmed",
+        "clinicaltrials",
+        "zenodo",
+        "gutenberg",
+        "europepmc"
+      ],
+      "evolution_signal": {
+        "trend": "stable",
+        "improving": false,
+        "current_window_avg_weighted_confidence": 0.18,
+        "previous_window_avg_weighted_confidence": 0.18,
+        "samples": 4,
+        "signal_path": "analysis_reports/public_api_catalog/evolution_signal.json"
+      }
+    }
+  ],
+  "adaptations": [
+    {
+      "cycle": 1,
+      "reason": "low_confidence_or_partial",
+      "retries_from": 2,
+      "retries_to": 3,
+      "backoff_from": 0.5,
+      "backoff_to": 0.75
+    },
+    {
+      "cycle": 2,
+      "reason": "low_confidence_or_partial",
+      "retries_from": 3,
+      "retries_to": 4,
+      "backoff_from": 0.75,
+      "backoff_to": 1.0
+    },
+    {
+      "cycle": 3,
+      "reason": "low_confidence_or_partial",
+      "retries_from": 4,
+      "retries_to": 4,
+      "backoff_from": 1.0,
+      "backoff_to": 1.25
+    },
+    {
+      "cycle": 4,
+      "reason": "low_confidence_or_partial",
+      "retries_from": 4,
+      "retries_to": 4,
+      "backoff_from": 1.25,
+      "backoff_to": 1.5
+    }
+  ],
+  "goal": "melhoria contínua via iteração guiada por fontes de alta qualidade"
+}
