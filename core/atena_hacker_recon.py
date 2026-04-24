@@ -292,6 +292,25 @@ def run(argv: list[str]) -> int:
 
     if args.json:
         print(json.dumps(summary, ensure_ascii=False, indent=2))
+    else:
+        print("\n# ATENA Hacker Recon — Relatório Profissional")
+        print(f"- Status geral: {'OK' if summary['ok'] else 'PARCIAL/FALHA'}")
+        print(f"- Tópicos processados: {summary['topics_total']}")
+        print(f"- Tópicos OK: {summary['topics_ok']}")
+        print(f"- Tópicos com falha: {summary['topics_failed']}")
+        if summary.get("best_topic"):
+            print(f"- Melhor tópico: {summary['best_topic']}")
+        print("\n## Resultados por tópico")
+        for item in summary["results"]:
+            status = "OK" if item["ok"] else "FAIL"
+            print(
+                f"- [{status}] {item['topic']} | score={item['recon_score']} | "
+                f"dur={item['duration_s']}s | attempts={item['attempts']} | exit={item['exit_code']}"
+            )
+        if report_paths:
+            print("\n## Artefatos")
+            for path in report_paths:
+                print(f"- {path}")
 
     _append_history(history_path, results)
     summary["history_path"] = str(history_path)

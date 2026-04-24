@@ -36,3 +36,5 @@ def test_run_internet_challenge_mocked():
     assert "synthesis" in payload
     assert payload["synthesis"]["release_risk"] in {"low", "medium", "high"}
     assert 0.0 <= payload["difficulty_score"] <= 1.0
+    assert "evolution_signal" in payload
+    assert payload["evolution_signal"]["trend"] in {"improving", "stable", "degrading"}

@@ -141,6 +141,8 @@ class AtenaUltraBrain:
     def __init__(self, config: Optional[AtenaCognitiveConfig] = None):
         self.cfg = config or AtenaCognitiveConfig()
         self.memory = EpisodicMemory(self.cfg)
+        self._last_model_error: str = ""
+        self._network_blocked_for_model_download: bool = False
         self._init_model()
         logger.info("🧠 ATENA Ultra-Brain v6.0 Inicializado")
 
@@ -171,6 +173,20 @@ class AtenaUltraBrain:
             )
             self.has_transformers = True
         except Exception as e:
+            self._last_model_error = str(e)
+            lowered = self._last_model_error.lower()
+            self._network_blocked_for_model_download = any(
+                marker in lowered
+                for marker in [
+                    "proxyerror",
+                    "403 forbidden",
+                    "maxretryerror",
+                    "tunnel connection failed",
+                    "connection refused",
+                    "name or service not known",
+                    "temporary failure in name resolution",
+                ]
+            )
             logger.warning(f"Não foi possível carregar transformers: {e}. Usando fallback heurístico.")
             self.has_transformers = False
 
@@ -181,6 +197,11 @@ class AtenaUltraBrain:
         """
         if self.has_transformers:
             return True, f"Modelo local pronto: {self.cfg.base_model_name}"
+        if self._network_blocked_for_model_download:
+            return False, (
+                "Download do modelo local bloqueado por rede/proxy (detecção automática). "
+                "ATENA seguirá em modo fallback heurístico."
+            )
 
         preferred_model = (
             os.environ.get("LLM_MODEL_NAME")

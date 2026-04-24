@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -14,7 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from core.heavy_mode_selector import choose_mode
-from core.internet_challenge import run_internet_challenge
+from core.internet_challenge import run_continuous_internet_evolution, run_internet_challenge
 from core.production_access import QuotaManager, TenantQuota
 from core.production_advanced_suite import (
     build_issue_to_pr_plan,
@@ -42,17 +43,68 @@ EVOLUTION = ROOT / "atena_evolution" / "production_center"
 EVOLUTION.mkdir(parents=True, exist_ok=True)
 
 
-def _emit(command: str, payload: dict | list) -> None:
+def _emit_professional_generic(command: str, payload: dict | list) -> None:
+    print(f"# ATENA Professional Output — {command}")
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if isinstance(value, (dict, list)):
+                print(f"\n## {key}\n{json.dumps(value, ensure_ascii=False, indent=2)}")
+            else:
+                print(f"- {key}: {value}")
+        return
+    if isinstance(payload, list):
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+    print(str(payload))
+
+
+def _emit(command: str, payload: dict | list, *, force_json: bool = False, full_text: bool = False) -> None:
     errors = validate_contract(command, payload)
     if isinstance(payload, dict):
         payload["contract_valid"] = len(errors) == 0
         if errors:
             payload["contract_errors"] = errors
-    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    json_mode = force_json or (not full_text and os.getenv("ATENA_FULL_TEXT_OUTPUT", "0") != "1")
+    if json_mode:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+    _emit_professional_generic(command, payload)
+
+
+def _emit_subagent_professional(payload: dict[str, object]) -> None:
+    """Imprime entrega profissional em texto/markdown para consumo direto no terminal."""
+    problem = str(payload.get("problem", "")).strip()
+    summary = str(payload.get("summary", "")).strip()
+    result = str(payload.get("result", "")).strip()
+    plan = payload.get("plan", [])
+    recommendations = payload.get("recommendations", [])
+    confidence = payload.get("confidence", "")
+    generated_at = str(payload.get("generated_at", "")).strip()
+
+    print("# Entrega Profissional — Specialist Solver")
+    if problem:
+        print(f"\n## Problema\n{problem}")
+    if summary:
+        print(f"\n## Resumo Executivo\n{summary}")
+    if result:
+        print(f"\n## Solução Completa\n{result}")
+    if isinstance(plan, list) and plan:
+        print("\n## Plano de Execução")
+        for idx, step in enumerate(plan, 1):
+            print(f"{idx}. {step}")
+    if isinstance(recommendations, list) and recommendations:
+        print("\n## Recomendações")
+        for rec in recommendations:
+            print(f"- {rec}")
+    print("\n## Metadados")
+    print(f"- confidence: {confidence}")
+    if generated_at:
+        print(f"- generated_at: {generated_at}")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ATENA Production Center")
+    parser.add_argument("--full-text", action="store_true", help="Imprime saída textual profissional em vez de JSON")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_policy = sub.add_parser("policy-check", help="Valida role/action")
@@ -135,6 +187,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_net = sub.add_parser("internet-challenge", help="Executa desafio de pesquisa complexa multi-fonte")
     p_net.add_argument("--topic", required=True)
+    p_net_loop = sub.add_parser("internet-evolution-loop", help="Executa evolução contínua com múltiplos ciclos")
+    p_net_loop.add_argument("--topic", required=True)
+    p_net_loop.add_argument("--cycles", type=int, default=3)
 
     sub.add_parser("production-ready", help="Executa checklist de prontidão para produção")
     sub.add_parser("remediation-plan", help="Gera plano de ação a partir da prontidão")
@@ -188,6 +243,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_sub = sub.add_parser("subagent-solve", help="Cria subagente para um problema e integra ao fluxo principal")
     p_sub.add_argument("--problem", required=True)
     p_sub.add_argument("--code-only", action="store_true", help="Retorna apenas o código gerado quando disponível")
+    p_sub.add_argument("--full-text", action="store_true", help="Imprime entrega profissional completa em texto")
+    p_sub.add_argument("--json-output", action="store_true", help="Força saída JSON (modo legado)")
 
     return parser
 
@@ -208,22 +265,22 @@ def main() -> int:
             decision=decision,
             metadata={"risk": args.risk, "hour_utc": str(args.hour_utc)},
         )
-        _emit("policy-check", decision.__dict__)
+        _emit("policy-check", decision.__dict__, full_text=args.full_text)
         return 0 if decision.allowed else 2
 
     if args.cmd == "telemetry-log":
         event = telemetry.append(args.mission, args.status, args.latency_ms, args.cost, tenant_id=args.tenant)
-        _emit("telemetry-log", event.__dict__)
+        _emit("telemetry-log", event.__dict__, full_text=args.full_text)
         return 0
 
     if args.cmd == "telemetry-summary":
-        _emit("telemetry-summary", telemetry.summarize())
+        _emit("telemetry-summary", telemetry.summarize(), full_text=args.full_text)
         return 0
 
     if args.cmd == "tenant-report":
         report = telemetry.summarize_by_tenant(args.tenant)
         report["month"] = args.month
-        _emit("tenant-report", report)
+        _emit("tenant-report", report, full_text=args.full_text)
         return 0
 
     if args.cmd == "slo-check":
@@ -233,7 +290,7 @@ def main() -> int:
             max_cost_units=args.max_cost_units,
             window_days=args.window_days,
         )
-        _emit("slo-check", payload)
+        _emit("slo-check", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "slo-alert":
@@ -259,18 +316,18 @@ def main() -> int:
             "sent": bool(delivery.get("sent", False)),
             "delivery": delivery,
         }
-        _emit("slo-alert", alert_payload)
+        _emit("slo-alert", alert_payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "quality-score":
         profiles = [p.strip() for p in args.profiles.split(",") if p.strip()]
         payload = score_profiles_with_baseline(profiles, EVOLUTION / "quality_baseline.json")
-        _emit("quality-score", payload)
+        _emit("quality-score", payload, full_text=args.full_text)
         return 0 if float(payload.get("score", 0.0)) >= 0.5 else 2
 
     if args.cmd == "onboarding-run":
         payload = run_onboarding()
-        _emit("onboarding-run", payload)
+        _emit("onboarding-run", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "skill-register":
@@ -283,26 +340,26 @@ def main() -> int:
                 compatible_with=args.compat,
             )
         )
-        _emit("skill-register", {"status": "registered", "id": args.id, "version": args.version})
+        _emit("skill-register", {"status": "registered", "id": args.id, "version": args.version}, full_text=args.full_text)
         return 0
 
     if args.cmd == "skill-approve":
         ok = market.approve(args.id, version=args.version)
-        _emit("skill-approve", {"status": "approved" if ok else "not-found", "id": args.id, "version": args.version})
+        _emit("skill-approve", {"status": "approved" if ok else "not-found", "id": args.id, "version": args.version}, full_text=args.full_text)
         return 0 if ok else 2
 
     if args.cmd == "skill-promote":
         ok = market.promote(args.id, args.version)
-        _emit("skill-promote", {"status": "promoted" if ok else "not-eligible", "id": args.id, "version": args.version})
+        _emit("skill-promote", {"status": "promoted" if ok else "not-eligible", "id": args.id, "version": args.version}, full_text=args.full_text)
         return 0 if ok else 2
 
     if args.cmd == "skill-rollback":
         ok = market.rollback(args.id, args.to_version)
-        _emit("skill-rollback", {"status": "rolled-back" if ok else "not-eligible", "id": args.id, "to_version": args.to_version})
+        _emit("skill-rollback", {"status": "rolled-back" if ok else "not-eligible", "id": args.id, "to_version": args.to_version}, full_text=args.full_text)
         return 0 if ok else 2
 
     if args.cmd == "skill-list":
-        _emit("skill-list", market.list_records())
+        _emit("skill-list", market.list_records(), full_text=args.full_text)
         return 0
 
     if args.cmd == "skill-validate":
@@ -323,23 +380,29 @@ def main() -> int:
                 "contract_passed": bool(args.contract_pass),
                 "security_passed": bool(args.security_pass),
             },
+            full_text=args.full_text,
         )
         return 0 if ok else 2
 
     if args.cmd == "mode-select":
         decision = choose_mode(args.complexity, args.budget, args.latency_sensitive)
-        _emit("mode-select", decision.__dict__)
+        _emit("mode-select", decision.__dict__, full_text=args.full_text)
         return 0
 
     if args.cmd == "incident-drill":
         result = run_incident_drill(args.scenario, primary_provider=args.primary, fallback_provider=args.fallback)
-        _emit("incident-drill", result.__dict__)
+        _emit("incident-drill", result.__dict__, full_text=args.full_text)
         return 0 if result.recovered else 2
 
     if args.cmd == "internet-challenge":
         payload = run_internet_challenge(args.topic)
-        _emit("internet-challenge", payload)
+        _emit("internet-challenge", payload, full_text=args.full_text)
         return 0 if payload["status"] in {"ok", "partial"} else 2
+
+    if args.cmd == "internet-evolution-loop":
+        payload = run_continuous_internet_evolution(args.topic, cycles=args.cycles)
+        _emit("internet-evolution-loop", payload, full_text=args.full_text)
+        return 0 if payload.get("trend") in {"improving", "stable"} else 2
 
     if args.cmd == "quota-check":
         quota = TenantQuota(
@@ -353,7 +416,7 @@ def main() -> int:
             parallel_jobs=args.parallel_jobs,
             storage_mb=args.storage_mb,
         )
-        _emit("quota-check", payload)
+        _emit("quota-check", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "production-ready":
@@ -362,7 +425,7 @@ def main() -> int:
             market=market,
             evolution_dir=EVOLUTION,
         )
-        _emit("production-ready", payload)
+        _emit("production-ready", payload, full_text=args.full_text)
         return 0 if payload["status"] in {"pass", "warn"} else 2
 
     if args.cmd == "remediation-plan":
@@ -372,12 +435,12 @@ def main() -> int:
             evolution_dir=EVOLUTION,
         )
         payload = build_remediation_plan(readiness)
-        _emit("remediation-plan", payload)
+        _emit("remediation-plan", payload, full_text=args.full_text)
         return 0
 
     if args.cmd == "perfection-plan":
         payload = build_perfection_plan()
-        _emit("perfection-plan", payload)
+        _emit("perfection-plan", payload, full_text=args.full_text)
         return 0
 
     if args.cmd == "go-live-gate":
@@ -394,47 +457,47 @@ def main() -> int:
             window_days=args.window_days,
         )
         decision = evaluate_go_live(readiness=readiness, remediation=remediation, slo_alert=slo_payload)
-        _emit("go-live-gate", decision)
+        _emit("go-live-gate", decision, full_text=args.full_text)
         return 0 if decision["decision"] == "GO" else 2
 
     if args.cmd == "self-audit":
         payload = run_self_audit(ROOT)
-        _emit("self-audit", payload)
+        _emit("self-audit", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "programming-probe":
         payload = run_programming_probe(ROOT, prefix=args.prefix, site_template=args.site_template)
-        _emit("programming-probe", payload)
+        _emit("programming-probe", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "eval-run":
         payload = run_eval_suite(telemetry)
-        _emit("eval-run", payload)
+        _emit("eval-run", payload, full_text=args.full_text)
         return 0 if payload["status"] == "pass" else 2
 
     if args.cmd == "issue-to-pr-plan":
         payload = build_issue_to_pr_plan(args.issue, args.repository)
-        _emit("issue-to-pr-plan", payload)
+        _emit("issue-to-pr-plan", payload, full_text=args.full_text)
         return 0
 
     if args.cmd == "rag-governance-check":
         payload = run_rag_governance_check(args.role, args.data_classification, args.has_citations)
-        _emit("rag-governance-check", payload)
+        _emit("rag-governance-check", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "security-check":
         payload = run_security_check(args.prompt, args.action)
-        _emit("security-check", payload)
+        _emit("security-check", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "finops-route":
         payload = run_finops_route(args.complexity, args.budget, args.latency_sensitive)
-        _emit("finops-route", payload)
+        _emit("finops-route", payload, full_text=args.full_text)
         return 0 if payload["budget_ok"] else 2
 
     if args.cmd == "incident-commander":
         payload = run_incident_commander(args.scenario, EVOLUTION / "telemetry.jsonl")
-        _emit("incident-commander", payload)
+        _emit("incident-commander", payload, full_text=args.full_text)
         return 0
 
     if args.cmd == "subagent-solve":
@@ -444,7 +507,11 @@ def main() -> int:
             if isinstance(code_solution, str) and code_solution.strip():
                 print(code_solution.rstrip())
                 return 0
-        _emit("subagent-solve", payload)
+        # Padrão profissional: texto completo no terminal, salvo quando JSON explícito.
+        if getattr(args, "full_text", False):
+            _emit_subagent_professional(payload)
+            return 0 if payload.get("status") == "ok" else 2
+        _emit("subagent-solve", payload, force_json=True)
         return 0 if payload.get("status") == "ok" else 2
 
     return 2

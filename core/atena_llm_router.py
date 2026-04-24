@@ -60,7 +60,7 @@ class AtenaLLMRouter:
         if self.cfg.provider != "local":
             return
         try:
-            if os.getenv("ATENA_AUTO_LLM_ORCHESTRATION", "1") == "1":
+            if os.getenv("ATENA_AUTO_LLM_ORCHESTRATION", "0") == "1":
                 self.auto_prepare_result = self.auto_orchestrate_llm()
             else:
                 self.auto_prepare_result = self.prepare_free_local_model()
@@ -214,6 +214,8 @@ class AtenaLLMRouter:
             ok_local, msg_local = brain.prepare_runtime_model()
             if ok_local:
                 return True, f"local-brain pronto com {model_name} (seleção automática)"
+            if "bloqueado por rede/proxy" in msg_local.lower():
+                return False, msg_local
         return False, f"não foi possível preparar LLM automaticamente. modelos tentados: {', '.join(tried)}"
 
     def prepare_free_local_model(self) -> tuple[bool, str]:

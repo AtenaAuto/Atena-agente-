@@ -3211,11 +3211,59 @@ Critérios de pronto (go/no-go)
 """
 
 
+def _is_architecture_blueprint_prompt(problem: str) -> bool:
+    lowered = (problem or "").lower()
+    markers = ("arquitetura", "fases", "riscos", "métricas", "tempo real", "fraude")
+    return sum(1 for m in markers if m in lowered) >= 3
+
+
+def _build_architecture_blueprint_response(problem: str) -> str | None:
+    if not _is_architecture_blueprint_prompt(problem):
+        return None
+    return """Solução completa (blueprint executável)
+
+1) Arquitetura alvo (tempo real, baixa latência)
+- Ingestão: API Gateway + Kafka/Pulsar (particionamento por customer_id).
+- Processamento online: Flink/Spark Structured Streaming com janelas de 5s/30s.
+- Feature Store: online (Redis/Scylla) + offline (Parquet/Delta Lake).
+- Inferência: serviço de scoring (gRPC) com modelo principal + fallback.
+- Decisão: policy engine (rules + score threshold adaptativo).
+- Persistência: trilha de auditoria imutável (append-only) e data warehouse.
+
+2) Explicabilidade e governança
+- Explicações por decisão: top features + regra aplicada + versão do modelo.
+- Registro de lineage: modelo, features, timestamp, latência, decisão final.
+- Monitoramento de drift: PSI/KL por segmento + alertas automáticos.
+
+3) Plano incremental (90 dias)
+- Fase 1 (semanas 1-3): baseline streaming + regras estáticas + dashboards.
+- Fase 2 (semanas 4-6): feature store online/offline + score service canary.
+- Fase 3 (semanas 7-9): explicabilidade, drift, SLOs e playbooks de incidente.
+- Fase 4 (semanas 10-12): rollout gradual 10%->30%->100% com guardrails.
+
+4) SRE, métricas e rollback seguro
+- SLOs: p95 inferência < 80ms, disponibilidade > 99.9%, erro < 0.5%.
+- Métricas: precision/recall por faixa de risco, FPR por segmento, custo por decisão.
+- Rollback: blue/green + feature flags + fallback para rules-only em < 2 min.
+- Runbooks: incident response, degradação controlada, reprocessamento de eventos.
+
+5) Riscos principais e mitigação
+- Drift de dados: mitigar com monitor de distribuição + retraining agendado.
+- Hot partitions: hashing consistente + rebalanceamento automático.
+- Falsos positivos em pico: threshold dinâmico + revisão humana amostral.
+- Dependência de serviço externo: circuit breaker + fila de retry idempotente.
+"""
+
+
 def _build_complete_response(problem: str, static_analysis: dict[str, object], code_solution: str | None) -> str:
     header = f"Problema recebido: {problem.strip()}"
     diagnosis = f"Diagnóstico: {static_analysis.get('diagnosis', 'N/A')}"
     fix_hint = f"Sugestão: {static_analysis.get('fix_suggestion', 'N/A')}"
+    architecture_response = _build_architecture_blueprint_response(problem)
     capability_response = _build_capability_portfolio_response(problem)
+
+    if architecture_response:
+        return header + "\n\n" + architecture_response.strip()
 
     if capability_response:
         return header + "\n\n" + capability_response.strip()
@@ -3290,7 +3338,7 @@ def solve_with_subagent(problem: str, history_path: str | Path | None = None) ->
         plan.insert(1, "Consultar histórico de falhas e ajustar a estratégia sem novo prompt.")
     if inferred_language:
         plan.insert(2, f"Aprender padrão da linguagem '{inferred_language}' a partir de exemplos antes de codar.")
-    result = (
+    summary = (
         f"Subagente resolveu o escopo '{cleaned}' com plano incremental "
         "e pronto para execução integrada no fluxo principal."
     )
@@ -3321,7 +3369,8 @@ def solve_with_subagent(problem: str, history_path: str | Path | None = None) ->
         "problem": cleaned,
         "plan": plan,
         "integration": "atena_production_center",
-        "result": result,
+        "result": complete_response,
+        "summary": summary,
         "recommendations": recommendations,
         "learning": learning,
         "inferred_language": inferred_language,

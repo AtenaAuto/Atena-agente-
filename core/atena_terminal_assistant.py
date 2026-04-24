@@ -419,10 +419,30 @@ def run_user_internet_research(user_input: str) -> str:
         if google_rows:
             final_findings = google_rows
     key_findings = "\n".join(final_findings[:8]) if final_findings else "- Não encontrei resultados úteis para esse tema."
+    catalog_note = ""
+    catalog_meta = payload.get("public_api_catalog", {})
+    if isinstance(catalog_meta, dict):
+        catalog_path = str(catalog_meta.get("catalog_path", "")).strip()
+        discovery_path = str(catalog_meta.get("discovery_path", "")).strip()
+        api_count = int(catalog_meta.get("api_count", 0) or 0)
+        pool_path = str(catalog_meta.get("api_pool_path", "")).strip()
+        pool_available = int(catalog_meta.get("api_pool_available", 0) or 0)
+        pool_target = int(catalog_meta.get("api_pool_target", 0) or 0)
+        pool_consumed = int(catalog_meta.get("api_pool_consumed_now", 0) or 0)
+        if catalog_path:
+            catalog_note = (
+                f"\n\n**Catálogo de APIs públicas salvo:** `{catalog_path}`"
+                f"\n**Descoberta desta execução:** `{discovery_path}`"
+                f"\n**APIs mapeadas:** {api_count}"
+                f"\n**Pool autônomo de APIs:** {pool_available}/{pool_target} disponíveis"
+                f"\n**Consumo nesta execução:** {pool_consumed}"
+                f"\n**Arquivo do pool:** `{pool_path}`"
+            )
     return (
         f"## Resultado da pesquisa\n\n"
         f"**Tema:** {topic}\n\n"
         f"{key_findings}"
+        f"{catalog_note}"
     )
 
 
