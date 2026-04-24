@@ -132,6 +132,18 @@ def test_internet_challenge_command():
     assert "sources" in payload
 
 
+def test_internet_policy_flags_are_mutually_exclusive():
+    proc = run_cli(
+        "internet-challenge",
+        "--topic",
+        "artificial intelligence",
+        "--top-apis-only",
+        "--allow-all-apis",
+    )
+    assert proc.returncode == 2
+    assert "not allowed with argument" in proc.stderr
+
+
 def test_enterprise_final_check_command():
     proc = run_cli("enterprise-final-check", "--topic", "enterprise ai governance", "--cycles", "1")
     assert proc.returncode in {0, 2}

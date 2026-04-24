@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -102,6 +103,30 @@ def _emit_subagent_professional(payload: dict[str, object]) -> None:
         print(f"- generated_at: {generated_at}")
 
 
+def _add_top_api_policy_flags(parser: argparse.ArgumentParser) -> None:
+    """Adiciona flags mutuamente exclusivas para política de domínio de APIs."""
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--top-apis-only", action="store_true", help="Restringe chamadas à allowlist de APIs top")
+    group.add_argument("--allow-all-apis", action="store_true", help="Desativa política top-apis-only nesta execução")
+
+
+@contextmanager
+def _temporary_top_api_enforcement(enabled: bool):
+    """Aplica ATENA_ENFORCE_TOP_API_DOMAINS temporariamente e restaura o estado anterior."""
+    previous = os.getenv("ATENA_ENFORCE_TOP_API_DOMAINS")
+    if enabled:
+        os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = "1"
+    try:
+        yield
+    finally:
+        if not enabled:
+            return
+        if previous is None:
+            os.environ.pop("ATENA_ENFORCE_TOP_API_DOMAINS", None)
+        else:
+            os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = previous
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ATENA Production Center")
     parser.add_argument("--full-text", action="store_true", help="Imprime saída textual profissional em vez de JSON")
@@ -187,14 +212,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_net = sub.add_parser("internet-challenge", help="Executa desafio de pesquisa complexa multi-fonte")
     p_net.add_argument("--topic", required=True)
-    p_net.add_argument("--top-apis-only", action="store_true", help="Restringe chamadas à allowlist de APIs top")
-    p_net.add_argument("--allow-all-apis", action="store_true", help="Desativa política top-apis-only nesta execução")
+    _add_top_api_policy_flags(p_net)
     p_net_loop = sub.add_parser("internet-evolution-loop", help="Executa evolução contínua com múltiplos ciclos")
     p_net_loop.add_argument("--topic", required=True)
     p_net_loop.add_argument("--cycles", type=int, default=3)
     p_net_loop.add_argument("--enforce-gate", action="store_true", help="Retorna código 2 se quality_gate falhar")
-    p_net_loop.add_argument("--top-apis-only", action="store_true", help="Restringe chamadas à allowlist de APIs top")
-    p_net_loop.add_argument("--allow-all-apis", action="store_true", help="Desativa política top-apis-only nesta execução")
+    _add_top_api_policy_flags(p_net_loop)
     p_enterprise_final = sub.add_parser("enterprise-final-check", help="Executa checklist final enterprise")
     p_enterprise_final.add_argument("--topic", default="enterprise autonomous ai platform")
     p_enterprise_final.add_argument("--cycles", type=int, default=3)
@@ -404,48 +427,23 @@ def main() -> int:
 
     if args.cmd == "internet-challenge":
         use_top_only = bool(getattr(args, "top_apis_only", False) or not getattr(args, "allow_all_apis", False))
-        prev_top_domains = os.getenv("ATENA_ENFORCE_TOP_API_DOMAINS")
-        if use_top_only:
-            os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = "1"
-        try:
+        with _temporary_top_api_enforcement(use_top_only):
             payload = run_internet_challenge(args.topic)
-        finally:
-            if use_top_only:
-                if prev_top_domains is None:
-                    os.environ.pop("ATENA_ENFORCE_TOP_API_DOMAINS", None)
-                else:
-                    os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = prev_top_domains
         _emit("internet-challenge", payload, full_text=args.full_text)
         return 0 if payload["status"] in {"ok", "partial"} else 2
 
     if args.cmd == "internet-evolution-loop":
         use_top_only = bool(getattr(args, "top_apis_only", False) or not getattr(args, "allow_all_apis", False))
-        prev_top_domains = os.getenv("ATENA_ENFORCE_TOP_API_DOMAINS")
-        if use_top_only:
-            os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = "1"
-        try:
+        with _temporary_top_api_enforcement(use_top_only):
             payload = run_continuous_internet_evolution(args.topic, cycles=args.cycles)
-        finally:
-            if use_top_only:
-                if prev_top_domains is None:
-                    os.environ.pop("ATENA_ENFORCE_TOP_API_DOMAINS", None)
-                else:
-                    os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = prev_top_domains
         _emit("internet-evolution-loop", payload, full_text=args.full_text)
         if getattr(args, "enforce_gate", False):
             return 0 if bool((payload.get("quality_gate") or {}).get("passed", False)) else 2
         return 0
 
     if args.cmd == "enterprise-final-check":
-        prev_top_domains = os.getenv("ATENA_ENFORCE_TOP_API_DOMAINS")
-        os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = "1"
-        try:
+        with _temporary_top_api_enforcement(True):
             loop_payload = run_continuous_internet_evolution(args.topic, cycles=args.cycles)
-        finally:
-            if prev_top_domains is None:
-                os.environ.pop("ATENA_ENFORCE_TOP_API_DOMAINS", None)
-            else:
-                os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = prev_top_domains
         readiness = run_readiness(
             telemetry=telemetry,
             market=market,
