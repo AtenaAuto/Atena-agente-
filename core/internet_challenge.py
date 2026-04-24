@@ -1019,6 +1019,43 @@ def _build_topic_variants(topic: str) -> list[str]:
         variants.append(normalized)
     if " | " in raw:
         variants.append(raw.split(" | ", 1)[0].strip())
+    semantic_map = {
+        "segurança": "security",
+        "cibersegurança": "cybersecurity",
+        "vulnerabilidade": "vulnerability",
+        "vulnerabilidades": "vulnerabilities",
+        "regulatório": "regulatory",
+        "regulatórios": "regulatory",
+        "compliance": "compliance",
+        "banco": "banking",
+        "bancos": "banking",
+        "agente": "agent",
+        "agentes": "agents",
+        "autônomo": "autonomous",
+        "autônomos": "autonomous",
+        "mitigação": "mitigation",
+        "mitigar": "mitigation",
+        "resposta": "response",
+        "incidentes": "incidents",
+        "incidente": "incident",
+        "empresarial": "enterprise",
+        "estratégia": "strategy",
+    }
+    translated_terms = []
+    for token in lowered.replace("|", " ").replace(",", " ").split():
+        token = token.strip()
+        if not token:
+            continue
+        translated_terms.append(semantic_map.get(token, token))
+    semantic_terms = []
+    for term in translated_terms:
+        if term not in semantic_terms:
+            semantic_terms.append(term)
+    if semantic_terms:
+        variants.append(" ".join(semantic_terms[:18]))
+        focus_terms = [t for t in semantic_terms if t in {"enterprise", "security", "banking", "regulatory", "agents"}]
+        if focus_terms:
+            variants.append(" ".join(focus_terms + ["platform", "architecture"]))
     dedup: list[str] = []
     for item in variants:
         item = item.strip()

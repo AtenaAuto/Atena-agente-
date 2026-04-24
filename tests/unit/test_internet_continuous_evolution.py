@@ -100,3 +100,14 @@ def test_run_continuous_prefers_better_query_variant(monkeypatch, tmp_path):
 
     assert report["runs"][0]["query_variant_used"] == "security agents"
     assert report["final_weighted_confidence"] == 0.5
+
+
+def test_build_topic_variants_generates_semantic_english_variant():
+    variants = internet_challenge._build_topic_variants(
+        "Estratégia empresarial para copilotos de segurança em bancos com requisitos regulatórios"
+    )
+    merged = " | ".join(variants).lower()
+    assert "enterprise" in merged
+    assert "security" in merged
+    assert "banking" in merged
+    assert "regulatory" in merged
