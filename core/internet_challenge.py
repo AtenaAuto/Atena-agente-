@@ -48,6 +48,17 @@ SOURCE_WEIGHTS: dict[str, float] = {
     "thesportsdb": 0.9,
 }
 
+TOP_PUBLIC_API_DOMAINS = {
+    "api.github.com",
+    "export.arxiv.org",
+    "api.crossref.org",
+    "api.openalex.org",
+    "api.semanticscholar.org",
+    "www.wikidata.org",
+    "eutils.ncbi.nlm.nih.gov",
+    "www.ebi.ac.uk",
+}
+
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_API_DIR = ROOT / "analysis_reports" / "public_api_catalog"
 API_POOL_FILE = PUBLIC_API_DIR / "api_pool.json"
@@ -454,6 +465,11 @@ def _build_evolution_signal(
 
 
 def _fetch_raw(url: str, timeout: int = 15) -> str:
+    if os.getenv("ATENA_ENFORCE_TOP_API_DOMAINS", "0") == "1":
+        host = urllib.parse.urlparse(url).netloc.lower()
+        normalized_host = host.split("@")[-1].split(":")[0]
+        if normalized_host and normalized_host not in TOP_PUBLIC_API_DOMAINS:
+            raise RuntimeError(f"domínio bloqueado por política top-api: {normalized_host}")
     retries = max(1, int(os.getenv("ATENA_INTERNET_RETRIES", "2")))
     backoff_s = max(0.1, float(os.getenv("ATENA_INTERNET_BACKOFF_S", "0.5")))
     last_err: Exception | None = None

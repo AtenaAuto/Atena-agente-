@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch
 
-from core.internet_challenge import run_internet_challenge
+from core.internet_challenge import _fetch_raw, run_internet_challenge
 
 
 class _FakeResponse:
@@ -41,3 +41,21 @@ def test_run_internet_challenge_mocked():
     assert 0.0 <= payload["difficulty_score"] <= 1.0
     assert "evolution_signal" in payload
     assert payload["evolution_signal"]["trend"] in {"improving", "stable", "degrading"}
+
+
+def test_fetch_raw_blocks_non_top_domain_when_policy_enabled(monkeypatch):
+    monkeypatch.setenv("ATENA_ENFORCE_TOP_API_DOMAINS", "1")
+    with patch("urllib.request.urlopen") as mocked:
+        try:
+            _fetch_raw("https://api.stackexchange.com/2.3/search")
+            assert False, "era esperado bloqueio de domínio fora da allowlist"
+        except RuntimeError as exc:
+            assert "domínio bloqueado por política top-api" in str(exc)
+        mocked.assert_not_called()
+
+
+def test_fetch_raw_allows_top_domain_when_policy_enabled(monkeypatch):
+    monkeypatch.setenv("ATENA_ENFORCE_TOP_API_DOMAINS", "1")
+    with patch("urllib.request.urlopen", side_effect=_fake_urlopen):
+        payload = _fetch_raw("https://api.github.com/search/repositories?q=atena")
+    assert "org/repo" in payload
