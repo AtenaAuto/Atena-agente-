@@ -33,6 +33,9 @@ def test_run_internet_challenge_mocked():
     assert payload["confidence"] >= 0.8
     assert len(payload["sources"]) == 3
     assert payload["all_source_count"] >= 20
+    assert isinstance(payload["best_api_sources"], list)
+    assert "connectivity_summary" in payload
+    assert 0.0 <= payload["connectivity_summary"]["ok_ratio"] <= 1.0
     assert "synthesis" in payload
     assert payload["synthesis"]["release_risk"] in {"low", "medium", "high"}
     assert 0.0 <= payload["difficulty_score"] <= 1.0

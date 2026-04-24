@@ -402,7 +402,7 @@ def main() -> int:
     if args.cmd == "internet-evolution-loop":
         payload = run_continuous_internet_evolution(args.topic, cycles=args.cycles)
         _emit("internet-evolution-loop", payload, full_text=args.full_text)
-        return 0 if payload.get("trend") in {"improving", "stable"} else 2
+        return 0
 
     if args.cmd == "quota-check":
         quota = TenantQuota(

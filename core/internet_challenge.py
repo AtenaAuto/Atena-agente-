@@ -904,6 +904,12 @@ def run_internet_challenge(topic: str) -> dict[str, object]:
         )
     weighted_confidence = round((weighted_ok / weighted_total), 2) if weighted_total else 0.0
 
+    ranked_sources = sorted(
+        scored_sources,
+        key=lambda s: float(s.get("quality_score", 0.0)) * float(s.get("weight", 0.0)),
+        reverse=True,
+    )
+    best_api_sources = [str(s.get("source", "")) for s in ranked_sources if s.get("ok")][:5]
     primary_limit = 10 if len(considered_sources) <= 10 else 3
     primary_sources = scored_sources[:primary_limit]
     high_quality_sources = [
@@ -956,6 +962,12 @@ def run_internet_challenge(topic: str) -> dict[str, object]:
         "all_sources": scored_sources,
         "source_count": len(primary_sources),
         "all_source_count": len(considered_sources),
+        "best_api_sources": best_api_sources,
+        "connectivity_summary": {
+            "ok_sources": len(successful),
+            "failed_sources": len(failed_sources),
+            "ok_ratio": confidence,
+        },
         "difficulty_score": difficulty_score,
         "synthesis": synthesis,
         "recommendation": (
@@ -970,9 +982,11 @@ def run_internet_challenge(topic: str) -> dict[str, object]:
 
 def _next_evolution_topic(base_topic: str, last_payload: dict[str, object], cycle: int) -> str:
     synthesis = last_payload.get("synthesis", {}) if isinstance(last_payload, dict) else {}
+    best_api_sources = last_payload.get("best_api_sources", []) if isinstance(last_payload, dict) else []
     high_quality = synthesis.get("high_quality_sources", []) if isinstance(synthesis, dict) else []
     failed = synthesis.get("failed_sources", []) if isinstance(synthesis, dict) else []
-    hint_sources = ", ".join(str(s) for s in high_quality[:3]) or "fontes confiáveis"
+    hint_sources = ", ".join(str(s) for s in best_api_sources[:3]) or ", ".join(str(s) for s in high_quality[:3])
+    hint_sources = hint_sources or "fontes confiáveis"
     pressure_sources = ", ".join(str(s) for s in failed[:2]) or "fontes adicionais"
     return (
         f"{base_topic} | ciclo {cycle} | validar com {hint_sources} "
@@ -1015,6 +1029,8 @@ def run_continuous_internet_evolution(topic: str, cycles: int = 3) -> dict[str, 
                         if isinstance(payload.get("synthesis"), dict)
                         else []
                     ),
+                    "best_api_sources": payload.get("best_api_sources", []),
+                    "connectivity_summary": payload.get("connectivity_summary", {}),
                     "evolution_signal": payload.get("evolution_signal"),
                 }
             )
