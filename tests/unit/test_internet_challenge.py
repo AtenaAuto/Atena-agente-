@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch
 
-from core.internet_challenge import _fetch_raw, run_internet_challenge
+from core.internet_challenge import _fetch_raw, _normalize_api_entries, run_internet_challenge
 
 
 class _FakeResponse:
@@ -47,7 +47,7 @@ def test_fetch_raw_blocks_non_top_domain_when_policy_enabled(monkeypatch):
     monkeypatch.setenv("ATENA_ENFORCE_TOP_API_DOMAINS", "1")
     with patch("urllib.request.urlopen") as mocked:
         try:
-            _fetch_raw("https://api.stackexchange.com/2.3/search")
+            _fetch_raw("https://example.com/search")
             assert False, "era esperado bloqueio de domínio fora da allowlist"
         except RuntimeError as exc:
             assert "domínio bloqueado por política top-api" in str(exc)
@@ -59,3 +59,14 @@ def test_fetch_raw_allows_top_domain_when_policy_enabled(monkeypatch):
     with patch("urllib.request.urlopen", side_effect=_fake_urlopen):
         payload = _fetch_raw("https://api.github.com/search/repositories?q=atena")
     assert "org/repo" in payload
+
+
+def test_normalize_api_entries_filters_insecure_endpoints_by_default():
+    rows = [
+        {"name": "Secure", "endpoint": "https://secure.example/api", "category": "testing"},
+        {"name": "Insecure", "endpoint": "http://insecure.example/api", "category": "testing"},
+    ]
+    normalized = _normalize_api_entries(rows)
+    endpoints = [item["endpoint"] for item in normalized]
+    assert "https://secure.example/api" in endpoints
+    assert "http://insecure.example/api" not in endpoints

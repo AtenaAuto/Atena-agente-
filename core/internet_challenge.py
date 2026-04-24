@@ -49,14 +49,29 @@ SOURCE_WEIGHTS: dict[str, float] = {
 }
 
 TOP_PUBLIC_API_DOMAINS = {
+    "en.wikipedia.org",
     "api.github.com",
+    "gitlab.com",
+    "hn.algolia.com",
     "export.arxiv.org",
     "api.crossref.org",
     "api.openalex.org",
     "api.semanticscholar.org",
+    "openlibrary.org",
+    "api.duckduckgo.com",
+    "api.stackexchange.com",
+    "www.reddit.com",
+    "registry.npmjs.org",
+    "crates.io",
+    "search.maven.org",
+    "packagist.org",
     "www.wikidata.org",
     "eutils.ncbi.nlm.nih.gov",
+    "clinicaltrials.gov",
+    "zenodo.org",
+    "gutendex.com",
     "www.ebi.ac.uk",
+    "www.thesportsdb.com",
 }
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -94,7 +109,7 @@ STATIC_PUBLIC_API_SEED: list[dict[str, str]] = [
     {"name": "OpenWeather", "endpoint": "https://api.openweathermap.org", "category": "weather"},
     {"name": "Nominatim", "endpoint": "https://nominatim.openstreetmap.org/search", "category": "maps"},
     {"name": "MapTiler Geocoding", "endpoint": "https://api.maptiler.com/geocoding", "category": "maps"},
-    {"name": "IP-API", "endpoint": "http://ip-api.com/json", "category": "network"},
+    {"name": "IP-API", "endpoint": "https://ip-api.com/json", "category": "network"},
     {"name": "ipify", "endpoint": "https://api.ipify.org", "category": "network"},
     {"name": "CoinGecko", "endpoint": "https://api.coingecko.com/api/v3", "category": "finance"},
     {"name": "Frankfurter", "endpoint": "https://api.frankfurter.app/latest", "category": "finance"},
@@ -118,7 +133,7 @@ STATIC_PUBLIC_API_SEED: list[dict[str, str]] = [
     {"name": "Last.fm", "endpoint": "https://ws.audioscrobbler.com/2.0", "category": "music"},
     {"name": "SpaceX", "endpoint": "https://api.spacexdata.com/v4", "category": "space"},
     {"name": "NASA", "endpoint": "https://api.nasa.gov", "category": "space"},
-    {"name": "Open Notify", "endpoint": "http://api.open-notify.org/iss-now.json", "category": "space"},
+    {"name": "Open Notify", "endpoint": "https://api.open-notify.org/iss-now.json", "category": "space"},
     {"name": "Launch Library", "endpoint": "https://ll.thespacedevs.com/2.2.0/launch", "category": "space"},
     {"name": "USGS Earthquake", "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query", "category": "science"},
     {"name": "OpenAQ", "endpoint": "https://api.openaq.org/v2", "category": "environment"},
@@ -170,7 +185,7 @@ STATIC_PUBLIC_API_SEED: list[dict[str, str]] = [
     {"name": "DOAJ", "endpoint": "https://doaj.org/api/v2/search/articles", "category": "research"},
     {"name": "NewsAPI", "endpoint": "https://newsapi.org/v2/everything", "category": "news"},
     {"name": "GDELT", "endpoint": "https://api.gdeltproject.org/api/v2/doc/doc", "category": "news"},
-    {"name": "Mediastack", "endpoint": "http://api.mediastack.com/v1/news", "category": "news"},
+    {"name": "Mediastack", "endpoint": "https://api.mediastack.com/v1/news", "category": "news"},
     {"name": "LibreTranslate", "endpoint": "https://libretranslate.com/translate", "category": "nlp"},
     {"name": "Datamuse", "endpoint": "https://api.datamuse.com/words?ml=ringing+in+the+ears", "category": "nlp"},
     {"name": "LanguageTool", "endpoint": "https://api.languagetool.org/v2/check", "category": "nlp"},
@@ -224,6 +239,7 @@ def _load_api_pool_state() -> dict[str, object]:
 def _normalize_api_entries(rows: list[dict[str, object]]) -> list[dict[str, str]]:
     normalized: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()
+    allow_insecure = os.getenv("ATENA_ALLOW_INSECURE_PUBLIC_APIS", "0") == "1"
     for row in rows:
         if not isinstance(row, dict):
             continue
@@ -231,6 +247,11 @@ def _normalize_api_entries(rows: list[dict[str, object]]) -> list[dict[str, str]
         endpoint = str(row.get("endpoint", "")).strip()
         category = str(row.get("category", "general")).strip() or "general"
         if not name or not endpoint:
+            continue
+        parsed = urllib.parse.urlparse(endpoint)
+        if parsed.scheme not in {"http", "https"}:
+            continue
+        if parsed.scheme != "https" and not allow_insecure:
             continue
         key = (name.lower(), endpoint.lower())
         if key in seen:
