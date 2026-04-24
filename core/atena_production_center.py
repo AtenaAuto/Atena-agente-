@@ -190,6 +190,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_net_loop = sub.add_parser("internet-evolution-loop", help="Executa evolução contínua com múltiplos ciclos")
     p_net_loop.add_argument("--topic", required=True)
     p_net_loop.add_argument("--cycles", type=int, default=3)
+    p_net_loop.add_argument("--enforce-gate", action="store_true", help="Retorna código 2 se quality_gate falhar")
 
     sub.add_parser("production-ready", help="Executa checklist de prontidão para produção")
     sub.add_parser("remediation-plan", help="Gera plano de ação a partir da prontidão")
@@ -402,6 +403,8 @@ def main() -> int:
     if args.cmd == "internet-evolution-loop":
         payload = run_continuous_internet_evolution(args.topic, cycles=args.cycles)
         _emit("internet-evolution-loop", payload, full_text=args.full_text)
+        if getattr(args, "enforce_gate", False):
+            return 0 if bool((payload.get("quality_gate") or {}).get("passed", False)) else 2
         return 0
 
     if args.cmd == "quota-check":

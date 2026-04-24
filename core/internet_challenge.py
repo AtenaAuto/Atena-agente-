@@ -1069,6 +1069,31 @@ def run_continuous_internet_evolution(topic: str, cycles: int = 3) -> dict[str, 
     final_confidence = round(confidences[-1], 2) if confidences else 0.0
     delta = round(final_confidence - first_confidence, 2)
     trend = "improving" if delta > 0 else "stable" if delta == 0 else "degrading"
+    avg_connectivity = round(
+        sum(
+            float((r.get("connectivity_summary") or {}).get("ok_ratio", 0.0) or 0.0)
+            for r in runs
+        )
+        / max(1, len(runs)),
+        2,
+    )
+    gate_fail_reasons = []
+    if trend == "degrading":
+        gate_fail_reasons.append("trend_degrading")
+    if final_confidence < 0.3:
+        gate_fail_reasons.append("final_confidence_below_0_3")
+    if avg_connectivity < 0.25:
+        gate_fail_reasons.append("avg_connectivity_below_0_25")
+    quality_gate = {
+        "passed": len(gate_fail_reasons) == 0,
+        "reasons": gate_fail_reasons,
+        "avg_connectivity_ratio": avg_connectivity,
+        "target": {
+            "trend": "stable_or_improving",
+            "final_weighted_confidence_min": 0.3,
+            "avg_connectivity_ratio_min": 0.25,
+        },
+    }
 
     report = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -1079,6 +1104,7 @@ def run_continuous_internet_evolution(topic: str, cycles: int = 3) -> dict[str, 
         "final_weighted_confidence": final_confidence,
         "delta_weighted_confidence": delta,
         "trend": trend,
+        "quality_gate": quality_gate,
         "runs": runs,
         "adaptations": adaptations,
         "goal": "melhoria contínua via iteração guiada por fontes de alta qualidade",
