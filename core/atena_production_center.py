@@ -195,6 +195,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_net_loop.add_argument("--enforce-gate", action="store_true", help="Retorna código 2 se quality_gate falhar")
     p_net_loop.add_argument("--top-apis-only", action="store_true", help="Restringe chamadas à allowlist de APIs top")
     p_net_loop.add_argument("--allow-all-apis", action="store_true", help="Desativa política top-apis-only nesta execução")
+    p_enterprise_final = sub.add_parser("enterprise-final-check", help="Executa checklist final enterprise")
+    p_enterprise_final.add_argument("--topic", default="enterprise autonomous ai platform")
+    p_enterprise_final.add_argument("--cycles", type=int, default=3)
 
     sub.add_parser("production-ready", help="Executa checklist de prontidão para produção")
     sub.add_parser("remediation-plan", help="Gera plano de ação a partir da prontidão")
@@ -432,6 +435,46 @@ def main() -> int:
         if getattr(args, "enforce_gate", False):
             return 0 if bool((payload.get("quality_gate") or {}).get("passed", False)) else 2
         return 0
+
+    if args.cmd == "enterprise-final-check":
+        prev_top_domains = os.getenv("ATENA_ENFORCE_TOP_API_DOMAINS")
+        os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = "1"
+        try:
+            loop_payload = run_continuous_internet_evolution(args.topic, cycles=args.cycles)
+        finally:
+            if prev_top_domains is None:
+                os.environ.pop("ATENA_ENFORCE_TOP_API_DOMAINS", None)
+            else:
+                os.environ["ATENA_ENFORCE_TOP_API_DOMAINS"] = prev_top_domains
+        readiness = run_readiness(
+            telemetry=telemetry,
+            market=market,
+            evolution_dir=EVOLUTION,
+        )
+        audit = run_self_audit(ROOT)
+        quality_gate_ok = bool((loop_payload.get("quality_gate") or {}).get("passed", False))
+        readiness_ok = readiness.get("status") in {"pass", "warn"}
+        audit_ok = audit.get("status") == "ok"
+        final_status = "pass" if quality_gate_ok and readiness_ok and audit_ok else "fail"
+        payload = {
+            "status": final_status,
+            "loop_quality_gate_ok": quality_gate_ok,
+            "readiness_ok": readiness_ok,
+            "self_audit_ok": audit_ok,
+            "topic": args.topic,
+            "cycles": args.cycles,
+            "loop_trend": loop_payload.get("trend"),
+            "loop_final_weighted_confidence": loop_payload.get("final_weighted_confidence"),
+            "readiness_status": readiness.get("status"),
+            "self_audit_status": audit.get("status"),
+            "recommendation": (
+                "GO enterprise: checklist final aprovado."
+                if final_status == "pass"
+                else "NO_GO: execute remediation-plan + internet-evolution-loop (mais ciclos) + self-audit."
+            ),
+        }
+        _emit("enterprise-final-check", payload, full_text=args.full_text)
+        return 0 if final_status == "pass" else 2
 
     if args.cmd == "quota-check":
         quota = TenantQuota(

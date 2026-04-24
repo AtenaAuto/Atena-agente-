@@ -132,6 +132,15 @@ def test_internet_challenge_command():
     assert "sources" in payload
 
 
+def test_enterprise_final_check_command():
+    proc = run_cli("enterprise-final-check", "--topic", "enterprise ai governance", "--cycles", "1")
+    assert proc.returncode in {0, 2}
+    payload = json.loads(proc.stdout)
+    assert payload["contract_valid"] is True
+    assert payload["status"] in {"pass", "fail"}
+    assert "loop_quality_gate_ok" in payload
+
+
 def test_slo_alert_command():
     proc = run_cli("slo-alert", "--window-days", "30", "--min-success-rate", "0.1", "--max-avg-latency-ms", "99999", "--max-cost-units", "9999")
     assert proc.returncode in {0, 2}
