@@ -95,6 +95,8 @@ docs/BLUEPRINT_FUTURO_IA_*.md
 docs/PROPOSTA_LAB_PESQUISA_AUTONOMA_*.md
 analysis_reports/ATENA_Avaliacao_Organismo_Digital_Automatica_*.md
 analysis_reports/ATENA_Organismo_Digital_*.md
+analysis_reports/ATENA_Continuous_Internet_Evolution.json
+analysis_reports/public_api_catalog/
 analysis_reports/future_ai_mission_last_run.json
 output/future_ai_*/
 atena_evolution/
