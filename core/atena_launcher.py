@@ -210,12 +210,14 @@ def _run_with_auto_dep_repair(
     script_args: list[str],
     env: dict[str, str],
     interactive: bool = False,
+    emit_metadata: bool = True,
 ) -> int:
     started_at = datetime.now(timezone.utc).isoformat()
     cmd_label = f"{script.name} {' '.join(script_args)}".strip()
-    print("\n# ATENA Professional Execution")
-    print(f"- command: {cmd_label}")
-    print(f"- started_at_utc: {started_at}")
+    if emit_metadata:
+        print("\n# ATENA Professional Execution")
+        print(f"- command: {cmd_label}")
+        print(f"- started_at_utc: {started_at}")
 
     auto_install = env.get("ATENA_AUTO_INSTALL_MISSING_DEPS", "1") == "1"
     if interactive:
@@ -226,9 +228,10 @@ def _run_with_auto_dep_repair(
             check=False,
         )
         ended_at = datetime.now(timezone.utc).isoformat()
-        print(f"- ended_at_utc: {ended_at}")
-        print(f"- status: {'ok' if first.returncode == 0 else 'fail'}")
-        print()
+        if emit_metadata:
+            print(f"- ended_at_utc: {ended_at}")
+            print(f"- status: {'ok' if first.returncode == 0 else 'fail'}")
+            print()
         return first.returncode
 
     first = subprocess.run(
@@ -245,17 +248,19 @@ def _run_with_auto_dep_repair(
 
     if first.returncode == 0 or not auto_install:
         ended_at = datetime.now(timezone.utc).isoformat()
-        print(f"- ended_at_utc: {ended_at}")
-        print(f"- status: {'ok' if first.returncode == 0 else 'fail'}")
-        print()
+        if emit_metadata:
+            print(f"- ended_at_utc: {ended_at}")
+            print(f"- status: {'ok' if first.returncode == 0 else 'fail'}")
+            print()
         return first.returncode
 
     missing = _extract_missing_module(first.stderr or "", first.stdout or "")
     if not missing:
         ended_at = datetime.now(timezone.utc).isoformat()
-        print(f"- ended_at_utc: {ended_at}")
-        print("- status: fail")
-        print()
+        if emit_metadata:
+            print(f"- ended_at_utc: {ended_at}")
+            print("- status: fail")
+            print()
         return first.returncode
 
     pkg = _module_to_pip_name(missing)
@@ -269,17 +274,19 @@ def _run_with_auto_dep_repair(
     if pip_proc.returncode != 0:
         print(f"❌ Falha ao instalar dependência automática: {pkg}")
         ended_at = datetime.now(timezone.utc).isoformat()
-        print(f"- ended_at_utc: {ended_at}")
-        print("- status: fail")
-        print()
+        if emit_metadata:
+            print(f"- ended_at_utc: {ended_at}")
+            print("- status: fail")
+            print()
         return first.returncode
 
     print("✅ Dependência instalada. Reexecutando comando...")
     retry = subprocess.run([sys.executable, str(script), *script_args], cwd=str(ROOT), env=env)
     ended_at = datetime.now(timezone.utc).isoformat()
-    print(f"- ended_at_utc: {ended_at}")
-    print(f"- status: {'ok' if retry.returncode == 0 else 'fail'}")
-    print()
+    if emit_metadata:
+        print(f"- ended_at_utc: {ended_at}")
+        print(f"- status: {'ok' if retry.returncode == 0 else 'fail'}")
+        print()
     return retry.returncode
 
 
@@ -334,7 +341,14 @@ def main(argv: list[str]) -> int:
         env["ATENA_AUTO_PREPARE_LOCAL_MODEL"] = "0"
 
     interactive = command in {"assistant", "dialog"}
-    return _run_with_auto_dep_repair(script, argv[2:], env, interactive=interactive)
+    emit_metadata = env.get("ATENA_LAUNCHER_METADATA", "0") == "1" or interactive
+    return _run_with_auto_dep_repair(
+        script,
+        argv[2:],
+        env,
+        interactive=interactive,
+        emit_metadata=emit_metadata,
+    )
 
 
 if __name__ == "__main__":
