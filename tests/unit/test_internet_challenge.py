@@ -70,3 +70,19 @@ def test_normalize_api_entries_filters_insecure_endpoints_by_default():
     endpoints = [item["endpoint"] for item in normalized]
     assert "https://secure.example/api" in endpoints
     assert "http://insecure.example/api" not in endpoints
+
+
+def test_fetch_raw_blocks_insecure_http_by_default():
+    try:
+        _fetch_raw("http://example.com/api")
+        assert False, "era esperado bloqueio de HTTP inseguro"
+    except RuntimeError as exc:
+        assert "requisição insegura bloqueada" in str(exc)
+
+
+def test_fetch_raw_blocks_invalid_scheme():
+    try:
+        _fetch_raw("file:///tmp/data.json")
+        assert False, "era esperado bloqueio de esquema inválido"
+    except RuntimeError as exc:
+        assert "esquema de URL inválido" in str(exc)

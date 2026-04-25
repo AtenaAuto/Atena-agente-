@@ -74,6 +74,12 @@ TOP_PUBLIC_API_DOMAINS = {
     "www.thesportsdb.com",
 }
 
+
+def _normalize_host(value: str) -> str:
+    host = value.lower().strip().rstrip(".")
+    return host.split("@")[-1].split(":")[0]
+
+
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_API_DIR = ROOT / "analysis_reports" / "public_api_catalog"
 API_POOL_FILE = PUBLIC_API_DIR / "api_pool.json"
@@ -486,10 +492,17 @@ def _build_evolution_signal(
 
 
 def _fetch_raw(url: str, timeout: int = 15) -> str:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in {"http", "https"}:
+        raise RuntimeError(f"esquema de URL inválido: {parsed.scheme or 'vazio'}")
+    if parsed.scheme != "https" and os.getenv("ATENA_ALLOW_INSECURE_FETCH", "0") != "1":
+        raise RuntimeError("requisição insegura bloqueada: use HTTPS ou ATENA_ALLOW_INSECURE_FETCH=1")
+    normalized_host = _normalize_host(parsed.netloc)
+    if not normalized_host:
+        raise RuntimeError("host inválido na URL")
+
     if os.getenv("ATENA_ENFORCE_TOP_API_DOMAINS", "0") == "1":
-        host = urllib.parse.urlparse(url).netloc.lower()
-        normalized_host = host.split("@")[-1].split(":")[0]
-        if normalized_host and normalized_host not in TOP_PUBLIC_API_DOMAINS:
+        if normalized_host not in TOP_PUBLIC_API_DOMAINS:
             raise RuntimeError(f"domínio bloqueado por política top-api: {normalized_host}")
     retries = max(1, int(os.getenv("ATENA_INTERNET_RETRIES", "2")))
     backoff_s = max(0.1, float(os.getenv("ATENA_INTERNET_BACKOFF_S", "0.5")))
