@@ -1,0 +1,179 @@
+protocols/atena_enterprise_readiness_mission.py:145:def _scan_for_secrets(max_findings: int = 20) -> dict[str, object]:
+protocols/atena_enterprise_readiness_mission.py:146:    secret_patterns = [
+protocols/atena_enterprise_readiness_mission.py:171:            for pattern in secret_patterns:
+protocols/atena_enterprise_readiness_mission.py:191:def _load_secret_allowlist(path: Path) -> list[str]:
+protocols/atena_enterprise_readiness_mission.py:203:def _apply_allowlist(secret_scan: dict[str, object], allowlist_patterns: list[str]) -> dict[str, object]:
+protocols/atena_enterprise_readiness_mission.py:205:        return secret_scan
+protocols/atena_enterprise_readiness_mission.py:209:    for finding in secret_scan.get("findings", []):
+protocols/atena_enterprise_readiness_mission.py:215:    updated = dict(secret_scan)
+protocols/atena_enterprise_readiness_mission.py:228:    secret_ok: bool,
+protocols/atena_enterprise_readiness_mission.py:230:    if critical_fail or not secret_ok:
+protocols/atena_enterprise_readiness_mission.py:248:    secret_scan: dict[str, object],
+protocols/atena_enterprise_readiness_mission.py:305:            f"- Secret scan: `{'ok' if secret_scan.get('ok') else 'fail'}`",
+protocols/atena_enterprise_readiness_mission.py:306:            f"- Arquivos escaneados: `{secret_scan.get('scanned_files')}`",
+protocols/atena_enterprise_readiness_mission.py:307:            f"- Segredos detectados: `{len(secret_scan.get('findings', []))}`",
+protocols/atena_enterprise_readiness_mission.py:327:    if not secret_scan.get("ok"):
+protocols/atena_enterprise_readiness_mission.py:367:        "--allow-secrets-detected",
+protocols/atena_enterprise_readiness_mission.py:369:        help="Permite aprovação mesmo que secret scan detecte possíveis segredos",
+protocols/atena_enterprise_readiness_mission.py:372:        "--secret-allowlist-file",
+protocols/atena_enterprise_readiness_mission.py:373:        default=".atena_secret_allowlist",
+protocols/atena_enterprise_readiness_mission.py:374:        help="Arquivo com regex por linha para ignorar findings de secret scan (formato file:line)",
+protocols/atena_enterprise_readiness_mission.py:416:    secret_scan_raw = _scan_for_secrets()
+protocols/atena_enterprise_readiness_mission.py:417:    allowlist_patterns = _load_secret_allowlist(ROOT / args.secret_allowlist_file)
+protocols/atena_enterprise_readiness_mission.py:418:    secret_scan = _apply_allowlist(secret_scan_raw, allowlist_patterns)
+protocols/atena_enterprise_readiness_mission.py:420:    secrets_blocking = (not secret_scan.get("ok")) and (not args.allow_secrets_detected)
+protocols/atena_enterprise_readiness_mission.py:429:    if secrets_blocking:
+protocols/atena_enterprise_readiness_mission.py:430:        blocking_reasons.append("secrets_detected")
+protocols/atena_enterprise_readiness_mission.py:437:        and (not secrets_blocking)
+protocols/atena_enterprise_readiness_mission.py:446:        secret_ok=bool(secret_scan.get("ok")),
+protocols/atena_enterprise_readiness_mission.py:465:        "secret_scan": secret_scan,
+protocols/atena_enterprise_readiness_mission.py:468:            "allow_secrets_detected": args.allow_secrets_detected,
+protocols/atena_enterprise_readiness_mission.py:469:            "secret_allowlist_file": args.secret_allowlist_file,
+protocols/atena_enterprise_readiness_mission.py:497:        secret_scan=secret_scan,
+protocols/atena_enterprise_readiness_mission.py:511:    print(f"Secret scan: {'ok' if secret_scan.get('ok') else 'fail'}")
+modules/council_orchestrator.py:28:        has_unsafe = "eval(" in code or "exec(" in code
+protocols/atena_invoke.py:126:            max_tokens=4000
+protocols/atena_invoke.py:286:        dangerous = ["os.system(", "subprocess.call(", "__import__(", "eval(", "exec("]
+protocols/atena_security_mission.py:65:        security_ok = "eval(" not in code and "exec(" not in code
+protocols/atena_complex_research_mission.py:61:A transição dos modelos de "próximo token" para modelos de "cadeia de pensamento" (Chain-of-Thought) permitiu:
+modules/atena_tasks.py:20:import secrets
+modules/atena_tasks.py:79:    random_bytes = secrets.token_bytes(8)
+modules/sentinela.py:48:# Esta chave deve ser secreta para impedir leitura simples.
+protocols/atena_enterprise_advanced_mission.py:16:from core.enterprise_memory_rag import TenantMemoryRAG, build_reasoning_trace, redact_secrets
+protocols/atena_enterprise_advanced_mission.py:40:            "Registrar token ghp_ABCDEF1234567890XYZ para auditoria",  # será redacted
+protocols/atena_enterprise_advanced_mission.py:95:    redacted = redact_secrets(raw)
+modules/Voice.py:283:                        proc = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+protocols/modules/atena_advanced_portfolio_optimizer.py:319:    print("MÉTODO: SIMULAÇÃO DE MONTE CARLO")
+protocols/modules/atena_advanced_portfolio_optimizer.py:327:    print("\nMÉTODO: ALGORITMO GENÉTICO")
+modules/services.py:32:        max_tokens: int = 1024,
+modules/services.py:45:                    "max_tokens": max_tokens,
+modules/missions/atena_stress_test.py:53:        "def unsafe_func(): eval('os.system(\"rm -rf /\")')",
+modules/hyper_evolution.py:78:            if "eval(" in code or "exec(" in code:
+modules/base.py:143:        sensitive_keys = {"password", "token", "secret", "command"}
+modules/atena_post_quantum_crypto.py:8:import secrets
+modules/atena_post_quantum_crypto.py:36:        f = [secrets.randbelow(P) for _ in range(N)]
+modules/atena_post_quantum_crypto.py:37:        g = [secrets.randbelow(P) for _ in range(N)]
+modules/atena_post_quantum_crypto.py:48:        r = [secrets.randbelow(P) for _ in range(N)]
+modules/curiosity_engine.py:99:            token = (term or "").strip().lower().replace("_", " ")
+modules/curiosity_engine.py:100:            if len(token) < 4:
+modules/curiosity_engine.py:102:            if any(ch.isdigit() for ch in token):
+modules/curiosity_engine.py:104:            cleaned.append(token)
+modules/curiosity_engine.py:107:        for token in cleaned:
+modules/curiosity_engine.py:110:                    f"{token} optimization",
+modules/curiosity_engine.py:111:                    f"{token} for autonomous agents",
+modules/curiosity_engine.py:112:                    f"{token} in distributed systems",
+core/atena_agi_uplift.py:18:def _tokenize(text: str) -> list[str]:
+core/atena_agi_uplift.py:36:    for tok in _tokenize(text):
+core/atena_memory_relevance_audit.py:18:def _tokenize(text: str) -> set[str]:
+core/atena_memory_relevance_audit.py:45:        p = _tokenize(prompt)
+core/atena_memory_relevance_audit.py:46:        r = _tokenize(response)
+core/atena_memory_relevance_audit.py:47:        t = _tokenize(tags)
+core/security_validator.py:265:        >>> is_valid, violations = validate_code_safe("import os; os.system('ls')")
+core/security_validator.py:293:os.system('rm -rf /')
+core/security_validator.py:298:eval(user_input)
+core/enterprise_memory_rag.py:33:def redact_secrets(text: str) -> str:
+core/enterprise_memory_rag.py:40:def _tokenize(text: str) -> set[str]:
+core/enterprise_memory_rag.py:116:        q_tokens = _tokenize(question)
+core/enterprise_memory_rag.py:119:            c_tokens = _tokenize(content)
+core/enterprise_memory_rag.py:120:            inter = len(q_tokens & c_tokens)
+core/enterprise_memory_rag.py:121:            union = max(1, len(q_tokens | c_tokens))
+core/enterprise_memory_rag.py:164:    redacted_steps = [redact_secrets(step) for step in steps]
+core/atena_weekly_evolution_loop.py:17:    ("secret-scan", [sys.executable, str(ROOT / "core" / "atena_secret_scan.py")]),
+core/atena_terminal_assistant.py:148:        "Fortalecer segurança (redaction + secret scan + gates CI)",
+core/atena_terminal_assistant.py:661:    "./atena secret-scan",
+core/atena_terminal_assistant.py:744:            "./atena secret-scan",
+core/atena_terminal_assistant.py:745:            "rg -n \"TODO|FIXME|HACK|XXX|password|secret|token|eval\\(|exec\\(\" core modules protocols",
+core/atena_terminal_assistant.py:865:def run_task_exec(router: AtenaLLMRouter, objective: str) -> tuple[str, str]:
+core/atena_terminal_assistant.py:978:        "CREATE TABLE IF NOT EXISTS users (\n  id SERIAL PRIMARY KEY,\n  email TEXT UNIQUE NOT NULL,\n  password_hash TEXT NOT NULL,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n",
+core/atena_terminal_assistant.py:986:        "def issue_token(user_id: str) -> str:\n    return f'token-{user_id}'\n",
+core/atena_terminal_assistant.py:1073:    query_tokens = set(re.findall(r"\w+", objective.lower()))
+core/atena_terminal_assistant.py:1081:        score = sum(1 for token in query_tokens if token in text)
+core/atena_terminal_assistant.py:1152:    if any(token in req for token in ("abrir", "abra", "open")) and url_match:
+core/atena_terminal_assistant.py:1187:        (f"SCAN_SECURITY_SECRET_SCAN_{timestamp}.txt", "./atena secret-scan"),
+core/atena_terminal_assistant.py:1190:            "rg -n \"TODO|FIXME|HACK|XXX|password|secret|token|eval\\(|exec\\(|subprocess\\.Popen\\(|os\\.system\\(\" core modules protocols",
+core/atena_terminal_assistant.py:1278:                os.system("clear")
+core/atena_terminal_assistant.py:1435:                    status, report_path = run_task_exec(router, objective)
+core/production_advanced_suite.py:95:    if any(token in lowered for token in ("ignore previous", "system prompt", "jailbreak")):
+core/production_advanced_suite.py:98:    if any(token in lowered for token in ("api_key", "secret", "token", "password")):
+core/production_advanced_suite.py:99:        reasons.append("possible_secret_exfiltration")
+core/atena_memory_maintenance.py:18:def _tokenize(text: str) -> set[str]:
+core/atena_memory_maintenance.py:39:        p = _tokenize(prompt)
+core/atena_memory_maintenance.py:40:        r = _tokenize(response)
+core/atena_memory_maintenance.py:41:        t = _tokenize(tags)
+core/atena_neuro_symbolic_verifier.py:91:    unsafe_code = "import os\ndef hack():\n    os.system('rm -rf /')"
+core/atena_launcher.py:51:    "secret-scan": ROOT / "core" / "atena_secret_scan.py",
+core/atena_launcher.py:124:        table.add_row("./atena secret-scan", "Escaneia o repositório por vazamento de segredos")
+core/atena_launcher.py:170:        print("  ./atena secret-scan      # escaneia o repositório por vazamento de segredos")
+core/atena_local_lm.py:71:    max_tokens: int = 1024
+core/atena_local_lm.py:166:            self.tokenizer = AutoTokenizer.from_pretrained(self.cfg.base_model_name)
+core/atena_local_lm.py:258:        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
+core/atena_local_lm.py:262:                max_new_tokens=min(self.cfg.max_tokens, 256),
+core/atena_local_lm.py:266:                pad_token_id=self.tokenizer.eos_token_id
+core/atena_local_lm.py:268:        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+core/atena_local_lm.py:337:PATTERN = re.compile(r"\\b(TODO|FIXME)\\b[:\\s-]*(.*)", re.IGNORECASE)
+core/atena_local_lm.py:472:PATTERN = re.compile(r"\\b(TODO|FIXME)\\b[:\\s-]*(.*)", re.IGNORECASE)
+core/atena_local_lm.py:526:    lines = ["# Relatório TODO/FIXME", "", f"Total: **{len(items)}**", ""]
+core/atena_local_lm.py:541:    parser = argparse.ArgumentParser(description="Scanner TODO/FIXME com saída markdown + json")
+core/atena_pipeline.py:56:    tokens = [t.strip(".,:;!?()[]{}\"'").lower() for t in text.split()]
+core/atena_pipeline.py:57:    tokens = [t for t in tokens if is_valid_term(t)]
+core/atena_pipeline.py:58:    common = Counter(tokens).most_common(15)
+core/atena_pipeline.py:66:def is_valid_term(token: str) -> bool:
+core/atena_pipeline.py:67:    if len(token) <= 3 or len(token) >= 40:
+core/atena_pipeline.py:69:    if token in NOISE_TERMS:
+core/atena_pipeline.py:71:    if token.startswith(("&lt", "&gt", "lt;", "gt;")):
+core/atena_pipeline.py:73:    if token.startswith(("http://", "https://", "www.")):
+core/atena_pipeline.py:75:    if token.count("_") >= 2 or token.count("-") >= 3:
+core/atena_pipeline.py:77:    if re.search(r"[{}[\]<>:=]", token):
+core/atena_pipeline.py:79:    if re.search(r"\d{4,}", token):
+core/atena_llm_router.py:244:            max_tokens=900,
+core/atena_llm_router.py:259:            "max_tokens": 900,
+core/atena_llm_router.py:285:            "max_tokens": 900,
+core/atena_evolution_scorecard.py:17:from core.atena_secret_scan import scan_repo
+core/atena_evolution_scorecard.py:76:            "Rodar secret-scan em cada PR",
+core/main.py:465:    HACKER_RECON_DELAY: float = 1.0
+core/main.py:466:    HACKER_RECON_MAX_RESULTS: int = 10
+core/main.py:467:    HACKER_RECON_MIN_CODE_LENGTH: int = 50
+core/main.py:830:    def get_cached_eval(self, code_hash: str) -> Optional[Dict]:
+core/main.py:842:    def set_cached_eval(self, code_hash: str, result: Dict):
+core/main.py:1394:        cached_db = self.kb.get_cached_eval(code_hash)
+core/main.py:1431:            self.kb.set_cached_eval(code_hash, result)
+core/main.py:1480:        self.kb.set_cached_eval(code_hash, result)
+core/main.py:1588:    def generate_function(self, prompt: str, max_tokens: int = 400, retries: int = 2) -> Optional[str]:
+core/main.py:1603:            "max_tokens": max_tokens,
+core/main.py:1650:        return self.generate_function(prompt, max_tokens=500)
+core/main.py:1782:            "# TODO: otimizar",
+core/main.py:2150:                result = eval(compile(ast.Expression(body=node), '<string>', 'eval'))
+core/main.py:2160:                result = eval(compile(ast.Expression(body=node), '<string>', 'eval'))
+core/main.py:2388:exec(open('{tmp}').read())
+core/main.py:2504:            self.session.headers.update({"Authorization": f"token {Config.GITHUB_TOKEN}"})
+core/main.py:3188:            exec(compile(active.source_code, "<scorer>", "exec"), namespace)
+core/main.py:3195:            exec(compile(self.BASE_SCORER_SOURCE, "<base_scorer>", "exec"), namespace)
+core/main.py:3211:        exec(compile(self.BASE_SCORER_SOURCE, "<fallback>", "exec"), namespace)
+core/main.py:3321:                    exec(compile(new_source, "<test>", "exec"), ns)
+core/main.py:3348:            exec(compile(new_source, "<cross>", "exec"), ns)
+core/main.py:4005:                description="Bloqueia eval()  pode ser relaxado para casos especficos",
+core/main.py:4012:                description="Bloqueia exec()  necessrio para meta-programao legtima",
+core/main.py:5099:        result = self.grok.generate_function(context, max_tokens=300)
+core/main.py:5259:        "transformer", "transformers", "attention", "tokenizer", "embedding", "vector", "retrieval",
+core/main.py:5330:            "metric", "telemet", "kubern", "token", "embed", "optimizer", "federat", "distill",
+core/main.py:5444:# HACKER RECON MODULE
+core/main.py:5458:        max_r = max_results or Config.HACKER_RECON_MAX_RESULTS
+core/main.py:5490:        wait = Config.HACKER_RECON_DELAY - (time.time() - last)
+core/main.py:5514:            if len(text) >= Config.HACKER_RECON_MIN_CODE_LENGTH and self._is_code(text):
+core/main.py:5611:        resp = self.grok.generate_function(prompt, max_tokens=3000)
+core/main.py:6708:                        subprocess.Popen(["python3", "atena_google_search.py", search_term])
+core/atena_daemon.py:42:                    self.process = subprocess.Popen(
+core/atena_ultimate.py:45:    max_new_tokens: int = 1024        # Aumentado para o bloco <think> e resposta
+core/atena_ultimate.py:71:    def __init__(self, model, tokenizer):
+core/atena_ultimate.py:73:        self.tokenizer = tokenizer
+core/atena_ultimate.py:75:    def generate(self, prompt: str, max_new_tokens: int = 1024) -> str:
+core/atena_ultimate.py:80:        inputs = self.tokenizer(full_prompt, return_tensors="pt", truncation=True, max_length=cfg.llm_max_length).to(self.model.device)
+core/atena_ultimate.py:84:                max_new_tokens=max_new_tokens,
+core/atena_ultimate.py:88:                pad_token_id=self.tokenizer.eos_token_id
+core/atena_ultimate.py:90:        result = self.tokenizer.decode(output[0], skip_special_tokens=True)
+core/atena_ultimate.py:174:        self.tokenizer = None
+core/atena_ultimate.py:177:        self.generator = AdvancedGenerator(self.model, self.tokenizer) if (cfg.use_llm and self.model) else None
+core/atena_ultimate.py:208:            self.tokenizer = AutoTokenizer.from_pretrained(cfg.llm_model_name, trust_remote_code=True)
+core/atena_ultimate.py:209:            if self.tokenizer.pad_token is None:
+core/atena_ultimate.py:210:                self.tokenizer.pad_token = self.tokenizer.eos_token
+core/atena_ultimate.py:211:            self.model.eval()

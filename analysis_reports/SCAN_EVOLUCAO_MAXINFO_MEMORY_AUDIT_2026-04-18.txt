@@ -1,0 +1,6 @@
+✅ Bootstrap: todas as dependências mínimas já estão instaladas.
+🔧 ATENA bootstrap: verificando dependências mínimas...
+🧠 ATENA Memory Relevance Audit
+Status: warn
+JSON: /workspace/ATENA-/analysis_reports/ATENA_Memory_Relevance_Audit.json
+MD: /workspace/ATENA-/analysis_reports/ATENA_Memory_Relevance_Audit.md

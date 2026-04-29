@@ -1,0 +1,357 @@
+{
+  "generated_at": "2026-04-18T05:28:04.836764+00:00",
+  "source_discovery": "analysis_reports/EXTERNAL_CODE_DISCOVERY_2026-04-18_052622.json",
+  "max_repos": 3,
+  "max_py_files": 20,
+  "status": "ok",
+  "results": [
+    {
+      "repo": "massgen/MassGen",
+      "url": "https://github.com/massgen/MassGen",
+      "clone_url": "https://github.com/massgen/MassGen.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/massgen__MassGen",
+      "clone_step": {
+        "action": "clone",
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "\nUpdating files:  78% (1948/2497)\nUpdating files:  79% (1973/2497)\nUpdating files:  80% (1998/2497)\nUpdating files:  81% (2023/2497)\nUpdating files:  82% (2048/2497)\nUpdating files:  83% (2073/2497)\nUpdating files:  84% (2098/2497)\nUpdating files:  85% (2123/2497)\nUpdating files:  86% (2148/2497)\nUpdating files:  87% (2173/2497)\nUpdating files:  88% (2198/2497)\nUpdating files:  89% (2223/2497)\nUpdating files:  90% (2248/2497)\nUpdating files:  91% (2273/2497)\nUpdating files:  92% (2298/2497)\nUpdating files:  93% (2323/2497)\nUpdating files:  94% (2348/2497)\nUpdating files:  95% (2373/2497)\nUpdating files:  96% (2398/2497)\nUpdating files:  97% (2423/2497)\nUpdating files:  98% (2448/2497)\nUpdating files:  99% (2473/2497)\nUpdating files: 100% (2497/2497)\nUpdating files: 100% (2497/2497), done.\n"
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "docs/presentation/build_presentation.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "docs/presentation/extract_components.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "docs/source/conf.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/_broadcast_channel.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/ag2_adapter.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/base.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/tests/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/tests/test_ag2_adapter.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/tests/test_agent_adapter.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/utils/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/utils/ag2_utils.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/utils/tests/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/adapters/utils/tests/test_ag2_utils.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/agent_config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/api_params_handler/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/api_params_handler/_api_params_handler_base.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/api_params_handler/_chat_completions_api_params_handler.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "massgen/api_params_handler/_claude_api_params_handler.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "repo": "ImKKingshuk/LockKnife",
+      "url": "https://github.com/ImKKingshuk/LockKnife",
+      "clone_url": "https://github.com/ImKKingshuk/LockKnife.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/ImKKingshuk__LockKnife",
+      "clone_step": {
+        "action": "clone",
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "Cloning into '/workspace/ATENA-/atena_evolution/external_repos/ImKKingshuk__LockKnife'...\n"
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "lockknife/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/__main__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/_case_artifacts.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/_case_common.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/_case_jobs.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/_case_models.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/_case_reporting.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/_case_runtime.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/adb.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/case.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/cleanup.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/cli_instrumentation.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/cli_types.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/custody.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/device.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/device_selection.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/device_targeting.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lockknife/core/error_report.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "repo": "MLT-OSS/open-assistant-api",
+      "url": "https://github.com/MLT-OSS/open-assistant-api",
+      "clone_url": "https://github.com/MLT-OSS/open-assistant-api.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/MLT-OSS__open-assistant-api",
+      "clone_step": {
+        "action": "clone",
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "Cloning into '/workspace/ATENA-/atena_evolution/external_repos/MLT-OSS__open-assistant-api'...\n"
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "app/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/deps.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/routes.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/action.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/assistant.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/assistant_file.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/files.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/message.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/runs.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/thread.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/api/v1/token.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/core/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/core/doc_loaders/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/core/doc_loaders/doc_loader.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/core/runner/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/core/runner/llm_backend.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/core/runner/llm_callback_handler.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "app/core/runner/memory.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+MIT License
+
+Copyright (c) 2026 AtenaAuto - ATENA Ω Project
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+1. **Notice Retention** The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+2. **No Malicious Use** The Software shall not be used, directly or indirectly, for any purpose
+   that violates applicable laws, promotes violence, harassment, or any form
+   of illegal or harmful activity.
+
+3. **AGI & Self-Evolution Disclaimer** The Software is an autonomous digital organism capable of self-refactoring and 
+   decision-making through its own local brain (**atena_local_lm**). The authors 
+   are not responsible for any code mutations, repository changes, or automated 
+   actions performed by the Software during its evolutionary cycles.
+
+4. **Outputs & Responsibility** The Software may generate code, logic, or data through automated means ("Outputs"). 
+   Users assume all responsibility for the use, deployment, and consequences of 
+   Outputs generated autonomously by the Software.
+
+5. **Attribution in Derivative Works** Any derivative work or substantial modification of the Software must include 
+   a prominent notice stating that it is based on the original ATENA Ω Software 
+   from AtenaAuto, retaining this license text in its entirety.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

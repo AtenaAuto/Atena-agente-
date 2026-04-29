@@ -1,0 +1,14 @@
+protocols/modules/atena_advanced_portfolio_optimizer.py:319:    print("MÉTODO: SIMULAÇÃO DE MONTE CARLO")
+protocols/modules/atena_advanced_portfolio_optimizer.py:327:    print("\nMÉTODO: ALGORITMO GENÉTICO")
+core/main.py:465:    HACKER_RECON_DELAY: float = 1.0
+core/main.py:466:    HACKER_RECON_MAX_RESULTS: int = 10
+core/main.py:467:    HACKER_RECON_MIN_CODE_LENGTH: int = 50
+core/main.py:1782:            "# TODO: otimizar",
+core/main.py:5444:# HACKER RECON MODULE
+core/main.py:5458:        max_r = max_results or Config.HACKER_RECON_MAX_RESULTS
+core/main.py:5490:        wait = Config.HACKER_RECON_DELAY - (time.time() - last)
+core/main.py:5514:            if len(text) >= Config.HACKER_RECON_MIN_CODE_LENGTH and self._is_code(text):
+core/atena_local_lm.py:337:PATTERN = re.compile(r"\\b(TODO|FIXME)\\b[:\\s-]*(.*)", re.IGNORECASE)
+core/atena_local_lm.py:472:PATTERN = re.compile(r"\\b(TODO|FIXME)\\b[:\\s-]*(.*)", re.IGNORECASE)
+core/atena_local_lm.py:526:    lines = ["# Relatório TODO/FIXME", "", f"Total: **{len(items)}**", ""]
+core/atena_local_lm.py:541:    parser = argparse.ArgumentParser(description="Scanner TODO/FIXME com saída markdown + json")

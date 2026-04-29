@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: atena-production-api
+    env: python
+    plan: starter
+    buildCommand: pip install -r setup/requirements-pinned.txt
+    startCommand: uvicorn core.atena_production_api:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    healthCheckPath: /health

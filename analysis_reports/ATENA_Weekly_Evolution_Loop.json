@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-18T01:32:51.440343+00:00",
+  "status": "ok",
+  "steps_total": 4,
+  "steps_ok": 4,
+  "results": [
+    {
+      "step": "secret-scan",
+      "returncode": 0,
+      "ok": true,
+      "stdout": "✅ Secret scan: nenhum vazamento detectado.",
+      "stderr": ""
+    },
+    {
+      "step": "memory-maintenance",
+      "returncode": 0,
+      "ok": true,
+      "stdout": "🧹 ATENA Memory Maintenance\nDeleted: 0 / 3\nJSON: /workspace/ATENA-/analysis_reports/ATENA_Memory_Maintenance.json\nMD: /workspace/ATENA-/analysis_reports/ATENA_Memory_Maintenance.md",
+      "stderr": ""
+    },
+    {
+      "step": "memory-relevance-audit",
+      "returncode": 0,
+      "ok": true,
+      "stdout": "🧠 ATENA Memory Relevance Audit\nStatus: warn\nJSON: /workspace/ATENA-/analysis_reports/ATENA_Memory_Relevance_Audit.json\nMD: /workspace/ATENA-/analysis_reports/ATENA_Memory_Relevance_Audit.md",
+      "stderr": ""
+    },
+    {
+      "step": "evolution-scorecard",
+      "returncode": 0,
+      "ok": true,
+      "stdout": "📊 ATENA Evolution Scorecard\nStatus: ok\nScore: 74.1/100\nJSON: /workspace/ATENA-/analysis_reports/ATENA_Evolution_Scorecard.json\nMD: /workspace/ATENA-/analysis_reports/ATENA_Evolution_Scorecard.md",
+      "stderr": ""
+    }
+  ]
+}

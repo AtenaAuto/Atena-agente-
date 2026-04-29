@@ -1,0 +1,14 @@
+✅ Bootstrap: todas as dependências mínimas já estão instaladas.
+🔧 ATENA bootstrap: verificando dependências mínimas...
+🔎 ATENA Doctor Report
+Host: Linux-6.12.47-x86_64-with-glibc2.39
+Python: 3.10.19
+Timestamp: 2026-04-18T04:42:38.512511Z
+Checks: 6/6 ok | 0 falhas
+
+✅ Launcher help :: ./atena help
+✅ Compile core launcher :: /root/.pyenv/versions/3.10.19/bin/python3 -m py_compile core/atena_launcher.py
+✅ Compile assistant :: /root/.pyenv/versions/3.10.19/bin/python3 -m py_compile core/atena_terminal_assistant.py
+✅ Compile invoke :: /root/.pyenv/versions/3.10.19/bin/python3 -m py_compile protocols/atena_invoke.py
+✅ Skill shell lint :: bash -n skills/atena-orchestrator/scripts/run_atena.sh
+✅ Skill python lint :: /root/.pyenv/versions/3.10.19/bin/python3 -m py_compile skills/neural-reality-sync/scripts/sync_engine.py

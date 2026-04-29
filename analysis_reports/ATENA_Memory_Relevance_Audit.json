@@ -1,0 +1,13 @@
+{
+  "status": "warn",
+  "timestamp": "2026-04-18T06:15:03.650180+00:00",
+  "sample_size": 3,
+  "relevance_avg": 0.0719,
+  "relevance_p90": 0.08,
+  "threshold_avg": 0.12,
+  "recommendations": [
+    "Aumentar qualidade de tags semânticas por memória",
+    "Armazenar embeddings e usar reranking por similaridade",
+    "Aplicar pruning de memórias irrelevantes em lote semanal"
+  ]
+}

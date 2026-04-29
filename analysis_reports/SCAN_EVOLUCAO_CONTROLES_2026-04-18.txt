@@ -1,0 +1,25 @@
+core/main.py:292:ALLOW_DEEP_SELF_MOD  = os.getenv("ALLOW_DEEP_SELF_MOD",  "true").lower() == "true"
+core/main.py:293:ALLOW_CHECKER_EVOLVE = os.getenv("ALLOW_CHECKER_EVOLVE", "false").lower() == "true"
+core/main.py:294:SELF_MOD_INTERVAL    = int(os.getenv("SELF_MOD_INTERVAL", "10"))
+core/main.py:296:RECURSIVE_CYCLES     = int(os.getenv("RECURSIVE_CYCLES", "3"))
+core/main.py:3004:        if not ALLOW_DEEP_SELF_MOD:
+core/main.py:3005:            return False, "ALLOW_DEEP_SELF_MOD=false  auto-modificao desativada", None
+core/main.py:3823:        cycles = cycles or RECURSIVE_CYCLES
+core/main.py:4111:        if not ALLOW_CHECKER_EVOLVE:
+core/main.py:4287:        logger.info(f"   ALLOW_DEEP_SELF_MOD:  {ALLOW_DEEP_SELF_MOD}")
+core/main.py:4288:        logger.info(f"   ALLOW_CHECKER_EVOLVE: {ALLOW_CHECKER_EVOLVE}")
+core/main.py:4289:        logger.info(f"   SELF_MOD_INTERVAL:    {SELF_MOD_INTERVAL} geraes")
+core/main.py:4290:        logger.info(f"   RECURSIVE_CYCLES:     {RECURSIVE_CYCLES}")
+core/main.py:4298:        if generation - self._last_self_mod_gen >= SELF_MOD_INTERVAL:
+core/main.py:4314:        if ALLOW_DEEP_SELF_MOD and self.engine_path.exists():
+core/main.py:4410:            "allow_deep":        ALLOW_DEEP_SELF_MOD,
+core/main.py:4411:            "allow_checker":     ALLOW_CHECKER_EVOLVE,
+core/main.py:6583:        logger.info(f"   ALLOW_DEEP_SELF_MOD: {ALLOW_DEEP_SELF_MOD}")
+core/main.py:6584:        logger.info(f"   ALLOW_CHECKER_EVOLVE: {ALLOW_CHECKER_EVOLVE}")
+core/main.py:6585:        logger.info(f"   SELF_MOD_INTERVAL: a cada {SELF_MOD_INTERVAL} geraes")
+core/main.py:6760:    parser.add_argument("--deep",      action="store_true",   help="Força ALLOW_DEEP_SELF_MOD=true (já vem ativo por padrão)")
+core/main.py:6761:    parser.add_argument("--checker",   action="store_true",   help="Ativa ALLOW_CHECKER_EVOLVE")
+core/main.py:6766:        ALLOW_DEEP_SELF_MOD = True
+core/main.py:6767:        logger.info("[] ALLOW_DEEP_SELF_MOD=true via --deep")
+core/main.py:6770:        ALLOW_CHECKER_EVOLVE = True
+core/main.py:6771:        logger.info("[] ALLOW_CHECKER_EVOLVE=true via --checker")

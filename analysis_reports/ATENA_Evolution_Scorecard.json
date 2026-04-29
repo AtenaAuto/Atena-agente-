@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-04-18T06:14:52.375916+00:00",
+  "status": "warn",
+  "score_0_100": 56.9,
+  "pillars": {
+    "security": {
+      "ok": true,
+      "findings": 0
+    },
+    "reliability": {
+      "sre_risk": "unknown"
+    },
+    "research": {
+      "weighted_confidence": null
+    },
+    "quality": {
+      "artifact_value_avg_0_5": 3.3
+    }
+  },
+  "recommendations": [
+    "Rodar secret-scan em cada PR",
+    "Baixar risco SRE para low/medium antes de deploy",
+    "Manter benchmark contínuo semanal",
+    "Aumentar score de qualidade dos artefatos (>4.0/5)"
+  ]
+}

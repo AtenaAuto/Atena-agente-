@@ -1,0 +1,2 @@
+# Diff de hash de códigos (2026-04-18)
+Sem baseline de hash anterior para comparar.

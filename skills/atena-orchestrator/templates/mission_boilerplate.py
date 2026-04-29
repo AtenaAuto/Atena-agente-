@@ -1,0 +1,1 @@
+# Mission Boilerplate for Atena Ω\n\nimport sys\nfrom pathlib import Path\nBASE_DIR = Path(__file__).parent\nsys.path.insert(0, str(BASE_DIR / "modules"))\n\ndef run_mission():\n    print("🔱 ATENA Ω — INICIANDO NOVA MISSÃO")\n    # Implementação aqui\n\nif __name__ == "__main__":\n    run_mission()

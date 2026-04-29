@@ -1,0 +1,9 @@
+{
+  "status": "ok",
+  "total": 3,
+  "deleted": 0,
+  "kept": 3,
+  "relevance_threshold": 0.05,
+  "min_age_days": 7,
+  "timestamp": "2026-04-18T01:32:48.305685+00:00"
+}

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 "$ROOT_DIR/core/atena_launcher.py" "$@"

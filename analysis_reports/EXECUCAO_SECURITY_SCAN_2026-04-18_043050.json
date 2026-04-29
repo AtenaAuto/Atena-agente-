@@ -1,0 +1,76 @@
+{
+  "status": "warn",
+  "scope": "system",
+  "generated_at": "2026-04-18T04:30:57.542421+00:00",
+  "results": [
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_SYSTEM_2026-04-18_043050.txt",
+      "command": "uname -a && cat /etc/os-release && python3 --version",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_ATENA_DOCTOR_2026-04-18_043050.txt",
+      "command": "./atena doctor",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_SECRET_SCAN_2026-04-18_043050.txt",
+      "command": "./atena secret-scan",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_CODE_MARKERS_2026-04-18_043050.txt",
+      "command": "rg -n \"TODO|FIXME|HACK|XXX|password|secret|token|eval\\(|exec\\(|subprocess\\.Popen\\(|os\\.system\\(\" core modules protocols",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_WORLD_WRITABLE_2026-04-18_043050.txt",
+      "command": "find . -xdev -type f -perm -0002",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    },
+    {
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_SUID_TOP200_2026-04-18_043050.txt",
+      "command": "find / -xdev -type f -perm -4000 2>/dev/null | head -n 200",
+      "returncode": 0,
+      "ok": true,
+      "stderr_tail": ""
+    }
+  ],
+  "summary": {
+    "secret_scan": "clean",
+    "world_writable_count": 0,
+    "suid_count": 12,
+    "code_marker_count": 190,
+    "high_risk_marker_count": 32
+  },
+  "findings": [
+    {
+      "severity": "medium",
+      "category": "code_pattern",
+      "message": "Foram encontrados 32 marcadores de alto risco (eval/exec/os.system/subprocess).",
+      "artifact": "/workspace/ATENA-/analysis_reports/SCAN_SECURITY_CODE_MARKERS_2026-04-18_043050.txt",
+      "sample": [
+        "modules/council_orchestrator.py:28:        has_unsafe = \"eval(\" in code or \"exec(\" in code",
+        "protocols/atena_invoke.py:286:        dangerous = [\"os.system(\", \"subprocess.call(\", \"__import__(\", \"eval(\", \"exec(\"]",
+        "protocols/atena_security_mission.py:65:        security_ok = \"eval(\" not in code and \"exec(\" not in code",
+        "modules/Voice.py:283:                        proc = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)",
+        "modules/missions/atena_stress_test.py:53:        \"def unsafe_func(): eval('os.system(\\\"rm -rf /\\\")')\",",
+        "modules/hyper_evolution.py:78:            if \"eval(\" in code or \"exec(\" in code:",
+        "core/security_validator.py:265:        >>> is_valid, violations = validate_code_safe(\"import os; os.system('ls')\")",
+        "core/security_validator.py:293:os.system('rm -rf /')",
+        "core/security_validator.py:298:eval(user_input)",
+        "core/atena_neuro_symbolic_verifier.py:91:    unsafe_code = \"import os\\ndef hack():\\n    os.system('rm -rf /')\""
+      ]
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "generated_at": "2026-04-18T05:18:36.308696+00:00",
+  "source_discovery": "analysis_reports/EXTERNAL_CODE_DISCOVERY_2026-04-18_051816.json",
+  "max_repos": 1,
+  "max_py_files": 40,
+  "status": "ok",
+  "results": [
+    {
+      "repo": "TransformerOptimus/SuperAGI",
+      "url": "https://github.com/TransformerOptimus/SuperAGI",
+      "clone_url": "https://github.com/TransformerOptimus/SuperAGI.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/TransformerOptimus__SuperAGI",
+      "clone_step": {
+        "action": "clone",
+        "returncode": 0,
+        "stdout_tail": "",
+        "stderr_tail": "Cloning into '/workspace/ATENA-/atena_evolution/external_repos/TransformerOptimus__SuperAGI'...\n"
+      },
+      "status": "ok",
+      "python_files_checked": 40,
+      "compile_results": [
+        {
+          "file": "cli2.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "main.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/env.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/1d54db311055_add_permissions.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/2cc1179834b0_agent_executions_modified.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/2f97c068fab9_resource_modified.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/2fbd6472112c_add_feed_group_id_to_execution_and_feed.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/3356a2f89a33_added_configurations_table.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/35e47f20475b_renamed_tokens_calls.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/3867bb00a495_added_first_login_source.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/40affbf3022b_add_filter_colume_in_webhooks.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/446884dcae58_add_api_key_and_web_hook.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/44b0d6f2d1b3_init_models.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/467e85d5e1cd_updated_resources_added_exec_id.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/516ecc1c723d_adding_marketplace_template_id_to_agent_.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/5184645e9f12_add_question_to_agent_execution_.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/520aa6776347_create_models_config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/598cfb37292a_adding_agent_templates.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/5d5f801f28e7_create_model_table.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/661ec8a4c32e_open_ai_error_handling.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/71e3980d55f5_knowledge_and_vector_dbs.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/7a3e336c0fba_added_tools_related_models.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/83424de1347e_added_agent_execution_config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/8962bed0d809_creating_agent_templates.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/9270eb5a8475_local_llms.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/9419b3340af7_create_agent_workflow.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/a91808a89623_added_resources.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/ba60b12ae109_create_agent_scheduler.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/be1d922bf2ad_create_call_logs_table.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/c02f3d759bf3_add_summary_to_resource.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/c4f2f6ba602a_agent_workflow_wait_step.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/c5c19944c90c_create_oauth_tokens.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/cac478732572_delete_agent_feature.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/d8315244ea43_updated_tool_configs.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/d9b3436197eb_renaming_templates.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/e39295ec089c_creating_events.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "migrations/versions/fe234ea6e9bc_modify_agent_workflow_tables.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "run_gui.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "superagi/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "superagi/agent/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    }
+  ]
+}

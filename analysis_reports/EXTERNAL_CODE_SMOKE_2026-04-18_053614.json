@@ -1,0 +1,357 @@
+{
+  "generated_at": "2026-04-18T05:36:22.077950+00:00",
+  "source_discovery": "analysis_reports/EXTERNAL_CODE_DISCOVERY_2026-04-18_053602.json",
+  "max_repos": 3,
+  "max_py_files": 20,
+  "status": "warn",
+  "results": [
+    {
+      "repo": "crewAIInc/crewAI",
+      "url": "https://github.com/crewAIInc/crewAI",
+      "clone_url": "https://github.com/crewAIInc/crewAI.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/crewAIInc__crewAI",
+      "clone_step": {
+        "action": "pull",
+        "returncode": 0,
+        "stdout_tail": "Already up to date.\n",
+        "stderr_tail": ""
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "conftest.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/auth/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/auth/client_schemes.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/auth/schemas.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/auth/server_schemes.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/auth/utils.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/errors.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/catalog.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/client_extension.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/models.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/prompt.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/schema/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/server_extension.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/v0_9.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "lib/crewai/src/crewai/a2a/extensions/a2ui/validator.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "repo": "khoj-ai/khoj",
+      "url": "https://github.com/khoj-ai/khoj",
+      "clone_url": "https://github.com/khoj-ai/khoj.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/khoj-ai__khoj",
+      "clone_step": {
+        "action": "pull",
+        "returncode": 0,
+        "stdout_tail": "Already up to date.\n",
+        "stderr_tail": ""
+      },
+      "status": "ok",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "gunicorn-config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/app/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/app/asgi.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/app/settings.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/app/urls.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/configure.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/adapters/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/admin.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/apps.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/management/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/management/commands/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/management/commands/change_default_model.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/management/commands/change_generated_images_url.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/management/commands/convert_images_png_to_webp.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/management/commands/delete_orphaned_fileobjects.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/management/commands/manage_memories.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/migrations/0001_khojuser.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "src/khoj/database/migrations/0002_googleuser.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    },
+    {
+      "repo": "assafelovic/gpt-researcher",
+      "url": "https://github.com/assafelovic/gpt-researcher",
+      "clone_url": "https://github.com/assafelovic/gpt-researcher.git",
+      "workspace": "/workspace/ATENA-/atena_evolution/external_repos/assafelovic__gpt-researcher",
+      "clone_step": {
+        "action": "pull",
+        "returncode": 0,
+        "stdout_tail": "Already up to date.\n",
+        "stderr_tail": ""
+      },
+      "status": "warn",
+      "python_files_checked": 20,
+      "compile_results": [
+        {
+          "file": "backend/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/chat/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/chat/chat.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/memory/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/memory/draft.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/memory/research.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/report_type/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/report_type/basic_report/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/report_type/basic_report/basic_report.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/report_type/deep_research/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/report_type/deep_research/example.py",
+          "returncode": 1,
+          "stderr_tail": "  File \"/workspace/ATENA-/atena_evolution/external_repos/assafelovic__gpt-researcher/backend/report_type/deep_research/example.py\", line 288\n    \"\"\"\n       ^\nSyntaxError: f-string expression part cannot include a backslash\n"
+        },
+        {
+          "file": "backend/report_type/deep_research/main.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/report_type/detailed_report/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/report_type/detailed_report/detailed_report.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/run_server.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/server/__init__.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/server/app.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/server/logging_config.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/server/multi_agent_runner.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        },
+        {
+          "file": "backend/server/report_store.py",
+          "returncode": 0,
+          "stderr_tail": ""
+        }
+      ]
+    }
+  ]
+}

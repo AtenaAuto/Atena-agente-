@@ -1,0 +1,232 @@
+{
+  "generated_at": "2026-04-18T05:03:44.480574+00:00",
+  "query": "autonomous ai agents",
+  "count": 25,
+  "repos": [
+    {
+      "name": "crewAIInc/crewAI",
+      "url": "https://github.com/crewAIInc/crewAI",
+      "description": "Framework for orchestrating role-playing, autonomous AI agents. By fostering collaborative intelligence, CrewAI empowers agents to work together seamlessly, tackling complex tasks.",
+      "stars": 49132,
+      "updated_at": "2026-04-18T04:51:43Z",
+      "clone_url": "https://github.com/crewAIInc/crewAI.git",
+      "language": "Python"
+    },
+    {
+      "name": "khoj-ai/khoj",
+      "url": "https://github.com/khoj-ai/khoj",
+      "description": "Your AI second brain. Self-hostable. Get answers from the web or your docs. Build custom agents, schedule automations, do deep research. Turn any online or local LLM into your personal, autonomous AI (gpt, claude, gemini, llama, qwen, mistral). Get started - free.",
+      "stars": 34143,
+      "updated_at": "2026-04-18T04:09:20Z",
+      "clone_url": "https://github.com/khoj-ai/khoj.git",
+      "language": "Python"
+    },
+    {
+      "name": "assafelovic/gpt-researcher",
+      "url": "https://github.com/assafelovic/gpt-researcher",
+      "description": "An autonomous agent that conducts deep research on any data using any LLM providers",
+      "stars": 26519,
+      "updated_at": "2026-04-18T04:55:45Z",
+      "clone_url": "https://github.com/assafelovic/gpt-researcher.git",
+      "language": "Python"
+    },
+    {
+      "name": "Fosowl/agenticSeek",
+      "url": "https://github.com/Fosowl/agenticSeek",
+      "description": "Fully Local Manus AI. No APIs, No $200 monthly bills. Enjoy an autonomous agent that thinks, browses the web, and code for the sole cost of electricity. 🔔 Official updates only via twitter @Martin993886460 (Beware of fake account)",
+      "stars": 25975,
+      "updated_at": "2026-04-18T04:34:39Z",
+      "clone_url": "https://github.com/Fosowl/agenticSeek.git",
+      "language": "Python"
+    },
+    {
+      "name": "TransformerOptimus/SuperAGI",
+      "url": "https://github.com/TransformerOptimus/SuperAGI",
+      "description": "<⚡️> SuperAGI - A dev-first open source autonomous AI agent framework. Enabling developers to build, manage & run useful autonomous agents quickly and reliably.",
+      "stars": 17455,
+      "updated_at": "2026-04-17T19:39:41Z",
+      "clone_url": "https://github.com/TransformerOptimus/SuperAGI.git",
+      "language": "Python"
+    },
+    {
+      "name": "agent0ai/agent-zero",
+      "url": "https://github.com/agent0ai/agent-zero",
+      "description": "Agent Zero AI framework",
+      "stars": 17053,
+      "updated_at": "2026-04-18T02:31:09Z",
+      "clone_url": "https://github.com/agent0ai/agent-zero.git",
+      "language": "Python"
+    },
+    {
+      "name": "0x4m4/hexstrike-ai",
+      "url": "https://github.com/0x4m4/hexstrike-ai",
+      "description": "HexStrike AI MCP Agents is an advanced MCP server that lets AI agents (Claude, GPT, Copilot, etc.) autonomously run 150+ cybersecurity tools for automated pentesting, vulnerability discovery, bug bounty automation, and security research. Seamlessly bridge LLMs with real-world offensive security capabilities.",
+      "stars": 8158,
+      "updated_at": "2026-04-18T03:20:51Z",
+      "clone_url": "https://github.com/0x4m4/hexstrike-ai.git",
+      "language": "Python"
+    },
+    {
+      "name": "Upsonic/Upsonic",
+      "url": "https://github.com/Upsonic/Upsonic",
+      "description": "Build autonomous AI agents in Python.",
+      "stars": 7830,
+      "updated_at": "2026-04-17T22:18:04Z",
+      "clone_url": "https://github.com/Upsonic/Upsonic.git",
+      "language": "Python"
+    },
+    {
+      "name": "MervinPraison/PraisonAI",
+      "url": "https://github.com/MervinPraison/PraisonAI",
+      "description": "PraisonAI 🦞 — Hire a 24/7 AI Workforce. Stop writing boilerplate and start shipping autonomous agents that research, plan, code, and execute tasks. Deployed in 5 lines of code with built-in memory, RAG, and support for 100+ LLMs.",
+      "stars": 6952,
+      "updated_at": "2026-04-18T04:01:31Z",
+      "clone_url": "https://github.com/MervinPraison/PraisonAI.git",
+      "language": "Python"
+    },
+    {
+      "name": "MemMachine/MemMachine",
+      "url": "https://github.com/MemMachine/MemMachine",
+      "description": "Universal memory layer for AI Agents. It provides scalable, extensible, and interoperable memory storage and retrieval to streamline AI agent state management for next-generation autonomous systems.",
+      "stars": 4128,
+      "updated_at": "2026-04-17T22:59:21Z",
+      "clone_url": "https://github.com/MemMachine/MemMachine.git",
+      "language": "Python"
+    },
+    {
+      "name": "ruc-datalab/DeepAnalyze",
+      "url": "https://github.com/ruc-datalab/DeepAnalyze",
+      "description": "DeepAnalyze is the first agentic LLM for autonomous data science. 🎈你的AI数据分析师，自动分析大量数据，一键生成专业分析报告！",
+      "stars": 4016,
+      "updated_at": "2026-04-17T16:04:55Z",
+      "clone_url": "https://github.com/ruc-datalab/DeepAnalyze.git",
+      "language": "Python"
+    },
+    {
+      "name": "daveshap/OpenAI_Agent_Swarm",
+      "url": "https://github.com/daveshap/OpenAI_Agent_Swarm",
+      "description": "HAAS = Hierarchical Autonomous Agent Swarm - \"Resistance is futile!\"",
+      "stars": 3094,
+      "updated_at": "2026-04-11T08:19:20Z",
+      "clone_url": "https://github.com/daveshap/OpenAI_Agent_Swarm.git",
+      "language": "Python"
+    },
+    {
+      "name": "Polymarket/agents",
+      "url": "https://github.com/Polymarket/agents",
+      "description": "Trade autonomously on Polymarket using AI Agents",
+      "stars": 3061,
+      "updated_at": "2026-04-18T04:31:02Z",
+      "clone_url": "https://github.com/Polymarket/agents.git",
+      "language": "Python"
+    },
+    {
+      "name": "IntelligenzaArtificiale/Free-Auto-GPT",
+      "url": "https://github.com/IntelligenzaArtificiale/Free-Auto-GPT",
+      "description": "Free Auto GPT with NO paids API is a repository that offers a simple version of Auto GPT, an autonomous AI agent capable of performing tasks independently. Unlike other versions, our implementation does not rely on any paid OpenAI API, making it accessible to anyone. ",
+      "stars": 2537,
+      "updated_at": "2026-04-16T18:05:00Z",
+      "clone_url": "https://github.com/IntelligenzaArtificiale/Free-Auto-GPT.git",
+      "language": "Python"
+    },
+    {
+      "name": "lmnr-ai/index",
+      "url": "https://github.com/lmnr-ai/index",
+      "description": "The SOTA Open-Source Browser Agent for autonomously performing complex tasks on the web",
+      "stars": 2343,
+      "updated_at": "2026-04-16T14:04:51Z",
+      "clone_url": "https://github.com/lmnr-ai/index.git",
+      "language": "Python"
+    },
+    {
+      "name": "ai-christianson/RA.Aid",
+      "url": "https://github.com/ai-christianson/RA.Aid",
+      "description": "Develop software autonomously.",
+      "stars": 2220,
+      "updated_at": "2026-04-17T21:54:07Z",
+      "clone_url": "https://github.com/ai-christianson/RA.Aid.git",
+      "language": "Python"
+    },
+    {
+      "name": "agentuniverse-ai/agentUniverse",
+      "url": "https://github.com/agentuniverse-ai/agentUniverse",
+      "description": "agentUniverse is a LLM multi-agent framework that allows developers to easily build multi-agent applications. ",
+      "stars": 2202,
+      "updated_at": "2026-04-18T03:52:55Z",
+      "clone_url": "https://github.com/agentuniverse-ai/agentUniverse.git",
+      "language": "Python"
+    },
+    {
+      "name": "PurpleAILAB/Decepticon",
+      "url": "https://github.com/PurpleAILAB/Decepticon",
+      "description": "Autonomous Hacking Agent for Red Team Testing",
+      "stars": 2176,
+      "updated_at": "2026-04-18T05:01:09Z",
+      "clone_url": "https://github.com/PurpleAILAB/Decepticon.git",
+      "language": "Python"
+    },
+    {
+      "name": "doobidoo/mcp-memory-service",
+      "url": "https://github.com/doobidoo/mcp-memory-service",
+      "description": "Open-source persistent memory for AI agent pipelines (LangGraph, CrewAI, AutoGen) and Claude. REST API + knowledge graph + autonomous consolidation.",
+      "stars": 1685,
+      "updated_at": "2026-04-17T20:54:52Z",
+      "clone_url": "https://github.com/doobidoo/mcp-memory-service.git",
+      "language": "Python"
+    },
+    {
+      "name": "myshell-ai/AIlice",
+      "url": "https://github.com/myshell-ai/AIlice",
+      "description": "AIlice is a fully autonomous, general-purpose AI agent.",
+      "stars": 1403,
+      "updated_at": "2026-04-17T23:30:24Z",
+      "clone_url": "https://github.com/myshell-ai/AIlice.git",
+      "language": "Python"
+    },
+    {
+      "name": "The-Swarm-Corporation/AutoHedge",
+      "url": "https://github.com/The-Swarm-Corporation/AutoHedge",
+      "description": "Build your autonomous hedge fund in minutes. AutoHedge harnesses the power of swarm intelligence and AI agents to automate market analysis, risk management, and trade execution.",
+      "stars": 1336,
+      "updated_at": "2026-04-17T15:40:12Z",
+      "clone_url": "https://github.com/The-Swarm-Corporation/AutoHedge.git",
+      "language": "Python"
+    },
+    {
+      "name": "uluckyXH/OpenMOSS",
+      "url": "https://github.com/uluckyXH/OpenMOSS",
+      "description": "A self-organizing multi-agent collaboration platform for OpenClaw. Multiple AI agents work as an autonomous team — planning, executing, reviewing, and patrolling tasks with zero human intervention.",
+      "stars": 1210,
+      "updated_at": "2026-04-17T19:40:44Z",
+      "clone_url": "https://github.com/uluckyXH/OpenMOSS.git",
+      "language": "Python"
+    },
+    {
+      "name": "mind-protocol/terminal-velocity",
+      "url": "https://github.com/mind-protocol/terminal-velocity",
+      "description": "A novel created autonomously by a team of 10 AI agents",
+      "stars": 1099,
+      "updated_at": "2026-04-16T04:40:33Z",
+      "clone_url": "https://github.com/mind-protocol/terminal-velocity.git",
+      "language": "Python"
+    },
+    {
+      "name": "microsoft/agent-governance-toolkit",
+      "url": "https://github.com/microsoft/agent-governance-toolkit",
+      "description": "AI Agent Governance Toolkit — Policy enforcement, zero-trust identity, execution sandboxing, and reliability engineering for autonomous AI agents. Covers 10/10 OWASP Agentic Top 10.",
+      "stars": 1088,
+      "updated_at": "2026-04-18T03:33:18Z",
+      "clone_url": "https://github.com/microsoft/agent-governance-toolkit.git",
+      "language": "Python"
+    },
+    {
+      "name": "kreneskyp/ix",
+      "url": "https://github.com/kreneskyp/ix",
+      "description": "Autonomous GPT-4 agent platform",
+      "stars": 1040,
+      "updated_at": "2026-04-09T10:36:17Z",
+      "clone_url": "https://github.com/kreneskyp/ix.git",
+      "language": "Python"
+    }
+  ]
+}

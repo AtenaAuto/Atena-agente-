@@ -1,0 +1,13 @@
+torch
+transformers
+peft
+sentence-transformers
+rank-bm25
+codebleu
+nltk
+mlflow
+wandb
+optuna
+redis
+openai>=1.0.0
+requests
