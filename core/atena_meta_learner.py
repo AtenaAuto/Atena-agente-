@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 ATENA Ω — Meta-Learner Real
-Analisa DADOS REAIS de logs, evolução e histórico para otimizar parâmetros.
-Substitui a versão fake que retornava valores hardcodados.
+Analisa DADOS REAIS de logs, evolução e histórico para otimizar parâmetros. valores hardcodados.
 """
 from __future__ import annotations
 
