@@ -75,28 +75,32 @@ cd ..
 ### Instalação em Linux/macOS 🐧🍎
 
 ```bash
-# Go to the root content directory to ensure a clean start
-%cd /content
+# Go to the root content directory
+cd /path/to/your/projects
 
-# Remove any existing ATENA- directory to prevent nesting issues
-!rm -rf ATENA-
+# Remove any existing ATENA- directory
+rm -rf ATENA-
 
 # Clone the repository
-!git clone https://github.com/AtenaAuto/ATENA-.git
+git clone https://github.com/AtenaAuto/ATENA-.git
 
-# Change into the cloned repository's root directory
-%cd ATENA-
+# Enter directory
+cd ATENA-
 
-# Now navigate to the setup directory and install dependencies
-%cd setup
-!pip install -r requirements-pinned.txt
-!pip install -r requirements-dev.txt
+# Create virtual environment (recommended)
+python3 -m venv venv
+source venv/bin/activate
 
-# Go back to the root of the ATENA- directory after installation
-%cd ..
+# Install dependencies
+pip install --upgrade pip
+pip install -r setup/requirements-pinned.txt
+pip install -r setup/requirements-dev.txt
 
-# Now try to run the atena assistant command
-!./atena assistant
+# (Optional) Install Playwright for browser agent
+playwright install chromium
+
+# Run the assistant
+./atena assistant
 ```
 
 ### Instalação em Android (Termux) 📱
