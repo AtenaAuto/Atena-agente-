@@ -1,0 +1,22 @@
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Virtual envs
+.venv/
+venv/
+
+# Atena runtime/generated artifacts
+atena_evolution/logs/
+atena_evolution/generated_apps/
+atena_evolution/knowledge/
+atena_evolution/conversation_memory.json
+atena_evolution/learned_patterns.json
+analysis_reports/
+security_outputs/
+
+# OS/editor
+.DS_Store
