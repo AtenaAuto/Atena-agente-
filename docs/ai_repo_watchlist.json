@@ -1,0 +1,412 @@
+{
+  "generated_at": "2026-05-02T16:30:13.818107+00:00",
+  "source": "GitHub Search API",
+  "queries": [
+    "topic:artificial-intelligence stars:>5000 archived:false",
+    "topic:machine-learning stars:>5000 archived:false",
+    "\"llm\" stars:>3000 archived:false"
+  ],
+  "count": 50,
+  "repos": [
+    {
+      "full_name": "tensorflow/tensorflow",
+      "html_url": "https://github.com/tensorflow/tensorflow",
+      "description": "An Open Source Machine Learning Framework for Everyone",
+      "stargazers_count": 194959,
+      "language": "C++",
+      "updated_at": "2026-05-02T16:20:36Z"
+    },
+    {
+      "full_name": "Significant-Gravitas/AutoGPT",
+      "html_url": "https://github.com/Significant-Gravitas/AutoGPT",
+      "description": "AutoGPT is the vision of accessible AI for everyone, to use and to build on. Our mission is to provide the tools, so that you can focus on what matters.",
+      "stargazers_count": 183937,
+      "language": "Python",
+      "updated_at": "2026-05-02T15:52:10Z"
+    },
+    {
+      "full_name": "affaan-m/everything-claude-code",
+      "html_url": "https://github.com/affaan-m/everything-claude-code",
+      "description": "The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond.",
+      "stargazers_count": 171946,
+      "language": "JavaScript",
+      "updated_at": "2026-05-02T16:27:54Z"
+    },
+    {
+      "full_name": "ollama/ollama",
+      "html_url": "https://github.com/ollama/ollama",
+      "description": "Get up and running with Kimi-K2.5, GLM-5, MiniMax, DeepSeek, gpt-oss, Qwen, Gemma and other models.",
+      "stargazers_count": 170558,
+      "language": "Go",
+      "updated_at": "2026-05-02T16:18:49Z"
+    },
+    {
+      "full_name": "f/prompts.chat",
+      "html_url": "https://github.com/f/prompts.chat",
+      "description": "f.k.a. Awesome ChatGPT Prompts. Share, discover, and collect prompts from the community. Free and open source — self-host for your organization with complete privacy.",
+      "stargazers_count": 161383,
+      "language": "HTML",
+      "updated_at": "2026-05-02T16:10:39Z"
+    },
+    {
+      "full_name": "huggingface/transformers",
+      "html_url": "https://github.com/huggingface/transformers",
+      "description": "🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text, vision, audio, and multimodal models, for both inference and training.",
+      "stargazers_count": 160175,
+      "language": "Python",
+      "updated_at": "2026-05-02T15:33:58Z"
+    },
+    {
+      "full_name": "langgenius/dify",
+      "html_url": "https://github.com/langgenius/dify",
+      "description": "Production-ready platform for agentic workflow development.",
+      "stargazers_count": 139870,
+      "language": "TypeScript",
+      "updated_at": "2026-05-02T16:05:46Z"
+    },
+    {
+      "full_name": "langchain-ai/langchain",
+      "html_url": "https://github.com/langchain-ai/langchain",
+      "description": "The agent engineering platform",
+      "stargazers_count": 135628,
+      "language": "Python",
+      "updated_at": "2026-05-02T15:57:36Z"
+    },
+    {
+      "full_name": "open-webui/open-webui",
+      "html_url": "https://github.com/open-webui/open-webui",
+      "description": "User-friendly AI Interface (Supports Ollama, OpenAI API, ...)",
+      "stargazers_count": 135205,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:26:15Z"
+    },
+    {
+      "full_name": "NousResearch/hermes-agent",
+      "html_url": "https://github.com/NousResearch/hermes-agent",
+      "description": "The agent that grows with you",
+      "stargazers_count": 129349,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:27:48Z"
+    },
+    {
+      "full_name": "firecrawl/firecrawl",
+      "html_url": "https://github.com/firecrawl/firecrawl",
+      "description": "🔥 The API to search, scrape, and interact with the web for AI",
+      "stargazers_count": 114114,
+      "language": "TypeScript",
+      "updated_at": "2026-05-02T16:29:00Z"
+    },
+    {
+      "full_name": "Shubhamsaboo/awesome-llm-apps",
+      "html_url": "https://github.com/Shubhamsaboo/awesome-llm-apps",
+      "description": "100+ AI Agent & RAG apps you can actually run — clone, customize, ship.",
+      "stargazers_count": 108384,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:28:35Z"
+    },
+    {
+      "full_name": "ggml-org/llama.cpp",
+      "html_url": "https://github.com/ggml-org/llama.cpp",
+      "description": "LLM inference in C/C++",
+      "stargazers_count": 107923,
+      "language": "C++",
+      "updated_at": "2026-05-02T16:20:30Z"
+    },
+    {
+      "full_name": "forrestchang/andrej-karpathy-skills",
+      "html_url": "https://github.com/forrestchang/andrej-karpathy-skills",
+      "description": "A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations on LLM coding pitfalls.",
+      "stargazers_count": 106084,
+      "language": null,
+      "updated_at": "2026-05-02T16:29:18Z"
+    },
+    {
+      "full_name": "pytorch/pytorch",
+      "html_url": "https://github.com/pytorch/pytorch",
+      "description": "Tensors and Dynamic neural networks in Python with strong GPU acceleration",
+      "stargazers_count": 99585,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:04:00Z"
+    },
+    {
+      "full_name": "hacksider/Deep-Live-Cam",
+      "html_url": "https://github.com/hacksider/Deep-Live-Cam",
+      "description": "real time face swap and one-click video deepfake with only a single image",
+      "stargazers_count": 92553,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:24:20Z"
+    },
+    {
+      "full_name": "rasbt/LLMs-from-scratch",
+      "html_url": "https://github.com/rasbt/LLMs-from-scratch",
+      "description": "Implement a ChatGPT-like LLM in PyTorch from scratch, step by step",
+      "stargazers_count": 91824,
+      "language": "Jupyter Notebook",
+      "updated_at": "2026-05-02T15:32:05Z"
+    },
+    {
+      "full_name": "browser-use/browser-use",
+      "html_url": "https://github.com/browser-use/browser-use",
+      "description": "🌐 Make websites accessible for AI agents. Automate tasks online with ease.",
+      "stargazers_count": 91680,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:10:23Z"
+    },
+    {
+      "full_name": "microsoft/ML-For-Beginners",
+      "html_url": "https://github.com/microsoft/ML-For-Beginners",
+      "description": "12 weeks, 26 lessons, 52 quizzes, classic Machine Learning for all",
+      "stargazers_count": 85597,
+      "language": "Jupyter Notebook",
+      "updated_at": "2026-05-02T14:47:26Z"
+    },
+    {
+      "full_name": "Developer-Y/cs-video-courses",
+      "html_url": "https://github.com/Developer-Y/cs-video-courses",
+      "description": "List of Computer Science courses with video lectures.",
+      "stargazers_count": 80642,
+      "language": null,
+      "updated_at": "2026-05-02T16:26:11Z"
+    },
+    {
+      "full_name": "infiniflow/ragflow",
+      "html_url": "https://github.com/infiniflow/ragflow",
+      "description": "RAGFlow is a leading open-source Retrieval-Augmented Generation (RAG) engine that fuses cutting-edge RAG with Agent capabilities to create a superior context layer for LLMs",
+      "stargazers_count": 79435,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:29:52Z"
+    },
+    {
+      "full_name": "mlabonne/llm-course",
+      "html_url": "https://github.com/mlabonne/llm-course",
+      "description": "Course to get into Large Language Models (LLMs) with roadmaps and Colab notebooks.",
+      "stargazers_count": 78926,
+      "language": null,
+      "updated_at": "2026-05-02T14:48:33Z"
+    },
+    {
+      "full_name": "vllm-project/vllm",
+      "html_url": "https://github.com/vllm-project/vllm",
+      "description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
+      "stargazers_count": 78856,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:25:38Z"
+    },
+    {
+      "full_name": "netdata/netdata",
+      "html_url": "https://github.com/netdata/netdata",
+      "description": "The fastest path to AI-powered full stack observability, even for lean teams.",
+      "stargazers_count": 78675,
+      "language": "C",
+      "updated_at": "2026-05-02T16:23:52Z"
+    },
+    {
+      "full_name": "d2l-ai/d2l-zh",
+      "html_url": "https://github.com/d2l-ai/d2l-zh",
+      "description": "《动手学深度学习》：面向中文读者、能运行、可讨论。中英文版被70多个国家的500多所大学用于教学。",
+      "stargazers_count": 77583,
+      "language": "Python",
+      "updated_at": "2026-05-02T15:02:16Z"
+    },
+    {
+      "full_name": "nomic-ai/gpt4all",
+      "html_url": "https://github.com/nomic-ai/gpt4all",
+      "description": "GPT4All: Run Local LLMs on Any Device. Open-source and available for commercial use.",
+      "stargazers_count": 77370,
+      "language": "C++",
+      "updated_at": "2026-05-02T15:27:02Z"
+    },
+    {
+      "full_name": "PaddlePaddle/PaddleOCR",
+      "html_url": "https://github.com/PaddlePaddle/PaddleOCR",
+      "description": "Turn any PDF or image document into structured data for your AI. A powerful, lightweight OCR toolkit that bridges the gap between images/PDFs and LLMs. Supports 100+ languages.",
+      "stargazers_count": 76960,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:09:29Z"
+    },
+    {
+      "full_name": "tesseract-ocr/tesseract",
+      "html_url": "https://github.com/tesseract-ocr/tesseract",
+      "description": "Tesseract Open Source OCR Engine (main repository)",
+      "stargazers_count": 73854,
+      "language": "C++",
+      "updated_at": "2026-05-02T14:40:27Z"
+    },
+    {
+      "full_name": "OpenHands/OpenHands",
+      "html_url": "https://github.com/OpenHands/OpenHands",
+      "description": "🙌 OpenHands: AI-Driven Development",
+      "stargazers_count": 72511,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:26:12Z"
+    },
+    {
+      "full_name": "thedotmack/claude-mem",
+      "html_url": "https://github.com/thedotmack/claude-mem",
+      "description": "A Claude Code plugin that automatically captures everything Claude does during your coding sessions, compresses it with AI (using Claude's agent-sdk), and injects relevant context back into future sessions.",
+      "stargazers_count": 70972,
+      "language": "TypeScript",
+      "updated_at": "2026-05-02T16:30:10Z"
+    },
+    {
+      "full_name": "binhnguyennus/awesome-scalability",
+      "html_url": "https://github.com/binhnguyennus/awesome-scalability",
+      "description": "The Patterns of Scalable, Reliable, and Performant Large-Scale Systems",
+      "stargazers_count": 70771,
+      "language": null,
+      "updated_at": "2026-05-02T16:28:26Z"
+    },
+    {
+      "full_name": "OpenBB-finance/OpenBB",
+      "html_url": "https://github.com/OpenBB-finance/OpenBB",
+      "description": "Financial data platform for analysts, quants and AI agents.",
+      "stargazers_count": 66875,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:02:19Z"
+    },
+    {
+      "full_name": "labmlai/annotated_deep_learning_paper_implementations",
+      "html_url": "https://github.com/labmlai/annotated_deep_learning_paper_implementations",
+      "description": "🧑‍🏫 60+ Implementations/tutorials of deep learning papers with side-by-side notes 📝; including transformers (original, xl, switch, feedback, vit, ...), optimizers (adam, adabelief, sophia, ...), gans(cyclegan, stylegan2, ...), 🎮 reinforcement learning (ppo, dqn), capsnet, distillation, ... 🧠",
+      "stargazers_count": 66499,
+      "language": "Python",
+      "updated_at": "2026-05-02T15:28:37Z"
+    },
+    {
+      "full_name": "scikit-learn/scikit-learn",
+      "html_url": "https://github.com/scikit-learn/scikit-learn",
+      "description": "scikit-learn: machine learning in Python",
+      "stargazers_count": 65963,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:25:34Z"
+    },
+    {
+      "full_name": "keras-team/keras",
+      "html_url": "https://github.com/keras-team/keras",
+      "description": "Deep Learning for humans",
+      "stargazers_count": 64054,
+      "language": "Python",
+      "updated_at": "2026-05-02T15:13:00Z"
+    },
+    {
+      "full_name": "pathwaycom/llm-app",
+      "html_url": "https://github.com/pathwaycom/llm-app",
+      "description": "Ready-to-run cloud templates for RAG, AI pipelines, and enterprise search with live data. 🐳Docker-friendly.⚡Always in sync with Sharepoint, Google Drive, S3, Kafka, PostgreSQL, real-time data APIs, and more.",
+      "stargazers_count": 59864,
+      "language": "Jupyter Notebook",
+      "updated_at": "2026-05-02T16:03:04Z"
+    },
+    {
+      "full_name": "ultralytics/yolov5",
+      "html_url": "https://github.com/ultralytics/yolov5",
+      "description": "YOLOv5 🚀 in PyTorch > ONNX > CoreML > TFLite",
+      "stargazers_count": 57325,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:18:15Z"
+    },
+    {
+      "full_name": "ultralytics/ultralytics",
+      "html_url": "https://github.com/ultralytics/ultralytics",
+      "description": "Ultralytics YOLO 🚀",
+      "stargazers_count": 56678,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:28:08Z"
+    },
+    {
+      "full_name": "ageitgey/face_recognition",
+      "html_url": "https://github.com/ageitgey/face_recognition",
+      "description": "The world's simplest facial recognition api for Python and the command line",
+      "stargazers_count": 56363,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:08:45Z"
+    },
+    {
+      "full_name": "FlowiseAI/Flowise",
+      "html_url": "https://github.com/FlowiseAI/Flowise",
+      "description": "Build AI Agents, Visually",
+      "stargazers_count": 52485,
+      "language": "TypeScript",
+      "updated_at": "2026-05-02T16:12:58Z"
+    },
+    {
+      "full_name": "jingyaogong/minimind",
+      "html_url": "https://github.com/jingyaogong/minimind",
+      "description": "🚀 「大模型」2小时完全从0训练64M的小参数LLM！🌏 Train a 64M-parameter LLM from scratch in just 2h!",
+      "stargazers_count": 48729,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:26:00Z"
+    },
+    {
+      "full_name": "microsoft/AI-For-Beginners",
+      "html_url": "https://github.com/microsoft/AI-For-Beginners",
+      "description": "12 Weeks, 24 Lessons, AI for All!",
+      "stargazers_count": 47122,
+      "language": "Jupyter Notebook",
+      "updated_at": "2026-05-02T16:20:00Z"
+    },
+    {
+      "full_name": "Kong/kong",
+      "html_url": "https://github.com/Kong/kong",
+      "description": "🦍 The API and AI Gateway",
+      "stargazers_count": 43301,
+      "language": "Lua",
+      "updated_at": "2026-05-02T16:18:43Z"
+    },
+    {
+      "full_name": "XingangPan/DragGAN",
+      "html_url": "https://github.com/XingangPan/DragGAN",
+      "description": "Official Code for DragGAN (SIGGRAPH 2023)",
+      "stargazers_count": 35888,
+      "language": "Python",
+      "updated_at": "2026-05-02T16:18:56Z"
+    },
+    {
+      "full_name": "ItzCrazyKns/Vane",
+      "html_url": "https://github.com/ItzCrazyKns/Vane",
+      "description": "Vane is an AI-powered answering engine.",
+      "stargazers_count": 34105,
+      "language": "TypeScript",
+      "updated_at": "2026-05-02T15:23:35Z"
+    },
+    {
+      "full_name": "explosion/spaCy",
+      "html_url": "https://github.com/explosion/spaCy",
+      "description": "💫 Industrial-strength Natural Language Processing (NLP) in Python",
+      "stargazers_count": 33538,
+      "language": "Python",
+      "updated_at": "2026-05-02T13:36:51Z"
+    },
+    {
+      "full_name": "ashishpatel26/500-AI-Machine-learning-Deep-learning-Computer-vision-NLP-Projects-with-code",
+      "html_url": "https://github.com/ashishpatel26/500-AI-Machine-learning-Deep-learning-Computer-vision-NLP-Projects-with-code",
+      "description": "500 AI Machine learning Deep learning Computer vision NLP Projects with code",
+      "stargazers_count": 33391,
+      "language": null,
+      "updated_at": "2026-05-02T16:19:28Z"
+    },
+    {
+      "full_name": "Lightning-AI/pytorch-lightning",
+      "html_url": "https://github.com/Lightning-AI/pytorch-lightning",
+      "description": "Pretrain, finetune ANY AI model of ANY size on 1 or 10,000+ GPUs with zero code changes.",
+      "stargazers_count": 31103,
+      "language": "Python",
+      "updated_at": "2026-05-02T15:21:24Z"
+    },
+    {
+      "full_name": "AMAI-GmbH/AI-Expert-Roadmap",
+      "html_url": "https://github.com/AMAI-GmbH/AI-Expert-Roadmap",
+      "description": "Roadmap to becoming an Artificial Intelligence Expert in 2022",
+      "stargazers_count": 30951,
+      "language": "JavaScript",
+      "updated_at": "2026-05-02T13:32:20Z"
+    },
+    {
+      "full_name": "ZuzooVn/machine-learning-for-software-engineers",
+      "html_url": "https://github.com/ZuzooVn/machine-learning-for-software-engineers",
+      "description": "A complete daily plan for studying to become a machine learning engineer.",
+      "stargazers_count": 28760,
+      "language": null,
+      "updated_at": "2026-05-02T16:20:29Z"
+    }
+  ]
+}
