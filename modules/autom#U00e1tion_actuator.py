@@ -29,6 +29,7 @@ import hashlib
 import tempfile
 import subprocess
 from pathlib import Path
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Tuple, Callable, Any, Union
 from collections import deque
@@ -368,7 +369,7 @@ def create_backend(cfg: AutomationConfig) -> AutomationBackend:
 
 
 # =============================================================================
-= OCR Engine com Cache
+# = OCR Engine com Cache
 # =============================================================================
 
 class OCREngine:
@@ -472,7 +473,7 @@ class OCREngine:
 
 
 # =============================================================================
-= Histórico e Fila
+# = Histórico e Fila
 # =============================================================================
 
 class ActionHistory:
@@ -605,7 +606,7 @@ class ActionQueue:
 
 
 # =============================================================================
-= Executor de Ações
+# = Executor de Ações
 # =============================================================================
 
 class ActionExecutor:
@@ -740,7 +741,7 @@ class ActionExecutor:
 
 
 # =============================================================================
-= Macro Recorder
+# = Macro Recorder
 # =============================================================================
 
 class MacroRecorder:
@@ -812,7 +813,7 @@ class MacroRecorder:
 
 
 # =============================================================================
-= Orquestrador Principal
+# = Orquestrador Principal
 # =============================================================================
 
 class AutomationActuator:
@@ -1045,7 +1046,7 @@ class AutomationActuator:
 
 
 # =============================================================================
-= Integração com AtenaCore
+# = Integração com AtenaCore
 # =============================================================================
 
 def integrate_automation(core, cfg: Optional[AutomationConfig] = None):
@@ -1061,7 +1062,7 @@ def integrate_automation(core, cfg: Optional[AutomationConfig] = None):
 
 
 # =============================================================================
-= CLI e Demo
+# = CLI e Demo
 # =============================================================================
 
 def main():
