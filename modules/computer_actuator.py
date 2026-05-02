@@ -11,7 +11,10 @@ import shutil
 import platform
 import logging
 import time
-import psutil
+try:
+    import psutil
+except ImportError:
+    psutil = None
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from .base import BaseActuator
@@ -35,8 +38,8 @@ class ComputerActuator(BaseActuator):
         """Valida dependências mínimas para operação do atuador."""
         if shutil.which("sh") is None and shutil.which("bash") is None:
             raise RuntimeError("Shell do sistema não encontrado (sh/bash).")
-        # psutil já foi importado no topo; aqui validamos disponibilidade funcional.
-        _ = psutil.cpu_count()
+        if psutil is not None:
+            _ = psutil.cpu_count()
 
     def __init__(self):
         super().__init__()
