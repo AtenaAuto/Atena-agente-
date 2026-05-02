@@ -265,10 +265,11 @@ optimize_performance() {
 # Auto-recuperação de falhas
 setup_recovery() {
     # Cria arquivo de lock para evitar execuções concorrentes
-    local lock_file="/tmp/atena_${USER}.lock"
+    local current_user="${USER:-$(id -un 2>/dev/null || echo unknown)}"
+    ATENA_LOCK_FILE="/tmp/atena_${current_user}.lock"
     
-    if [[ -f "$lock_file" ]]; then
-        local pid=$(cat "$lock_file" 2>/dev/null || echo "")
+    if [[ -f "$ATENA_LOCK_FILE" ]]; then
+        local pid=$(cat "$ATENA_LOCK_FILE" 2>/dev/null || echo "")
         if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
             log WARNING "ATENA já está em execução (PID: $pid)"
             if [[ "${ATENA_FORCE:-false}" != "true" ]]; then
@@ -278,10 +279,55 @@ setup_recovery() {
         fi
     fi
     
-    echo $$ > "$lock_file"
+    echo $$ > "$ATENA_LOCK_FILE"
     
     # Cleanup on exit
-    trap 'rm -f "$lock_file"' EXIT INT TERM
+    trap 'rm -f "${ATENA_LOCK_FILE:-}"' EXIT INT TERM
+}
+
+# Auto-setup de dependências de endpoint para automação de computador
+auto_setup_endpoint_readiness() {
+    local auto_flag="${ATENA_AUTO_ENDPOINT_SETUP:-true}"
+    if [[ "$auto_flag" != "true" ]]; then
+        log INFO "Auto-setup de endpoint desativado (ATENA_AUTO_ENDPOINT_SETUP=false)."
+        return 0
+    fi
+    local installer="$ROOT_DIR/setup/install_endpoint_readiness.sh"
+    if [[ ! -x "$installer" ]]; then
+        log DEBUG "Instalador de endpoint não encontrado: $installer"
+        return 0
+    fi
+    log INFO "Verificando prontidão de endpoint para mouse/teclado/OCR..."
+    if "$installer" --check >/dev/null 2>&1; then
+        log INFO "Endpoint já está pronto."
+        return 0
+    fi
+    log WARNING "Endpoint não pronto. Executando instalação automática de dependências..."
+    "$installer" --apply || log WARNING "Instalação automática parcial/sem permissões completas."
+}
+
+# Gate de prontidão: impede iniciar atuadores de endpoint sem requisitos mínimos.
+enforce_endpoint_readiness_gate() {
+    local require_gate="${ATENA_REQUIRE_READY:-false}"
+    local allow_degraded="${ATENA_ALLOW_DEGRADED:-false}"
+    if [[ "$require_gate" != "true" ]]; then
+        return 0
+    fi
+    local audit_script="$ROOT_DIR/scripts/audit_agent_endpoint_readiness.sh"
+    if [[ ! -x "$audit_script" ]]; then
+        log WARNING "Gate solicitado, mas script de auditoria não encontrado."
+        return 0
+    fi
+    log INFO "Executando gate de prontidão de endpoint..."
+    if "$audit_script"; then
+        log INFO "Gate de endpoint aprovado."
+        return 0
+    fi
+    if [[ "$allow_degraded" == "true" ]]; then
+        log WARNING "Gate falhou, mas ATENA_ALLOW_DEGRADED=true. Continuando em modo degradado."
+        return 0
+    fi
+    error_exit "Endpoint não está pronto para automação (gate bloqueou inicialização)." 1
 }
 
 # Modo doctor - diagnóstico do sistema
@@ -569,11 +615,15 @@ main() {
             ;;
         assistant)
             log INFO "Iniciando assistente de terminal..."
+            auto_setup_endpoint_readiness
+            enforce_endpoint_readiness_gate
             exec $PYTHON_CMD "$CORE_DIR/atena_terminal_assistant.py" "${args[@]}"
             ;;
         *)
             # Modo padrão - interativo
             log INFO "Iniciando $ATENA_NAME em modo interativo..."
+            auto_setup_endpoint_readiness
+            enforce_endpoint_readiness_gate
             exec $PYTHON_CMD "$CORE_DIR/atena_terminal_assistant.py" "${args[@]}"
             ;;
     esac
@@ -1171,11 +1221,13 @@ main_enhanced() {
             ;;
         assistant)
             log INFO "Iniciando assistente de terminal..."
+            auto_setup_endpoint_readiness
             exec $PYTHON_CMD "$CORE_DIR/atena_terminal_assistant.py" "${args[@]}"
             ;;
         *)
             # Modo padrão - interativo
             log INFO "Iniciando $ATENA_NAME em modo interativo..."
+            auto_setup_endpoint_readiness
             exec $PYTHON_CMD "$CORE_DIR/atena_terminal_assistant.py" "${args[@]}"
             ;;
     esac
