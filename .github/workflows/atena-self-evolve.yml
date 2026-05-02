@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
+    inputs:
+      run_repo_watchlist:
+        description: "Executar scanner de repositórios de IA"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -46,10 +52,13 @@ jobs:
       - name: Run Atena evolution cycle
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
         env:
           USER: github-actions
           ATENA_AUTO_ENDPOINT_SETUP: "false"
 =======
+=======
+>>>>>>> theirs
 =======
 >>>>>>> theirs
         continue-on-error: true
@@ -61,6 +70,9 @@ jobs:
       - name: Run API scanner evolution probes
         continue-on-error: true
 <<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
         run: |
           set -euo pipefail
@@ -68,6 +80,7 @@ jobs:
           python -m core.internet_challenge "agenda de futebol e resultados do santos"
           python -m core.internet_challenge "APIs para geração de imagem e mídia"
 
+<<<<<<< ours
       - name: Audit endpoint readiness
         run: ./scripts/audit_agent_endpoint_readiness.sh
 
@@ -95,6 +108,15 @@ jobs:
           python -m core.internet_challenge "melhores APIs para app SaaS com analytics"
           python -m core.internet_challenge "agenda de futebol e resultados do santos"
           python -m core.internet_challenge "APIs para geração de imagem e mídia"
+=======
+      - name: Run AI GitHub repository watchlist refresh
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_repo_watchlist }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          echo "Iniciando scanner de repositórios IA junto do workflow..."
+          python ./scripts/scan_github_ai_repos.py
+>>>>>>> theirs
 
       - name: Audit endpoint readiness
         run: ./scripts/audit_agent_endpoint_readiness.sh
@@ -104,6 +126,9 @@ jobs:
 
       - name: Validate delivery workflow
         run: ./scripts/test_atena_delivery.sh
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 
       - name: Commit and push evolution artifacts
