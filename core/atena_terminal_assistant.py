@@ -1021,14 +1021,18 @@ def get_prompt_label(model: str) -> Any:
     display_model = "local" if model.startswith("local:") else model
     branch = git_branch()
     cwd = Path.cwd().name
+    now = datetime.now().strftime("%H:%M")
+    provider_badge = "ONLINE" if "public-api" in display_model or ":" in display_model else "LOCAL"
     if HAS_RICH:
         prompt = Text()
-        prompt.append(f" {branch} ", style="bold white on blue")
-        prompt.append(f" {cwd} ", style="bold white on black")
-        prompt.append(f" {display_model} ", style="bold black on cyan")
+        prompt.append(f" ⎇ {branch} ", style="bold white on blue")
+        prompt.append(f" 📁 {cwd} ", style="bold white on rgb(30,30,30)")
+        prompt.append(f" 🤖 {display_model} ", style="bold black on cyan")
+        prompt.append(f" {provider_badge} ", style="bold white on green")
+        prompt.append(f" {now} ", style="bold white on rgb(70,70,70)")
         prompt.append("\n ❯ ", style="bold magenta")
         return prompt
-    return f"[{branch}][{cwd}][{display_model}] ❯ "
+    return f"[{branch}][{cwd}][{display_model}][{provider_badge}][{now}] ❯ "
 
 
 def render_banner():
@@ -1037,16 +1041,20 @@ def render_banner():
         CONSOLE.print(Panel(
             Text.assemble(
                 ("🔱 ATENA Ω ", "bold cyan"),
-                ("Assistant v2.0 ", "bold white"),
+                ("Terminal Copilot ", "bold white"),
+                ("• ", "dim"),
+                ("Professional Mode", "bold green"),
                 ("\n\n", ""),
                 ("Auto-aprendizado | ", "dim"),
-                ("Pesquisa web | ", "dim"),
-                ("Plugins dinâmicos\n\n", "dim"),
+                ("Pesquisa web/API | ", "dim"),
+                ("Plugins dinâmicos | ", "dim"),
+                ("Entrega de artefatos\n\n", "dim"),
                 ("Digite ", "dim"),
                 ("/help", "bold green"),
                 (" para comandos.", "dim")
             ),
-            border_style="cyan",
+            title="[bold cyan]ATENA Console[/bold cyan]",
+            border_style="bright_cyan",
             box=ROUNDED,
             padding=(1, 2)
         ))
