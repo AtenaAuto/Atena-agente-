@@ -36,9 +36,23 @@ jobs:
       - name: Run Atena evolution cycle
         env:
           USER: github-actions
+          ATENA_AUTO_ENDPOINT_SETUP: "false"
         run: |
           bash ./atena agi-uplift || true
           bash ./atena digital-organism-live-cycle --iterations 1 --batches 1 --recovery-attempts 1 || true
+
+      - name: Run API scanner evolution probes
+        run: |
+          python -m core.internet_challenge "melhores APIs para app SaaS com analytics" || true
+          python -m core.internet_challenge "agenda de futebol e resultados do santos" || true
+          python -m core.internet_challenge "APIs para geração de imagem e mídia" || true
+
+      - name: Validate delivery workflow
+        env:
+          USER: github-actions
+          ATENA_AUTO_ENDPOINT_SETUP: "false"
+        run: |
+          ./scripts/test_atena_delivery.sh || true
 
       - name: Commit and push evolution artifacts
         run: |
