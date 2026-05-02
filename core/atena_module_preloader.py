@@ -35,6 +35,15 @@ import logging
 logger = logging.getLogger("ATenaPreloader")
 logger.setLevel(logging.WARNING)
 
+SKIP_PRELOAD_MODULES = {
+    "notification_actuator.py",
+    "process_actuator.py",
+    "system_actuator.py",
+    "computer_actuator.py",
+    "file_actuator.py",
+    "multi_agent_orchestrator.py",
+}
+
 
 @dataclass
 class ModuleMetrics:
@@ -305,10 +314,10 @@ class AtenaModulePreloader:
         if recursive:
             modules = list(self.modules_dir.rglob("*.py"))
             # Remove __init__.py
-            modules = [m for m in modules if m.name != "__init__.py"]
+            modules = [m for m in modules if m.name != "__init__.py" and m.name not in SKIP_PRELOAD_MODULES]
         else:
             modules = list(self.modules_dir.glob("*.py"))
-            modules = [m for m in modules if m.name != "__init__.py"]
+            modules = [m for m in modules if m.name != "__init__.py" and m.name not in SKIP_PRELOAD_MODULES]
         
         # Análise prévia de dependências
         if analyze_first:
@@ -502,6 +511,8 @@ def preload_all_modules(modules_dir: Path) -> dict[str, object]:
     Recomenda-se usar AtenaModulePreloader diretamente.
     """
     preloader = AtenaModulePreloader(modules_dir)
+    # Importações de módulos com imports relativos são mais estáveis em modo sequencial.
+    preloader.max_workers = 1
     result = preloader.preload_all(recursive=False, analyze_first=False)
     
     return {

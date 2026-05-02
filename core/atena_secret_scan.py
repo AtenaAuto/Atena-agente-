@@ -565,3 +565,45 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+
+def _iter_candidate_files(repo: Path, excludes: Optional[Set[str]] = None, include_tests: bool = False) -> List[Path]:
+    """Compat wrapper: retorna arquivos candidatos para scanner legado."""
+    scanner = SecretScanner(root=repo, include_tests=include_tests)
+    return scanner._iter_candidate_files()
+
+
+def scan_repo(repo: Path, *, excludes: Optional[Set[str]] = None, max_file_size_mb: int = 10, include_tests: bool = False) -> List[Dict[str, Any]]:
+    """Compat wrapper: escaneia repositório e retorna lista de achados."""
+    patterns = [
+        ("github_classic", re.compile(r"\bghp_[A-Za-z0-9]{20,}\b")),
+        ("github_pat", re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b")),
+        ("openai_key", re.compile(r"\bsk-[A-Za-z0-9]{20,}\b")),
+        ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
+    ]
+    findings: List[Dict[str, Any]] = []
+    files = _iter_candidate_files(repo, excludes=excludes, include_tests=include_tests)
+    max_bytes = max(1, int(max_file_size_mb)) * 1024 * 1024
+    for file_path in files:
+        try:
+            if file_path.stat().st_size > max_bytes:
+                continue
+            content = file_path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        rel = file_path.relative_to(repo).as_posix()
+        for idx, line in enumerate(content.splitlines(), start=1):
+            for name, patt in patterns:
+                for match in patt.finditer(line):
+                    findings.append({
+                        "file": rel,
+                        "line": idx,
+                        "pattern": name,
+                        "severity": "high",
+                        "confidence": 0.95,
+                        "snippet": line.strip(),
+                        "masked_value": match.group(0)[:8] + "...",
+                        "recommendation": "Rotacionar segredo e usar variáveis de ambiente.",
+                    })
+    return findings
