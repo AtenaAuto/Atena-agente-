@@ -25,6 +25,7 @@ import math
 import os
 import pickle
 import time
+import urllib.request
 from abc import ABC, abstractmethod
 from collections import deque
 from contextlib import asynccontextmanager
@@ -62,6 +63,12 @@ except ImportError:
     REDIS_AVAILABLE = False
 
 logger = logging.getLogger("atena.llm_router.advanced")
+
+try:
+    from openai import OpenAI  # compat: usado por testes de auto-orquestração
+except Exception:
+    OpenAI = None
+
 
 # ========== CONFIGURAÇÃO ==========
 @dataclass
@@ -505,7 +512,7 @@ class BaseLLMProvider(ABC):
         )
     
     @abstractmethod
-    async def generate(self, request: LLMRequest) -> LLMResponse:
+    async def _generate_async(self, request: LLMRequest) -> LLMResponse:
         pass
     
     @abstractmethod
@@ -659,12 +666,129 @@ class AtenaLLMRouterAdvanced:
         self.load_balancer = LoadBalancer(self.config.lb_strategy)
         
         self._providers: Dict[str, BaseLLMProvider] = {}
+        self._backend: str = "auto"
+        self.auto_prepare_result: Optional[Tuple[bool, str]] = None
         self._init_providers()
+        self.auto_prepare_result = self.auto_orchestrate_llm()
         
         self._tracer = None
         if self.config.tracing_enabled and OTEL_AVAILABLE:
             self._tracer = trace.get_tracer(__name__)
     
+
+    def _run_async(self, coro):
+        """Executa corotina com fallback seguro para diferentes contextos de loop."""
+        try:
+            return asyncio.run(coro)
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            try:
+                return loop.run_until_complete(coro)
+            finally:
+                loop.close()
+
+    def current(self) -> str:
+        return self._backend
+
+    def list_options(self) -> List[str]:
+        return ["auto", "deepseek:auto", "anthropic:auto", "public-api:auto", "local:stub"]
+
+    def _has_internet(self) -> bool:
+        probes = [
+            "https://api.github.com/zen",
+            "https://httpbin.org/get",
+        ]
+        for url in probes:
+            try:
+                with urllib.request.urlopen(url, timeout=3) as resp:
+                    if 200 <= getattr(resp, "status", 200) < 500:
+                        return True
+            except Exception:
+                continue
+        return False
+
+    def connection_status(self) -> Dict[str, object]:
+        return {
+            "providers": sorted(self._providers.keys()),
+            "has_api_keys": bool(self._providers),
+            "internet_ok": self._has_internet(),
+            "backend": self._backend,
+        }
+
+
+    def set_backend(self, spec: str) -> Tuple[bool, str]:
+        spec = (spec or "").strip()
+        if not spec:
+            return False, "Backend inválido"
+        self._backend = spec
+        return True, f"Backend definido para: {spec}"
+
+    def prepare_free_local_model(self) -> Tuple[bool, str]:
+        self._backend = "local:stub"
+        return True, "Modelo local gratuito preparado (stub)."
+
+    def _get_local_brain(self):
+        """Ponto de extensão para testes e integração com local LM."""
+        try:
+            from core.atena_local_lm import get_local_brain
+            return get_local_brain()
+        except Exception:
+            return None
+
+    def auto_orchestrate_llm(self) -> Tuple[bool, str]:
+        dashscope = os.getenv("DASHSCOPE_API_KEY")
+        if dashscope:
+            ok, _ = self.set_backend("qwen:qwen-plus")
+            self._backend = "qwen:qwen-plus"
+            return True, "seleção automática: qwen:qwen-plus"
+        if "deepseek" in self._providers:
+            self._backend = "deepseek:auto"
+            return True, "Auto-orquestração selecionou DeepSeek."
+        if "anthropic" in self._providers:
+            self._backend = "anthropic:auto"
+            return True, "Auto-orquestração selecionou Anthropic."
+
+        brain = self._get_local_brain()
+        if brain is not None and hasattr(brain, "prepare_runtime_model"):
+            try:
+                brain.prepare_runtime_model()
+            except Exception:
+                pass
+            ok, _ = self.set_backend("local:brain")
+            self._backend = "local:brain"
+            return True, "local-brain pronto"
+
+        if self._has_internet():
+            self._backend = "public-api:auto"
+            return True, "Sem chaves privadas, mas internet ativa: usando APIs públicas automaticamente."
+        self._backend = "local:stub"
+        return False, "Sem provedores e sem internet detectada; usando modo local stub."
+
+    def generate(self, prompt: str, context: str = "", **kwargs) -> str:
+        if not self._providers:
+            if self._backend.startswith("public-api"):
+                try:
+                    from core.internet_challenge import run_internet_challenge
+                    payload = run_internet_challenge(prompt)
+                    summary = str(payload.get("summary") or payload.get("topic") or "Pesquisa concluída.")
+                    confidence = payload.get("weighted_confidence", payload.get("confidence", "n/a"))
+                    return f"[public-api] {summary}\nConfiança: {confidence}"
+                except Exception as exc:
+                    return f"Modo public-api indisponível no momento: {exc}"
+            return (
+                "Modo local (stub) ativo: nenhum provedor de LLM configurado. "
+                "Defina OPENAI_API_KEY/DEEPSEEK_API_KEY/ANTHROPIC_API_KEY para respostas reais."
+            )
+        prefer = None
+        if self._backend.startswith("deepseek"):
+            prefer = "deepseek"
+        elif self._backend.startswith("anthropic"):
+            prefer = "anthropic"
+        response = self._run_async(
+            self._generate_async(prompt=prompt, context=context, prefer_provider=prefer, **kwargs)
+        )
+        return response.content
+
     def _init_providers(self):
         """Inicializa providers disponíveis"""
         if os.getenv("ANTHROPIC_API_KEY"):
@@ -683,7 +807,7 @@ class AtenaLLMRouterAdvanced:
         """Inicia serviços de background"""
         await self.health_checker.start()
     
-    async def generate(
+    async def _generate_async(
         self, 
         prompt: str, 
         context: str = "",
@@ -845,3 +969,7 @@ async def get_router() -> AtenaLLMRouterAdvanced:
         _global_router = AtenaLLMRouterAdvanced()
         await _global_router.start()
     return _global_router
+
+
+# Compatibilidade retroativa
+AtenaLLMRouter = AtenaLLMRouterAdvanced
