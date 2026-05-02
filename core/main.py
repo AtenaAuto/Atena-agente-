@@ -5826,8 +5826,7 @@ class AtenaCore:
         improvement_threshold = comparison_baseline + adaptive_delta
 
         if best_candidate and best_candidate_score >= improvement_threshold:
-            code, desc, mtype, metrics = best_candid
-                            code, desc, mtype, metrics = best_candidate
+            code, desc, mtype, metrics = best_candidate
             logger.info(f" ✅ Melhorou: {best_candidate_score:.2f} > {comparison_baseline:.2f} ({desc})")
             self._backup()
             Config.CURRENT_CODE_FILE.write_text(code)
