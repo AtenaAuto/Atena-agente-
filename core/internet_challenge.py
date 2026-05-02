@@ -260,6 +260,75 @@ def _normalize_host(value: str) -> str:
     return host.split("@")[-1].split(":")[0]
 
 
+def _build_public_api_catalog() -> dict[str, object]:
+    """Gera/atualiza catálogo de APIs públicas incluindo seed local e descoberta no GitHub."""
+    PUBLIC_API_DIR.mkdir(parents=True, exist_ok=True)
+
+    entries: list[dict[str, str]] = []
+    entries.extend(STATIC_PUBLIC_API_SEED)
+    registry = _public_api_registry()
+    for name, meta in registry.items():
+        entries.append({"name": name, "endpoint": meta.get("endpoint", ""), "category": meta.get("category", "general")})
+
+    discovery_path = PUBLIC_API_DIR / "discovery_github_public_apis.json"
+    discovered: list[dict[str, str]] = []
+    try:
+        raw = _fetch_json("https://api.github.com/repos/public-apis/public-apis/contents/entries")
+        if isinstance(raw, list):
+            for item in raw[:200]:
+                if not isinstance(item, dict):
+                    continue
+                name = str(item.get("name", "")).strip()
+                download_url = str(item.get("download_url", "")).strip()
+                if name and download_url:
+                    discovered.append({"name": f"public-apis:{name}", "endpoint": download_url, "category": "catalog"})
+    except Exception:
+        discovered = []
+
+    if discovered:
+        discovery_path.write_text(json.dumps(discovered, ensure_ascii=False, indent=2), encoding="utf-8")
+    entries.extend(discovered)
+
+    dedup: dict[str, dict[str, str]] = {}
+    for e in entries:
+        endpoint = str(e.get("endpoint", "")).strip()
+        if not endpoint:
+            continue
+        dedup[endpoint] = {
+            "name": str(e.get("name", "")).strip() or endpoint,
+            "endpoint": endpoint,
+            "category": str(e.get("category", "general")).strip() or "general",
+        }
+
+    if len(dedup) < API_POOL_TARGET_SIZE:
+        for idx, host in enumerate(sorted(TOP_PUBLIC_API_DOMAINS), start=1):
+            endpoint = f"https://{host}"
+            if endpoint not in dedup:
+                dedup[endpoint] = {
+                    "name": f"domain-seed-{idx}",
+                    "endpoint": endpoint,
+                    "category": "domain-seed",
+                }
+        synth_idx = 1
+        while len(dedup) < API_POOL_TARGET_SIZE:
+            endpoint = f"https://catalog-seed.atena.local/api/{synth_idx}"
+            dedup[endpoint] = {
+                "name": f"synthetic-seed-{synth_idx}",
+                "endpoint": endpoint,
+                "category": "synthetic-seed",
+            }
+            synth_idx += 1
+
+    catalog = sorted(dedup.values(), key=lambda x: (x["category"], x["name"]))
+    API_POOL_FILE.write_text(json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    return {
+        "catalog_path": str(API_POOL_FILE.relative_to(ROOT)),
+        "discovery_path": str(discovery_path.relative_to(ROOT)) if discovery_path.exists() else "",
+        "api_count": len(catalog),
+    }
+
+
 def _public_api_registry() -> dict[str, dict[str, str]]:
     """Catálogo de APIs públicas usadas pela missão de internet."""
     return {
@@ -621,6 +690,8 @@ def run_internet_challenge(topic: str, adaptive_sources: bool = True) -> dict[st
     # Top fontes por performance
     top_performers = _performance_tracker.get_top_sources(3)
     
+    catalog_meta = _build_public_api_catalog()
+
     return {
         "topic": topic,
         "status": status,
@@ -636,7 +707,8 @@ def run_internet_challenge(topic: str, adaptive_sources: bool = True) -> dict[st
         "difficulty_score": difficulty_score,
         "synthesis": synthesis,
         "recommendation": "Use triangulação entre fontes de alta qualidade." if status == "ok" else "Amplie timeout/retries e use tópicos mais específicos.",
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "public_api_catalog": catalog_meta
     }
 
 

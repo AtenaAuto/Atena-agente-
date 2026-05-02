@@ -1546,6 +1546,14 @@ def main():
             console_print(f"[ATENA model] {msg_auto}", style="green")
         else:
             console_print(f"[ATENA model] aviso: {msg_auto}", style="yellow")
+    if hasattr(router, "connection_status"):
+        try:
+            st = router.connection_status()
+            providers = ", ".join(st.get("providers", [])) or "nenhum"
+            net = "online" if st.get("internet_ok") else "offline"
+            console_print(f"[ATENA conexões] backend={st.get('backend')} | providers={providers} | internet={net}", style="cyan")
+        except Exception as exc:
+            console_print(f"[ATENA conexões] falha ao verificar status: {exc}", style="yellow")
     
     # Silenciar logs
     for logger_name in ["AtenaUltraBrain", "httpx", "huggingface_hub", "transformers"]:
