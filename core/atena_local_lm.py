@@ -1072,3 +1072,24 @@ Para mais detalhes, consulte a documentação específica."""
    ```bash
    python -m py_compile arquivo.py
    pylint arquivo.py
+   flake8 arquivo.py
+   ```
+
+2. **Execução com Rastreamento**
+   ```bash
+   python -m pdb arquivo.py
+   ```
+
+3. **Testes Reproduzíveis**
+   ```bash
+   pytest -q -k caso_especifico
+   ```
+
+4. **Verificação de Dependências**
+   - Confirme versões com `pip freeze`
+   - Valide variáveis de ambiente necessárias
+
+5. **Correção Incremental**
+   - Corrija um erro por vez
+   - Rode os testes após cada alteração
+"""
