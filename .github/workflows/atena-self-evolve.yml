@@ -1,0 +1,53 @@
+name: ATENA Self-Evolve
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atena-self-evolve
+  cancel-in-progress: false
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r setup/requirements-pinned.txt
+          pip install -r setup/requirements-dev.txt
+
+      - name: Run Atena evolution cycle
+        env:
+          USER: github-actions
+        run: |
+          bash ./atena agi-uplift || true
+          bash ./atena digital-organism-live-cycle --iterations 1 --batches 1 --recovery-attempts 1 || true
+
+      - name: Commit and push evolution artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(evolution): automated self-evolution cycle"
+          git push
