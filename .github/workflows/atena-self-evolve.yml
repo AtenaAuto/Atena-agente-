@@ -12,10 +12,16 @@ concurrency:
   group: atena-self-evolve
   cancel-in-progress: false
 
+env:
+  USER: github-actions
+  ATENA_AUTO_ENDPOINT_SETUP: "false"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
 jobs:
   evolve:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,6 +32,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            setup/requirements-pinned.txt
+            setup/requirements-dev.txt
 
       - name: Install dependencies
         run: |
@@ -34,12 +44,34 @@ jobs:
           pip install -r setup/requirements-dev.txt
 
       - name: Run Atena evolution cycle
+<<<<<<< ours
         env:
           USER: github-actions
           ATENA_AUTO_ENDPOINT_SETUP: "false"
+=======
+        continue-on-error: true
         run: |
-          bash ./atena agi-uplift || true
-          bash ./atena digital-organism-live-cycle --iterations 1 --batches 1 --recovery-attempts 1 || true
+          set -euo pipefail
+          bash ./atena agi-uplift
+          bash ./atena digital-organism-live-cycle --iterations 1 --batches 1 --recovery-attempts 1
+
+      - name: Run API scanner evolution probes
+        continue-on-error: true
+>>>>>>> theirs
+        run: |
+          set -euo pipefail
+          python -m core.internet_challenge "melhores APIs para app SaaS com analytics"
+          python -m core.internet_challenge "agenda de futebol e resultados do santos"
+          python -m core.internet_challenge "APIs para geração de imagem e mídia"
+
+      - name: Audit endpoint readiness
+        run: ./scripts/audit_agent_endpoint_readiness.sh
+
+      - name: Audit repository connectivity
+        run: ./scripts/audit_repo_connectivity.sh
+
+      - name: Validate delivery workflow
+        run: ./scripts/test_atena_delivery.sh
 
       - name: Run API scanner evolution probes
         run: |
@@ -56,6 +88,7 @@ jobs:
 
       - name: Commit and push evolution artifacts
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
@@ -64,4 +97,5 @@ jobs:
             exit 0
           fi
           git commit -m "chore(evolution): automated self-evolution cycle"
-          git push
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
