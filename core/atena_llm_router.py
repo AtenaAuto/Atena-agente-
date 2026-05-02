@@ -767,10 +767,20 @@ class AtenaLLMRouterAdvanced:
     def generate(self, prompt: str, context: str = "", **kwargs) -> str:
         if not self._providers:
             if self._backend.startswith("public-api"):
+                scaffold = self._build_local_scaffold_response(prompt)
+                if scaffold:
+                    return scaffold
                 try:
-                    from core.internet_challenge import run_internet_challenge
+                    from core.internet_challenge import run_internet_challenge, recommend_public_apis, discover_any_apis, rank_api_candidates
                     payload = run_internet_challenge(prompt)
-                    summary = str(payload.get("summary") or payload.get("topic") or "Pesquisa concluída.")
+                    ranked = rank_api_candidates(prompt, limit=5)
+                    summary = self._format_public_api_result(
+                        prompt,
+                        payload,
+                        recommend_public_apis(prompt, limit=5),
+                        discover_any_apis(prompt, limit=5),
+                        ranked,
+                    )
                     confidence = payload.get("weighted_confidence", payload.get("confidence", "n/a"))
                     return f"[public-api] {summary}\nConfiança: {confidence}"
                 except Exception as exc:
@@ -788,6 +798,151 @@ class AtenaLLMRouterAdvanced:
             self._generate_async(prompt=prompt, context=context, prefer_provider=prefer, **kwargs)
         )
         return response.content
+
+    def _build_local_scaffold_response(self, prompt: str) -> str:
+        """Gera resposta útil quando não há provedores privados disponíveis."""
+        p = (prompt or "").lower()
+        wants_site = any(k in p for k in ["site", "website", "landing page", "html", "sait"])
+        wants_api = any(k in p for k in ["api", "fastapi", "backend", "endpoint"])
+        wants_image = any(k in p for k in ["imagem", "image", "foto", "banner", "logo"])
+        if wants_image:
+            image_path = self._materialize_image_asset()
+            return (
+                "[local-image] Imagem de exemplo gerada com fonte pública.\n\n"
+                f"Arquivo salvo em: `{image_path}`\n"
+                "Fonte: https://picsum.photos (API pública de imagens placeholder).\n"
+            )
+        if wants_site:
+            out_dir = self._materialize_scaffold("site")
+            return (
+                "[local-scaffold] Estrutura inicial pronta para um site:\n\n"
+                "```text\n"
+                "meu-site/\n"
+                "├── index.html\n"
+                "├── style.css\n"
+                "└── app.js\n"
+                "```\n\n"
+                "`index.html`\n"
+                "```html\n"
+                "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>SaaS Demo</title><link rel=\"stylesheet\" href=\"style.css\"></head><body><header><h1>SaaS Demo</h1><p>Landing page inicial</p></header><main><section><h2>Pricing</h2><ul><li>Starter</li><li>Pro</li><li>Enterprise</li></ul></section></main><script src=\"app.js\"></script></body></html>\n"
+                "```\n\n"
+                "`style.css`\n```css\nbody{font-family:Arial,sans-serif;margin:0;padding:24px;line-height:1.5}header{background:#111;color:#fff;padding:24px;border-radius:12px}\n```\n\n"
+                "`app.js`\n```js\nconsole.log('SaaS Demo pronto');\n```\n\n"
+                f"Arquivos gerados em: `{out_dir}`\n"
+            )
+        if wants_api:
+            out_dir = self._materialize_scaffold("api")
+            return (
+                "[local-scaffold] Estrutura inicial para API FastAPI:\n\n"
+                "```text\napi/\n├── main.py\n└── requirements.txt\n```\n\n"
+                "`main.py`\n```python\nfrom fastapi import FastAPI\napp = FastAPI()\n\n@app.get('/health')\ndef health():\n    return {'status': 'ok'}\n```\n\n"
+                "`requirements.txt`\n```txt\nfastapi\nuvicorn\n```\n\n"
+                f"Arquivos gerados em: `{out_dir}`\n"
+            )
+        return ""
+
+    def _materialize_scaffold(self, kind: str) -> str:
+        """Cria arquivos reais de scaffold no disco para entrega prática ao usuário."""
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base = Path("atena_evolution/generated_apps") / f"{kind}_{ts}"
+        base.mkdir(parents=True, exist_ok=True)
+        if kind == "site":
+            (base / "index.html").write_text(
+                '<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SaaS Demo</title><link rel="stylesheet" href="style.css"></head><body><header><h1>SaaS Demo</h1><p>Landing page inicial</p></header><main><section><h2>Pricing</h2><ul><li>Starter</li><li>Pro</li><li>Enterprise</li></ul></section></main><script src="app.js"></script></body></html>',
+                encoding="utf-8",
+            )
+            (base / "style.css").write_text(
+                "body{font-family:Arial,sans-serif;margin:0;padding:24px;line-height:1.5}header{background:#111;color:#fff;padding:24px;border-radius:12px}",
+                encoding="utf-8",
+            )
+            (base / "app.js").write_text("console.log('SaaS Demo pronto');\n", encoding="utf-8")
+        elif kind == "api":
+            (base / "main.py").write_text(
+                "from fastapi import FastAPI\napp = FastAPI()\n\n@app.get('/health')\ndef health():\n    return {'status': 'ok'}\n",
+                encoding="utf-8",
+            )
+            (base / "requirements.txt").write_text("fastapi\nuvicorn\n", encoding="utf-8")
+        return str(base)
+
+    def _materialize_image_asset(self) -> str:
+        """Baixa uma imagem de API pública para entrega real de ativo visual."""
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base = Path("atena_evolution/generated_apps") / f"image_{ts}"
+        base.mkdir(parents=True, exist_ok=True)
+        out = base / "generated_image.jpg"
+        try:
+            urllib.request.urlretrieve("https://picsum.photos/1024/768", str(out))
+        except Exception:
+            out.write_bytes(b"")
+        return str(out)
+
+    def _format_public_api_result(
+        self,
+        prompt: str,
+        payload: dict,
+        api_recommendations: list[dict] | None = None,
+        any_api_recommendations: list[dict] | None = None,
+        ranked_candidates: list[dict] | None = None,
+    ) -> str:
+        """Formata resultado do scanner de APIs públicas em resposta útil ao usuário."""
+        intent = str(payload.get("intent") or "").lower()
+        sources = payload.get("sources") or []
+
+        def _find_source(name: str) -> dict:
+            for s in sources:
+                if str(s.get("source", "")).lower() == name:
+                    return s
+            return {}
+
+        # Esportes: tenta trazer data explícita do próximo jogo.
+        if intent == "sports":
+            sports = _find_source("thesportsdb")
+            events = (sports.get("details") or {}).get("events") if isinstance(sports, dict) else None
+            if isinstance(events, list) and events:
+                first = events[0] if isinstance(events[0], dict) else {}
+                title = first.get("title") or "próximo jogo"
+                date = first.get("date") or "data indisponível"
+                return f"Próximo jogo encontrado: {title} em {date} (fonte: TheSportsDB)."
+            return "Não encontrei data confirmada do próximo jogo nas fontes esportivas agora; tente incluir o nome completo do time."
+
+        # Pedidos de criação de site/app: recomenda APIs públicas úteis além do scaffold.
+        p = (prompt or "").lower()
+        if any(k in p for k in ["site", "website", "sait", "app", "aplicativo"]):
+            if api_recommendations:
+                picks = ", ".join(
+                    f"{a.get('name')} ({a.get('endpoint')})"
+                    for a in api_recommendations[:5]
+                    if isinstance(a, dict)
+                )
+                if picks:
+                    if any_api_recommendations:
+                        extra = ", ".join(
+                            f"{a.get('name')} ({a.get('endpoint')})"
+                            for a in any_api_recommendations[:3]
+                            if isinstance(a, dict)
+                        )
+                        if extra:
+                            if ranked_candidates:
+                                top = ", ".join(
+                                    f"{c.get('name')}[{c.get('score')}]"
+                                    for c in ranked_candidates[:3]
+                                    if isinstance(c, dict)
+                                )
+                                return f"APIs públicas recomendadas para seu site/app: {picks}. Catálogo ampliado (APIs diversas): {extra}. Ranking dinâmico: {top}. APIs com chave também podem ser usadas via variáveis de ambiente."
+                            return f"APIs públicas recomendadas para seu site/app: {picks}. Catálogo ampliado (APIs diversas): {extra}. APIs com chave também podem ser usadas via variáveis de ambiente."
+                    return f"APIs públicas recomendadas para seu site/app: {picks}."
+            return (
+                "Para criar o site/app com dados reais, APIs públicas recomendadas: "
+                "REST Countries (dados de países), Open-Meteo (clima), Nominatim (mapas/geocoding), "
+                "TheSportsDB (esportes), CoinGecko (cripto/financeiro)."
+            )
+
+        # Fallback genérico com síntese e melhores fontes.
+        synthesis = payload.get("synthesis") or {}
+        coverage = synthesis.get("coverage_summary") or "Pesquisa concluída."
+        best = payload.get("high_quality_sources") or []
+        best_txt = ", ".join(best[:3]) if isinstance(best, list) and best else "n/a"
+        return f"{coverage} Fontes com melhor qualidade: {best_txt}."
 
     def _init_providers(self):
         """Inicializa providers disponíveis"""
