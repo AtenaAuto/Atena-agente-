@@ -186,7 +186,7 @@ app.add_middleware(
 )
 
 # =============================================================================
-= Dependências e Middleware
+# = Dependências e Middleware
 # =============================================================================
 
 async def verify_api_key(
@@ -235,7 +235,7 @@ async def get_db():
         yield db
 
 # =============================================================================
-= Endpoints Base
+# = Endpoints Base
 # =============================================================================
 
 @app.get("/", tags=["Base"])
@@ -260,7 +260,7 @@ async def health_check():
     }
 
 # =============================================================================
-= Endpoints de Status e Monitoramento
+# = Endpoints de Status e Monitoramento
 # =============================================================================
 
 @app.get("/status", tags=["Monitoring"])
@@ -338,7 +338,7 @@ async def get_dashboard(role: str = Depends(verify_api_key)):
     }
 
 # =============================================================================
-= Endpoints de Evolução
+# = Endpoints de Evolução
 # =============================================================================
 
 @app.get("/evolution/cycles", tags=["Evolution"])
@@ -428,7 +428,7 @@ async def trigger_evolution(
         raise HTTPException(status_code=500, detail=str(e))
 
 # =============================================================================
-= Endpoints de Tarefas
+# = Endpoints de Tarefas
 # =============================================================================
 
 @app.get("/tasks", tags=["Tasks"])
@@ -528,7 +528,7 @@ async def cancel_task(
         raise HTTPException(status_code=500, detail=str(e))
 
 # =============================================================================
-= Endpoints de Memória
+# = Endpoints de Memória
 # =============================================================================
 
 @app.get("/memory/stats", tags=["Memory"])
@@ -575,7 +575,7 @@ async def search_memory(
         raise HTTPException(status_code=500, detail=str(e))
 
 # =============================================================================
-= Endpoints de LLM
+# = Endpoints de LLM
 # =============================================================================
 
 @app.post("/llm/generate", tags=["LLM"])
@@ -628,7 +628,7 @@ async def llm_generate(
         raise HTTPException(status_code=500, detail=str(e))
 
 # =============================================================================
-= Endpoints de Segurança
+# = Endpoints de Segurança
 # =============================================================================
 
 @app.get("/security/scan", tags=["Security"])
@@ -695,7 +695,7 @@ async def validate_code(
         raise HTTPException(status_code=500, detail=str(e))
 
 # =============================================================================
-= Endpoints de Métricas Avançadas
+# = Endpoints de Métricas Avançadas
 # =============================================================================
 
 @app.get("/metrics/performance", tags=["Metrics"])
@@ -762,7 +762,7 @@ async def get_evolution_metrics(
         raise HTTPException(status_code=500, detail=str(e))
 
 # =============================================================================
-= WebSocket para Eventos em Tempo Real
+# = WebSocket para Eventos em Tempo Real
 # =============================================================================
 
 class ConnectionManager:
@@ -812,7 +812,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await manager.disconnect(websocket)
 
 # =============================================================================
-= Background Tasks
+# = Background Tasks
 # =============================================================================
 
 async def broadcast_metrics():
@@ -850,7 +850,7 @@ async def shutdown_event():
     print("🛑 API encerrada")
 
 # =============================================================================
-= Main
+# = Main
 # =============================================================================
 
 if __name__ == "__main__":
