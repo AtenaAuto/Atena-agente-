@@ -4,8 +4,6 @@
 modules/atena_engine.py — Motor de evolução auxiliar da ATENA Ω
 Stub de integração com o core de evolução (main.py).
 
-NOTA: Este arquivo foi corrigido pois o original importava 'task_manager'
-      que não existe no repositório, causando ImportError.
 """
 
 import logging
