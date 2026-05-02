@@ -163,7 +163,7 @@ class SelfReflection:
                     f"🚀 Geração {context.get('generation', '?')} - Salto quântico detectado! "
                     f"A evolução está superando expectativas. Manter direção.",
                     
-                    f"💡 Insight valioso: a mutação '{context.get('mutation_type', '?')}' '
+                    f"💡 Insight valioso: a mutação '{context.get('mutation_type', '?')}' "
                     f"gerou impacto positivo de {score_delta:+.2f} pontos. "
                     f"Explorar variações desta família."
                 ]
