@@ -379,16 +379,15 @@ def _fetch_raw(url: str, timeout: int = 15) -> str:
     for attempt in range(1, retries + 1):
         start_time = time.time()
         try:
-            req = urllib.request.Request(
-                url,
-                headers={
-                    "User-Agent": (
-                        "ATENA/3.0 (+https://github.com/AtenaAuto/ATENA-; "
-                        "compatible; research-bot)"
-                    ),
-                    "Accept": "application/json, text/plain, */*",
-                },
-            )
+            headers = {
+                "User-Agent": (
+                    "ATENA/3.0 (+https://github.com/AtenaAuto/ATENA-; "
+                    "compatible; research-bot)"
+                ),
+                "Accept": "application/json, text/plain, */*",
+            }
+            headers.update(_api_auth_headers_for_url(url))
+            req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=timeout) as response:
                 content = response.read().decode("utf-8", errors="ignore")
                 
@@ -411,6 +410,30 @@ def _fetch_json(url: str, timeout: int = 15) -> dict:
 
 def _fetch_text(url: str, timeout: int = 15) -> str:
     return _fetch_raw(url, timeout=timeout)
+
+
+def _api_auth_headers_for_url(url: str) -> dict[str, str]:
+    """
+    Injeta autenticação opcional para APIs que exigem chave/token.
+    O usuário pode fornecer as chaves por variáveis de ambiente.
+    """
+    host = _normalize_host(urllib.parse.urlparse(url).netloc)
+    env_map = {
+        "api.openweathermap.org": ("OPENWEATHER_API_KEY", "appid"),
+        "api.nasa.gov": ("NASA_API_KEY", "api_key"),
+        "api.themoviedb.org": ("TMDB_API_KEY", "Authorization"),
+        "api.football-data.org": ("FOOTBALL_DATA_API_KEY", "X-Auth-Token"),
+    }
+    env_cfg = env_map.get(host)
+    if not env_cfg:
+        return {}
+    env_name, header_name = env_cfg
+    token = os.getenv(env_name, "").strip()
+    if not token:
+        return {}
+    if header_name.lower() == "authorization":
+        return {"Authorization": f"Bearer {token}"}
+    return {header_name: token}
 
 
 def _estimate_source_quality(source: str, details: dict[str, object], ok: bool, response_time_ms: float) -> float:
@@ -506,6 +529,133 @@ def _detect_query_intent(topic: str) -> str:
         return "news"
     
     return "general"
+
+
+def recommend_public_apis(topic: str, limit: int = 5) -> list[dict[str, str]]:
+    """
+    Recomenda APIs públicas do catálogo com base na intenção da consulta.
+    Retorna lista ordenada para uso pelo assistente no terminal.
+    """
+    intent = _detect_query_intent(topic or "")
+    category_by_intent = {
+        "sports": {"sports", "news"},
+        "academic": {"research", "health", "books"},
+        "code": {"code", "packages", "search"},
+        "news": {"news", "community", "search"},
+        "general": {"knowledge", "search", "misc"},
+    }
+    preferred_categories = category_by_intent.get(intent, {"knowledge", "search"})
+    catalog = _build_public_api_catalog()
+    entries = catalog.get("entries", [])
+    if not isinstance(entries, list):
+        return []
+
+    ranked: list[dict[str, str]] = []
+    for item in entries:
+        if not isinstance(item, dict):
+            continue
+        category = str(item.get("category", "")).lower()
+        if category in preferred_categories:
+            ranked.append(
+                {
+                    "name": str(item.get("name", "")),
+                    "endpoint": str(item.get("endpoint", "")),
+                    "category": category,
+                }
+            )
+    return ranked[: max(1, int(limit))]
+
+
+def discover_any_apis(query: str, limit: int = 10) -> list[dict[str, str]]:
+    """
+    Descobre APIs além do pool interno público, usando catálogos abertos de APIs.
+    Inclui APIs públicas e também APIs que podem exigir autenticação/chave.
+    """
+    q = (query or "").strip().lower()
+    out: list[dict[str, str]] = []
+
+    # 1) APIs.guru (OpenAPI directory)
+    try:
+        data = _fetch_json("https://api.apis.guru/v2/list.json")
+        if isinstance(data, dict):
+            for name, meta in data.items():
+                if len(out) >= limit:
+                    break
+                label = str(name)
+                if q and q not in label.lower():
+                    continue
+                preferred = ""
+                if isinstance(meta, dict):
+                    versions = meta.get("versions", {})
+                    if isinstance(versions, dict) and versions:
+                        first_version = next(iter(versions.values()))
+                        if isinstance(first_version, dict):
+                            preferred = str(first_version.get("swaggerUrl") or first_version.get("openapiVer") or "")
+                out.append({"name": label, "endpoint": preferred or "n/a", "category": "external_catalog"})
+    except Exception:
+        pass
+
+    # 2) Public APIs repo index (como fallback de descoberta ampla)
+    if len(out) < limit:
+        try:
+            entries = _fetch_json("https://api.github.com/repos/public-apis/public-apis/contents/entries")
+            if isinstance(entries, list):
+                for item in entries:
+                    if len(out) >= limit:
+                        break
+                    n = str(item.get("name", ""))
+                    if q and q not in n.lower():
+                        continue
+                    out.append({"name": f"public-apis:{n}", "endpoint": str(item.get("download_url", "")), "category": "external_catalog"})
+        except Exception:
+            pass
+    return out[: max(1, int(limit))]
+
+
+def rank_api_candidates(topic: str, limit: int = 8) -> list[dict[str, object]]:
+    """
+    Ranqueia APIs candidatas combinando:
+    - recomendação por intenção (pool interno),
+    - descoberta externa (apis.guru/public-apis),
+    - qualidade histórica por fonte (quando disponível).
+    """
+    internal = recommend_public_apis(topic, limit=max(limit, 5))
+    external = discover_any_apis(topic, limit=max(limit, 5))
+    merged: list[dict[str, object]] = []
+    seen: set[str] = set()
+
+    def _score(item: dict) -> float:
+        endpoint = str(item.get("endpoint", ""))
+        host = _normalize_host(urllib.parse.urlparse(endpoint).netloc) if endpoint.startswith("http") else ""
+        # base por origem
+        base = 0.8 if item.get("category") != "external_catalog" else 0.65
+        # bônus para hosts conhecidos no pool
+        if host in TOP_PUBLIC_API_DOMAINS:
+            base += 0.1
+        # ajuste por performance histórica (se existir)
+        source_name = str(item.get("name", "")).lower()
+        perf = _performance_tracker.get_quality_score(source_name)
+        return round(min(1.0, max(0.0, 0.6 * base + 0.4 * perf)), 3)
+
+    for bucket in (internal, external):
+        for item in bucket:
+            if not isinstance(item, dict):
+                continue
+            key = f"{item.get('name','')}|{item.get('endpoint','')}"
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(
+                {
+                    "name": item.get("name"),
+                    "endpoint": item.get("endpoint"),
+                    "category": item.get("category", "unknown"),
+                    "score": _score(item),
+                }
+            )
+
+    merged.sort(key=lambda x: float(x.get("score", 0.0)), reverse=True)
+    return merged[: max(1, int(limit))]
 
 
 def fetch_source_parallel(source_name: str, query: str, topic_raw: str, timeout: int = 15) -> Optional[SourceResult]:
