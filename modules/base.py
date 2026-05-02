@@ -32,7 +32,7 @@ logger = logging.getLogger("atena.actuators")
 
 
 # =============================================================================
-= Enums e Data Models
+# = Enums e Data Models
 # =============================================================================
 
 class ActionStatus(Enum):
@@ -101,7 +101,7 @@ class ActionRecord:
 
 
 # =============================================================================
-= Action Tracker Decorator
+# = Action Tracker Decorator
 # =============================================================================
 
 def track_action(
@@ -191,7 +191,7 @@ def track_action(
 
 
 # =============================================================================
-= Base Actuator Class
+# = Base Actuator Class
 # =============================================================================
 
 class BaseActuator(ABC):
@@ -529,7 +529,7 @@ class BaseActuator(ABC):
 
 
 # =============================================================================
-= Exemplo de Implementação de Atuador
+# = Exemplo de Implementação de Atuador
 # =============================================================================
 
 class ExampleActuator(BaseActuator):
@@ -560,7 +560,7 @@ class ExampleActuator(BaseActuator):
 
 
 # =============================================================================
-= Demonstração
+# = Demonstração
 # =============================================================================
 
 def main():
