@@ -435,9 +435,20 @@ class ArtifactValueAnalyzer:
             notes.append(f"base sólida: {sources} fontes")
         elif sources >= 5:
             evidence += 1
+
+        # Evidência adicional por sinais estruturados em payload empresarial
+        if weighted_conf >= 0.8:
+            evidence += 1
+        if redaction.get("status") == "ok":
+            evidence += 1
         
         # Risco baseado em release risk
         release_risk = research.get("synthesis", {}).get("release_risk", "")
+        regression_risk = sre.get("regression", {}).get("risk", "")
+        if regression_risk == "high":
+            risk = max(risk, 4)
+        elif regression_risk == "critical":
+            risk = 5
         if release_risk == "high":
             risk += 2
             notes.append("alto risco de release")
@@ -775,3 +786,10 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+
+def evaluate_artifact(path: Path, all_paths: Optional[List[Path]] = None) -> ArtifactScore:
+    """Compat wrapper para uso em testes legados."""
+    analyzer = ArtifactValueAnalyzer()
+    return analyzer.evaluate_artifact(path=path, all_paths=all_paths or [path])
