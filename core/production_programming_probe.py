@@ -476,7 +476,7 @@ def run_programming_probe(
         status_icon = "✅" if (result.build_ok and result.compile_ok) else "❌"
         print(f"\n{status_icon} {project_type.upper()}: {name}")
         print(f"   Build: {'✅' if result.build_ok else '❌'} | Compile: {'✅' if result.compile_ok else '❌'} | Run: {'✅' if result.run_ok else '❌'}")
-        print(f"   Qualidade: {}")
+        print("   Qualidade: avaliação automática registrada")
         if result.errors:
             print(f"   ⚠️ Erros: {len(result.errors)}")
         if result.warnings:
