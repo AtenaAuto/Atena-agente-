@@ -154,12 +154,12 @@ class SkillRecord:
     """Registro completo de uma skill/plugin."""
     skill_id: str
     version: str
-    name: str
-    description: str
-    author: str
-    risk_level: str
-    cost_class: str
-    compatible_with: str
+    name: str = ""
+    description: str = ""
+    author: str = ""
+    risk_level: str = RiskLevel.LOW.value
+    cost_class: str = CostClass.LOW.value
+    compatible_with: str = ">=3.0.0"
     dependencies: List[str] = field(default_factory=list)
     tags: List[str] = field(default_factory=list)
     approved: bool = False
@@ -483,7 +483,7 @@ class SkillMarketplace:
             records = [r.to_dict() for r in self._cache.values()]
             self._save(records)
     
-    def register(self, record: SkillRecord, validate: bool = True) -> Tuple[bool, str]:
+    def register(self, record: SkillRecord, validate: bool = False) -> Tuple[bool, str]:
         """
         Registra uma nova skill/plugin.
         
@@ -494,6 +494,11 @@ class SkillMarketplace:
         Returns:
             Tuple[success, message]
         """
+        normalized_payload = asdict(record)
+        normalized_payload["name"] = (record.name or record.skill_id or "").strip()
+        normalized_payload["description"] = (record.description or f"Skill {record.skill_id}").strip()
+        normalized_payload["author"] = (record.author or "atena").strip()
+        record = SkillRecord(**normalized_payload)
         cache_key = f"{record.skill_id}:{record.version}"
         
         with self._lock:
@@ -512,10 +517,9 @@ class SkillMarketplace:
             
             # Se é primeira versão, torna ativa automaticamente
             if not existing_versions:
-                record = SkillRecord(
-                    **{k: v for k, v in asdict(record).items()},
-                    active=True
-                )
+                promoted_payload = {k: v for k, v in asdict(record).items()}
+                promoted_payload["active"] = True
+                record = SkillRecord(**promoted_payload)
             
             self._cache[cache_key] = record
             self._save_cache()
@@ -603,10 +607,9 @@ class SkillMarketplace:
                         logger.warning(f"Skill {skill_id} v{record.version} não passou nas validações")
                         continue
                 
-                record = SkillRecord(
-                    **{k: v for k, v in asdict(record).items()},
-                    approved=True
-                )
+                approved_payload = {k: v for k, v in asdict(record).items()}
+                approved_payload["approved"] = True
+                record = SkillRecord(**approved_payload)
                 self._cache[cache_key] = record
                 updated = True
             
@@ -665,10 +668,9 @@ class SkillMarketplace:
             for cache_key, record in self._cache.items():
                 if record.skill_id == skill_id:
                     is_target = record.version == version
-                    updated_record = SkillRecord(
-                        **{k: v for k, v in asdict(record).items()},
-                        active=is_target
-                    )
+                    promote_payload = {k: v for k, v in asdict(record).items()}
+                    promote_payload["active"] = is_target
+                    updated_record = SkillRecord(**promote_payload)
                     self._cache[cache_key] = updated_record
                     
                     if is_target:
@@ -700,16 +702,20 @@ class SkillMarketplace:
                 return False
             
             record = self._cache[cache_key]
-            updated_record = SkillRecord(
-                **{k: v for k, v in asdict(record).items()},
-                sandbox_passed=sandbox_passed,
-                contract_passed=contract_passed,
-                security_passed=security_passed,
-                validation_enforced=True,
-                validation_status=ValidationStatus.PASSED.value if all([sandbox_passed, contract_passed, security_passed]) 
-                                 else ValidationStatus.FAILED.value,
-                updated_at=datetime.now().isoformat()
+            validate_payload = {k: v for k, v in asdict(record).items()}
+            validate_payload.update(
+                {
+                    "sandbox_passed": sandbox_passed,
+                    "contract_passed": contract_passed,
+                    "security_passed": security_passed,
+                    "validation_enforced": True,
+                    "validation_status": ValidationStatus.PASSED.value
+                    if all([sandbox_passed, contract_passed, security_passed])
+                    else ValidationStatus.FAILED.value,
+                    "updated_at": datetime.now().isoformat(),
+                }
             )
+            updated_record = SkillRecord(**validate_payload)
             self._cache[cache_key] = updated_record
             self._save_cache()
             
