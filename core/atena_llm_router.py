@@ -608,6 +608,13 @@ class AnthropicProvider(BaseLLMProvider):
                                data.get("usage", {}).get("output_tokens", 0)
                 )
 
+    async def _generate_async(self, request: LLMRequest) -> LLMResponse:
+        return await self.generate(request)
+
+    async def generate_stream(self, request: LLMRequest) -> AsyncIterator[str]:
+        response = await self.generate(request)
+        yield response.content
+
 
 class DeepSeekProvider(BaseLLMProvider):
     def __init__(self, config: RouterConfig):
@@ -652,6 +659,13 @@ class DeepSeekProvider(BaseLLMProvider):
                     model=self.model,
                     latency_ms=0
                 )
+
+    async def _generate_async(self, request: LLMRequest) -> LLMResponse:
+        return await self.generate(request)
+
+    async def generate_stream(self, request: LLMRequest) -> AsyncIterator[str]:
+        response = await self.generate(request)
+        yield response.content
 
 
 # ========== ROTEADOR PRINCIPAL ==========
@@ -771,9 +785,16 @@ class AtenaLLMRouterAdvanced:
                 if scaffold:
                     return scaffold
                 try:
-                    from core.internet_challenge import run_internet_challenge, recommend_public_apis, discover_any_apis, rank_api_candidates
+                    from core.internet_challenge import (
+                        run_internet_challenge,
+                        recommend_public_apis,
+                        discover_any_apis,
+                        rank_api_candidates,
+                        select_best_api_for_task,
+                    )
                     payload = run_internet_challenge(prompt)
                     ranked = rank_api_candidates(prompt, limit=5)
+                    best = select_best_api_for_task(prompt)
                     summary = self._format_public_api_result(
                         prompt,
                         payload,
@@ -782,7 +803,10 @@ class AtenaLLMRouterAdvanced:
                         ranked,
                     )
                     confidence = payload.get("weighted_confidence", payload.get("confidence", "n/a"))
-                    return f"[public-api] {summary}\nConfiança: {confidence}"
+                    best_line = ""
+                    if best:
+                        best_line = f"\nMelhor API para tarefa: {best.get('name','API')} ({best.get('category','n/a')})"
+                    return f"[public-api] {summary}\nConfiança: {confidence}{best_line}"
                 except Exception as exc:
                     return f"Modo public-api indisponível no momento: {exc}"
             return (
