@@ -102,6 +102,7 @@ playwright install chromium
 # Run the assistant
 bash atena assistant
 <<<<<<< ours
+<<<<<<< ours
 ```
 
 
@@ -163,6 +164,10 @@ Uma célula única no Colab:
 =======
 ```
 
+=======
+```
+
+>>>>>>> theirs
 
 
 ### Quickstart Universal ✅
@@ -221,6 +226,9 @@ Uma célula única no Colab (clone + bootstrap + run):
 !mkdir -p /content/projects && cd /content/projects && rm -rf ATENA- && git clone https://github.com/AtenaAuto/ATENA-.git && bash /content/projects/ATENA-/setup/colab_bootstrap.sh /content/projects/ATENA- && cd /content/projects/ATENA- && ATENA_AUTO_ENDPOINT_SETUP=false USER=colab bash atena assistant
 ```
 
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 Uma célula Python alternativa (com fallback de `pip` no venv):
 
@@ -298,6 +306,9 @@ cd ..
 | `./atena guardian` | Gate de segurança essencial | `./atena guardian` |
 | `./atena production-ready` | Validação completa para release | `./atena production-ready` |
 | `./atena hacker-recon --topic <tópico>` | Executa Hacker Recon avançado (batch, paralelo, retries, score, histórico adaptativo, `--json`, `--output-json`, `--timeout`) | `./atena hacker-recon --batch-file topics.txt --parallel 3 --retries 1 --prioritize-history --json --output-json analysis_reports/recon.json` |
+| `/api-scan <tarefa>` | Escaneia APIs públicas e retorna ranking por aderência | `/api-scan "agenda de futebol e resultados"` |
+| `/api-filter <tarefa>` | Filtra Top APIs por tarefa/pergunta com score | `/api-filter "criar agente programável com SDK"` |
+| `/api-pick <tarefa>` | Escolhe 1 API e já gera exemplo de request | `/api-pick "cotação de moedas em tempo real"` |
 | `./atena code-build` | Gerador automático de projetos | `./atena code-build --type api` |
 | `./atena research-lab` | Propostas de evolução | `./atena research-lab` |
 | `./atena future-ai` | Gera inovação técnica; inclui `app-food-delivery-complete` para app completo de delivery com backend + mobile | `./atena future-ai --mode app-food-delivery-complete --topic "delivery de comida" --json` |
