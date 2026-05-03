@@ -1,7 +1,13 @@
 import json
 from unittest.mock import patch
 
-from core.internet_challenge import _fetch_raw, _normalize_api_entries, run_internet_challenge
+from core.internet_challenge import (
+    _fetch_raw,
+    _normalize_api_entries,
+    run_internet_challenge,
+    discover_any_apis,
+    select_best_api_for_task,
+)
 
 
 class _FakeResponse:
@@ -86,3 +92,35 @@ def test_fetch_raw_blocks_invalid_scheme():
         assert False, "era esperado bloqueio de esquema inválido"
     except RuntimeError as exc:
         assert "esquema de URL inválido" in str(exc)
+
+
+def test_discover_any_apis_includes_private_catalog_when_key_present(monkeypatch):
+    monkeypatch.setenv(
+        "ATENA_PRIVATE_API_CATALOG_JSON",
+        json.dumps(
+            [
+                {
+                    "name": "OpenAI",
+                    "endpoint": "https://api.openai.com/v1",
+                    "category": "private_llm",
+                    "api_key_env": "OPENAI_API_KEY",
+                }
+            ]
+        ),
+    )
+    monkeypatch.setenv("OPENAI_API_KEY", "x-test-key")
+    rows = discover_any_apis("openai", limit=10)
+    names = [r.get("name") for r in rows]
+    assert "OpenAI" in names
+
+
+def test_select_best_api_for_task_prefers_matching_category(monkeypatch):
+    def _fake_rank(task: str, limit: int = 8):
+        return [
+            {"name": "WeatherAPI", "category": "weather", "score": 0.95},
+            {"name": "CodeAPI", "category": "code", "score": 0.90},
+        ]
+
+    monkeypatch.setattr("core.internet_challenge.rank_api_candidates", _fake_rank)
+    best = select_best_api_for_task("buscar repo github")
+    assert best["name"] == "CodeAPI"
