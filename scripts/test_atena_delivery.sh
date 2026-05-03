@@ -24,8 +24,20 @@ assert_pattern() {
 assert_pattern "ATENA Ω - Terminal Assistant" "ATENA não iniciou corretamente"
 # 2) Plugin carregado
 assert_pattern "\\[Plugin\\]" "Plugins não carregaram"
-# 3) Módulos: deve carregar 37/37
-assert_pattern "\\[ATENA preload\\] módulos carregados: 37/37" "Nem todos os módulos foram carregados"
+# 3) Módulos: deve carregar todos os módulos previstos (X/X), sem hardcode de quantidade
+preload_line="$(rg -o "\\[ATENA preload\\] módulos carregados: [0-9]+/[0-9]+" "$OUT_FILE" | tail -n 1 || true)"
+if [[ -z "${preload_line:-}" ]]; then
+  echo "❌ Linha de preload não encontrada." >&2
+  echo "Log: $OUT_FILE" >&2
+  exit 1
+fi
+loaded_count="$(echo "$preload_line" | sed -E 's/.*: ([0-9]+)\/([0-9]+)/\1/')"
+total_count="$(echo "$preload_line" | sed -E 's/.*: ([0-9]+)\/([0-9]+)/\2/')"
+if [[ "$loaded_count" != "$total_count" ]]; then
+  echo "❌ Nem todos os módulos foram carregados (${loaded_count}/${total_count})." >&2
+  echo "Log: $OUT_FILE" >&2
+  exit 1
+fi
 # 4) Prompt complexo processado e resposta gerada (scaffold útil ou resposta de API)
 if ! rg -q "\\[local-scaffold\\]|\\[public-api\\].*site SaaS completo" "$OUT_FILE"; then
   echo "❌ ATENA não entregou resposta útil para geração de código." >&2
