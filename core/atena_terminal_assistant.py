@@ -1545,6 +1545,9 @@ def main():
     dashboard.start_async()
     tasks_completed = 0
 
+    operator_mode = os.getenv("ATENA_OPERATOR_MODE", "assistant")
+    console_print(f"[ATENA mode] operador={operator_mode}", style="dim")
+
     if os.getenv("ATENA_PRELOAD_ALL_MODULES", "1") == "1":
         preload_result = preload_all_modules(ROOT / "modules")
         loaded_count = int(preload_result.get("loaded_count", 0))
@@ -1670,6 +1673,22 @@ def main():
                 console_print(msg, style="green" if ok else "yellow")
                 continue
             
+
+            if user_input == "/status":
+                providers = "nenhum"
+                backend = router.current()
+                internet = "unknown"
+                if hasattr(router, "connection_status"):
+                    try:
+                        st = router.connection_status()
+                        providers = ", ".join(st.get("providers", [])) or "nenhum"
+                        backend = st.get("backend", backend)
+                        internet = "online" if st.get("internet_ok") else "offline"
+                    except Exception:
+                        pass
+                console_print(f"📡 Status: backend={backend} | providers={providers} | internet={internet}", style="cyan")
+                continue
+
             if user_input == "/context":
                 if HAS_RICH:
                     CONSOLE.print(Panel(f"CWD: [cyan]{ROOT}[/cyan]\nBranch: [magenta]{git_branch()}[/magenta]\nModelo: [green]{router.current()}[/green]\nPlugins: {len(plugin_manager.list_plugins())}\nMemória: {len(memory.history)} interações", title="Contexto Atual", border_style="blue"))
