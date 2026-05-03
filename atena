@@ -599,7 +599,7 @@ main() {
         auto)
             log INFO "Modo autônomo ativado"
             export ATENA_AUTO_MODE=true
-            exec $PYTHON_CMD "$CORE_DIR/atena_launcher.py" --auto "${args[@]}"
+            exec $PYTHON_CMD "$CORE_DIR/atena_launcher.py" start "${args[@]}"
             ;;
         benchmark)
             log INFO "Executando benchmark..."
@@ -1188,7 +1188,7 @@ main_enhanced() {
         auto)
             log INFO "Modo autônomo ativado"
             export ATENA_AUTO_MODE=true
-            exec $PYTHON_CMD "$CORE_DIR/atena_launcher.py" --auto "${args[@]}"
+            exec $PYTHON_CMD "$CORE_DIR/atena_launcher.py" start "${args[@]}"
             ;;
         dev)
             run_dev_mode "${args[@]}"
