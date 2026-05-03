@@ -82,18 +82,20 @@ except ImportError:
     REDIS_AVAILABLE = False
 
 # Configuração de logging estruturado
+ROOT = Path(__file__).resolve().parent.parent
+(ROOT / "logs").mkdir(parents=True, exist_ok=True)
+
+# Reconfigura logging após garantir diretório
+logging.getLogger().handlers.clear()
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(Path(__file__).parent.parent / "logs" / "launcher.log"),
+        logging.FileHandler(ROOT / "logs" / "launcher.log"),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger("atena.launcher")
-
-ROOT = Path(__file__).resolve().parent.parent
-
 
 # ========== ENUMS E MODELOS ==========
 class CommandStatus(Enum):
