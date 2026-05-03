@@ -460,6 +460,9 @@ ${BOLD}Opções:${NC}
 ${BOLD}Comandos:${NC}
     (nenhum)            Modo interativo padrão
     assistant           Modo assistente de terminal
+    manus               Alias do assistente (modo Manus)
+    codex               Alias do assistente (modo Codex)
+    claude-code         Alias do assistente (modo Claude Code)
     benchmark           Executa benchmark completo
     self-test           Auto-validação da ATENA
     release-gate        Avalia readiness para release
@@ -547,7 +550,7 @@ main() {
                 mode="release-gate"
                 shift
                 ;;
-            assistant|benchmark|self-test)
+            assistant|manus|codex|claude-code|benchmark|self-test)
                 mode="$1"
                 shift
                 ;;
@@ -613,8 +616,9 @@ main() {
             log INFO "Executando release gate..."
             exec $PYTHON_CMD "$CORE_DIR/atena_release_gate.py" "${args[@]}"
             ;;
-        assistant)
+        assistant|manus|codex|claude-code)
             log INFO "Iniciando assistente de terminal..."
+            export ATENA_OPERATOR_MODE="$mode"
             auto_setup_endpoint_readiness
             enforce_endpoint_readiness_gate
             exec $PYTHON_CMD "$CORE_DIR/atena_terminal_assistant.py" "${args[@]}"
@@ -1122,7 +1126,7 @@ main_enhanced() {
                 mode="config_save"
                 shift
                 ;;
-            assistant|benchmark|self-test)
+            assistant|manus|codex|claude-code|benchmark|self-test)
                 mode="$1"
                 shift
                 ;;
