@@ -1,0 +1,31 @@
+{
+  "objective": "Executar diagnóstico estratégico e gerar plano avançado de estabilização",
+  "status": "partial",
+  "risk_score": 0.7,
+  "confidence": 0.3,
+  "missing_essential_modules": [],
+  "missing_advanced_count": 6,
+  "failing_commands_count": 2,
+  "corrections_applied": [],
+  "hardware_recommendations": [
+    "GPU recomendada para modelos de ML/embeddings",
+    "Poucos cores CPU (3) — reduz paralelismo"
+  ],
+  "action_plan": [
+    {
+      "priority": "P0",
+      "title": "Corrigir comandos com falha",
+      "details": [
+        "/root/.pyenv/versions/3.10.19/bin/python3 -c import sys; sys.path.insert(0,'core'); import atena_lau",
+        "/root/.pyenv/versions/3.10.19/bin/python3 -c import sys; sys.path.insert(0,'modules'); from AtenaCod"
+      ]
+    }
+  ],
+  "diagnostic_summary": {
+    "essential_modules_ok": 5,
+    "essential_modules_total": 5,
+    "commands_passed": 1,
+    "commands_total": 3
+  },
+  "generated_at": "2026-05-03T04:14:43.685594"
+}
