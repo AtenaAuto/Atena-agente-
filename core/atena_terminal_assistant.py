@@ -44,7 +44,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from core.atena_llm_router import AtenaLLMRouter
-from core.internet_challenge import run_internet_challenge
+from core.internet_challenge import run_internet_challenge, recommend_public_apis, discover_any_apis, rank_api_candidates
 from core.atena_module_preloader import preload_all_modules
 
 # --- Tentativa de importar módulos avançados ---
@@ -1071,6 +1071,9 @@ def print_help():
         commands = [
             ("/task <msg>", "Executa tarefa; perguntas factuais disparam pesquisa web"),
             ("/internet <tema>", "Pesquisa tema na internet em múltiplas fontes"),
+            ("/api-scan <tarefa>", "Escaneia APIs públicas para uma tarefa/pergunta"),
+            ("/api-filter <tarefa>", "Filtra e ranqueia APIs por aderência à tarefa"),
+            ("/api-pick <tarefa>", "Escolhe 1 API e gera exemplo de request"),
             ("/task-exec <objetivo>", "Planeja e executa comandos seguros"),
             ("/self-test [quick|full|security|perf]", "Executa validações automáticas"),
             ("/release-governor", "Executa gates security/release/perf"),
@@ -1098,7 +1101,7 @@ def print_help():
         
         CONSOLE.print(Panel(table, title="[bold cyan]Comandos Disponíveis[/bold cyan]", border_style="cyan"))
     else:
-        print("\nComandos: /task, /internet, /task-exec, /self-test, /release-governor, /saas-bootstrap, /telemetry-insights, /orchestrate, /memory-suggest, /benchmark, /device-control, /security-scan, /secret-audit, /policy, /plugins, /memory, /plan, /run, /context, /model, /clear, /exit\n")
+        print("\nComandos: /task, /internet, /api-scan, /api-filter, /api-pick, /task-exec, /self-test, /release-governor, /saas-bootstrap, /telemetry-insights, /orchestrate, /memory-suggest, /benchmark, /device-control, /security-scan, /secret-audit, /policy, /plugins, /memory, /plan, /run, /context, /model, /clear, /exit\n")
 
 
 # =============================================================================
@@ -1771,6 +1774,83 @@ def main():
                     CONSOLE.print(Panel(Markdown(answer), title="[bold cyan]ATENA Ω[/bold cyan]", border_style="cyan"))
                 else:
                     print(f"\nATENA Ω:\n{answer}\n")
+                continue
+
+            if user_input.startswith("/api-scan "):
+                objective = user_input[len("/api-scan "):].strip()
+                if not objective:
+                    CONSOLE.print("[yellow]Uso: /api-scan <tarefa ou pergunta>[/yellow]")
+                    continue
+                with atena_thinking("Escaneando APIs públicas..."):
+                    top_ranked = rank_api_candidates(objective, limit=8)
+                    curated = recommend_public_apis(objective, limit=8)
+                    discovered = discover_any_apis(objective, limit=8)
+                lines = ["# Scanner de APIs por tarefa", f"**Objetivo:** {objective}"]
+                if top_ranked:
+                    lines.append("\n## APIs ranqueadas")
+                    for i, api in enumerate(top_ranked[:8], 1):
+                        lines.append(f"{i}. **{api.get('name','API')}** — score={api.get('score',0):.3f} — {api.get('base_url','n/a')}")
+                if curated:
+                    lines.append("\n## APIs públicas recomendadas")
+                    for api in curated[:5]:
+                        lines.append(f"- **{api.get('name','API')}** ({api.get('category','n/a')}): {api.get('why','')} — {api.get('url','n/a')}")
+                if discovered:
+                    lines.append("\n## Catálogo adicional")
+                    for api in discovered[:5]:
+                        lines.append(f"- {api.get('name','API')} — {api.get('url','n/a')}")
+                CONSOLE.print(Panel(Markdown("\n".join(lines)), title="[bold cyan]ATENA API Scanner[/bold cyan]", border_style="cyan"))
+                continue
+
+            if user_input.startswith("/api-filter "):
+                objective = user_input[len("/api-filter "):].strip()
+                if not objective:
+                    CONSOLE.print("[yellow]Uso: /api-filter <tarefa ou pergunta>[/yellow]")
+                    continue
+                with atena_thinking("Filtrando APIs pela tarefa..."):
+                    top_ranked = rank_api_candidates(objective, limit=5)
+                if not top_ranked:
+                    CONSOLE.print("[yellow]Nenhuma API encontrada para esse filtro.[/yellow]")
+                    continue
+                lines = ["# Filtro de APIs por tarefa", f"**Filtro:** {objective}", "\n## Top 5"]
+                for i, api in enumerate(top_ranked[:5], 1):
+                    tags = ", ".join(api.get("tags", [])[:4]) if isinstance(api.get("tags"), list) else ""
+                    lines.append(f"{i}. **{api.get('name','API')}** — score={api.get('score',0):.3f}\n   - URL: {api.get('base_url','n/a')}\n   - Tags: {tags or 'n/a'}")
+                CONSOLE.print(Panel(Markdown("\n".join(lines)), title="[bold cyan]ATENA API Filter[/bold cyan]", border_style="cyan"))
+                continue
+
+            if user_input.startswith("/api-pick "):
+                objective = user_input[len("/api-pick "):].strip()
+                if not objective:
+                    CONSOLE.print("[yellow]Uso: /api-pick <tarefa ou pergunta>[/yellow]")
+                    continue
+                with atena_thinking("Selecionando melhor API para a tarefa..."):
+                    ranked = rank_api_candidates(objective, limit=1)
+                if not ranked:
+                    CONSOLE.print("[yellow]Não consegui selecionar API para essa tarefa.[/yellow]")
+                    continue
+                best = ranked[0]
+                api_name = best.get("name", "API")
+                base_url = best.get("base_url", "https://api.example.com")
+                endpoint = best.get("best_endpoint") or "/v1/search"
+                method = str(best.get("method", "GET")).upper()
+                lines = [
+                    "# API escolhida para sua tarefa",
+                    f"**Tarefa:** {objective}",
+                    f"**API:** {api_name}",
+                    f"**Score:** {best.get('score', 0):.3f}",
+                    f"**Base URL:** `{base_url}`",
+                    f"**Endpoint sugerido:** `{endpoint}`",
+                    "\n## Exemplo de request (Python)",
+                    "```python",
+                    "import requests",
+                    f"url = '{base_url.rstrip('/')}{endpoint}'",
+                    "params = {'q': 'exemplo'}",
+                    f"resp = requests.request('{method}', url, params=params, timeout=20)",
+                    "print(resp.status_code)",
+                    "print(resp.text[:500])",
+                    "```",
+                ]
+                CONSOLE.print(Panel(Markdown("\n".join(lines)), title="[bold cyan]ATENA API Pick[/bold cyan]", border_style="cyan"))
                 continue
 
             if user_input.startswith("/saas-bootstrap "):
