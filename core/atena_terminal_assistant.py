@@ -38,6 +38,11 @@ from typing import Any, Optional, Dict, List, Tuple, Callable
 from xml.etree import ElementTree
 from collections import defaultdict, deque
 import tempfile
+import numpy as np
+try:
+    from sklearn.linear_model import SGDClassifier
+except Exception:  # pragma: no cover
+    SGDClassifier = None  # type: ignore[assignment]
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -235,7 +240,13 @@ class ConversationMemory:
 # =============================================================================
 
 class AutoLearner:
-    """Aprende com interações e melhora respostas automaticamente."""
+    """Aprende com heurísticas locais de feedback.
+
+    Importante:
+    - Este componente NÃO implementa RLHF real.
+    - Não há treino de reward model neural, PPO, nem atualização de pesos do LLM.
+    - O mecanismo apenas faz reranking/reuso de respostas com score heurístico.
+    """
 
     def __init__(self, memory: ConversationMemory):
         self.memory = memory
@@ -243,6 +254,11 @@ class AutoLearner:
         self.token_stats: Dict[str, Dict[str, float]] = {}
         self.patterns_file = ROOT / "atena_evolution" / "learned_patterns.json"
         self.token_stats_file = ROOT / "atena_evolution" / "learned_token_stats.json"
+<<<<<<< ours
+=======
+        self.local_model = SGDClassifier(loss="log_loss", max_iter=1, warm_start=True) if SGDClassifier is not None else None
+        self.local_model_initialized = False
+>>>>>>> theirs
         self._load_patterns()
         self._load_token_stats()
         self._lock = threading.RLock()
@@ -277,6 +293,10 @@ class AutoLearner:
 
     @staticmethod
     def _score_feedback(feedback: Optional[str], response: str) -> float:
+<<<<<<< ours
+=======
+        """Score heurístico local (não-neural) para priorização de respostas."""
+>>>>>>> theirs
         txt = (feedback or "").lower()
         if "excelente" in txt or "ótimo" in txt or "otimo" in txt:
             return 1.0
@@ -360,6 +380,27 @@ class AutoLearner:
             best_response = max(best_match["responses"], key=lambda x: float(x.get("reward", 0.0)))
             return best_response["response"]
         return None
+
+    def train_on_local_data(self, X: list[list[float]] | np.ndarray, y: list[int] | np.ndarray) -> list[list[float]]:
+        """Treinamento incremental real com gradiente (SGDClassifier.partial_fit)."""
+        with self._lock:
+            if self.local_model is None:
+                raise RuntimeError("scikit-learn não está instalado. Instale para treino incremental local.")
+            X_arr = np.asarray(X, dtype=float)
+            y_arr = np.asarray(y, dtype=int)
+            if X_arr.ndim != 2:
+                raise ValueError("X deve ser matriz 2D.")
+            if y_arr.ndim != 1:
+                raise ValueError("y deve ser vetor 1D.")
+            if X_arr.shape[0] != y_arr.shape[0]:
+                raise ValueError("X e y devem ter mesmo número de amostras.")
+
+            if not self.local_model_initialized:
+                self.local_model.partial_fit(X_arr, y_arr, classes=np.array([0, 1], dtype=int))
+                self.local_model_initialized = True
+            else:
+                self.local_model.partial_fit(X_arr, y_arr)
+            return self.local_model.coef_.tolist()
 
 
 # =============================================================================
@@ -1419,7 +1460,10 @@ def _is_playstore_build_request(text: str) -> bool:
 
 
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 def _is_site_deploy_request(text: str) -> bool:
     msg = (text or "").lower()
     return (
@@ -1459,6 +1503,9 @@ def _build_site_delivery_pack(user_request: str) -> str:
     )
 
 
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 def _build_playstore_delivery_pack(user_request: str) -> str:
     out_dir = ROOT / "generated" / "atena_playstore_delivery"
@@ -2084,7 +2131,13 @@ def main():
                     structured_five = _wants_five_topics(task_msg)
                     effective_prompt = _build_five_topics_prompt(task_msg) if structured_five else task_msg
 <<<<<<< ours
+<<<<<<< ours
                     if _is_playstore_build_request(task_msg):
+=======
+                    if _is_site_deploy_request(task_msg):
+                        answer = _build_site_delivery_pack(task_msg)
+                    elif _is_playstore_build_request(task_msg):
+>>>>>>> theirs
 =======
                     if _is_site_deploy_request(task_msg):
                         answer = _build_site_delivery_pack(task_msg)
@@ -2131,7 +2184,13 @@ def main():
                     structured_five = _wants_five_topics(user_input)
                     effective_prompt = _build_five_topics_prompt(user_input) if structured_five else user_input
 <<<<<<< ours
+<<<<<<< ours
                     if _is_playstore_build_request(user_input):
+=======
+                    if _is_site_deploy_request(user_input):
+                        answer = _build_site_delivery_pack(user_input)
+                    elif _is_playstore_build_request(user_input):
+>>>>>>> theirs
 =======
                     if _is_site_deploy_request(user_input):
                         answer = _build_site_delivery_pack(user_input)
