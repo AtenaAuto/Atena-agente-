@@ -27,7 +27,8 @@ async def run_research_mission():
     logger.info("🚀 Iniciando missão complexa de pesquisa de tendências IA 2026")
     
     agent = AtenaBrowserAgent()
-    report_path = "/home/ubuntu/atena/ia_trends_2026_report.md"
+    repo_root = Path(__file__).resolve().parent.parent
+    report_path = repo_root / "docs" / "IA_TRENDS_2026_REPORT.md"
     
     try:
         await agent.launch(headless=True)
@@ -75,6 +76,7 @@ A IA em 2026 não é mais uma ferramenta de assistência, mas um **colaborador a
 *Gerado por ATENA Ω — Missão de Pesquisa Autônoma*
 """
         
+        report_path.parent.mkdir(parents=True, exist_ok=True)
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(report_content)
             
