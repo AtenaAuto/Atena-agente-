@@ -1356,6 +1356,88 @@ def telemetry_insights() -> str:
     return "\n".join(lines)
 
 
+def _is_playstore_build_request(text: str) -> bool:
+    msg = (text or "").lower()
+    return (
+        ("play store" in msg or "playstore" in msg or "android" in msg)
+        and ("app" in msg or "aplicativo" in msg)
+        and ("cria" in msg or "criar" in msg or "entrega" in msg or "gera" in msg)
+    )
+
+
+def _build_playstore_delivery_pack(user_request: str) -> str:
+    out_dir = ROOT / "generated" / "atena_playstore_delivery"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    readme = out_dir / "README.md"
+    readme.write_text(
+        "\n".join(
+            [
+                "# ATENA Play Store Delivery Pack",
+                "",
+                f"Gerado em: {ts}",
+                "",
+                "## Conteúdo",
+                "- `product_spec.md`: escopo funcional do app.",
+                "- `release_checklist.md`: checklist de publicação Play Store.",
+                "- `api_contract.json`: contrato inicial de API para backend ATENA.",
+                "",
+                "## Próximo passo",
+                "Abrir `generated/atena_playstore_app` no Android Studio e conectar este pack ao app.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (out_dir / "product_spec.md").write_text(
+        "\n".join(
+            [
+                "# Product Spec — ATENA AGI Mobile",
+                "",
+                "## Objetivo",
+                "Entregar app Android com chat ATENA, missões, telemetry e operação online/offline.",
+                "",
+                "## Módulos MVP",
+                "1. Login seguro (JWT/OAuth2).",
+                "2. Chat com ATENA (streaming).",
+                "3. Missões rápidas com status.",
+                "4. Dashboard com métricas essenciais.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (out_dir / "release_checklist.md").write_text(
+        "\n".join(
+            [
+                "# Release Checklist — Play Store",
+                "",
+                "- [ ] `versionCode` incrementado",
+                "- [ ] Assinatura com keystore de produção",
+                "- [ ] Política de privacidade publicada",
+                "- [ ] Data safety form preenchido",
+                "- [ ] `.aab` validado em release",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (out_dir / "api_contract.json").write_text(
+        json.dumps(
+            {
+                "auth": {"POST /v1/auth/login": {"body": ["email", "password"]}},
+                "chat": {"POST /v1/chat/send": {"body": ["message", "session_id"]}},
+                "missions": {"GET /v1/missions": {"query": ["status", "limit"]}},
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    return (
+        "Pedido de app Play Store detectado. Entrega automática criada em "
+        f"`{out_dir}` com spec, checklist e contrato de API.\n\n"
+        f"Pedido original: {user_request}"
+    )
+
+
 def run_multi_agent_orchestrator(router: AtenaLLMRouter, objective: str) -> tuple[str, str]:
     roles = ["planner", "builder", "reviewer", "security", "release"]
     outputs = {}
@@ -1906,13 +1988,16 @@ def main():
                 else:
                     structured_five = _wants_five_topics(task_msg)
                     effective_prompt = _build_five_topics_prompt(task_msg) if structured_five else task_msg
-                    with atena_thinking("Processando..."):
-                        try:
-                            answer = router_generate_with_timeout(router=router, prompt=effective_prompt, context="ATENA Assistant", timeout_seconds=ROUTER_TIMEOUT_SECONDS)
-                            if structured_five:
-                                answer = _format_five_topics_response(answer, task_msg)
-                        except Exception as exc:
-                            answer = f"Timeout/erro ({type(exc).__name__}). Use /task-exec para fluxo estruturado."
+                    if _is_playstore_build_request(task_msg):
+                        answer = _build_playstore_delivery_pack(task_msg)
+                    else:
+                        with atena_thinking("Processando..."):
+                            try:
+                                answer = router_generate_with_timeout(router=router, prompt=effective_prompt, context="ATENA Assistant", timeout_seconds=ROUTER_TIMEOUT_SECONDS)
+                                if structured_five:
+                                    answer = _format_five_topics_response(answer, task_msg)
+                            except Exception as exc:
+                                answer = f"Timeout/erro ({type(exc).__name__}). Use /task-exec para fluxo estruturado."
                 
                 memory.add(task_msg, answer, "task")
                 auto_learner.learn_from_interaction(task_msg, answer, None)
@@ -1944,13 +2029,16 @@ def main():
                 else:
                     structured_five = _wants_five_topics(user_input)
                     effective_prompt = _build_five_topics_prompt(user_input) if structured_five else user_input
-                    with atena_thinking("Analisando..."):
-                        try:
-                            answer = router_generate_with_timeout(router=router, prompt=effective_prompt, context="ATENA Assistant", timeout_seconds=ROUTER_TIMEOUT_SECONDS)
-                            if structured_five:
-                                answer = _format_five_topics_response(answer, user_input)
-                        except Exception as exc:
-                            answer = f"Timeout/erro ({type(exc).__name__}). Use /task-exec para fluxo estruturado."
+                    if _is_playstore_build_request(user_input):
+                        answer = _build_playstore_delivery_pack(user_input)
+                    else:
+                        with atena_thinking("Analisando..."):
+                            try:
+                                answer = router_generate_with_timeout(router=router, prompt=effective_prompt, context="ATENA Assistant", timeout_seconds=ROUTER_TIMEOUT_SECONDS)
+                                if structured_five:
+                                    answer = _format_five_topics_response(answer, user_input)
+                            except Exception as exc:
+                                answer = f"Timeout/erro ({type(exc).__name__}). Use /task-exec para fluxo estruturado."
                 
                 memory.add(user_input, answer, "general")
                 auto_learner.learn_from_interaction(user_input, answer, None)
