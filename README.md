@@ -101,73 +101,8 @@ playwright install chromium
 
 # Run the assistant
 bash atena assistant
-<<<<<<< ours
-<<<<<<< ours
 ```
 
-
-
-### Quickstart Universal ✅
-
-Se você só quer funcionar rápido em qualquer ambiente:
-
-```bash
-python3 setup/bootstrap_portable.py --full-auto
-bash atena assistant
-```
-
-Se estiver sem permissão de administrador, use:
-
-```bash
-python3 setup/bootstrap_portable.py --full-auto --skip-system
-bash atena assistant
-```
-
-### Bootstrap Portátil (Linux/macOS/Windows/Colab) 🌍
-
-Para deixar a Atena pronta em qualquer ambiente, rode:
-
-```bash
-python3 setup/bootstrap_portable.py --full-auto
-```
-
-Modo simulação (não instala nada):
-
-> Dica: use `--skip-system` se estiver sem permissão de administrador.
-
-```bash
-python3 setup/bootstrap_portable.py --full-auto --dry-run
-```
-
-### Google Colab (corrigido) ☁️
-
-Se estiver dando erro no Colab, use o bootstrap pronto:
-
-```bash
-# Dentro do Colab
-!bash setup/colab_bootstrap.sh /content/projects/ATENA-
-```
-
-Depois execute:
-
-```bash
-!cd /content/projects/ATENA- && bash atena doctor
-!cd /content/projects/ATENA- && ATENA_AUTO_ENDPOINT_SETUP=false USER=colab bash atena assistant
-```
-
-Uma célula única no Colab:
-
-```bash
-!bash /content/projects/ATENA-/setup/colab_bootstrap.sh /content/projects/ATENA- && cd /content/projects/ATENA- && ATENA_AUTO_ENDPOINT_SETUP=false USER=colab bash atena assistant
-```
-
-=======
-```
-
-=======
-```
-
->>>>>>> theirs
 
 
 ### Quickstart Universal ✅
@@ -226,10 +161,6 @@ Uma célula única no Colab (clone + bootstrap + run):
 !mkdir -p /content/projects && cd /content/projects && rm -rf ATENA- && git clone https://github.com/AtenaAuto/ATENA-.git && bash /content/projects/ATENA-/setup/colab_bootstrap.sh /content/projects/ATENA- && cd /content/projects/ATENA- && ATENA_AUTO_ENDPOINT_SETUP=false USER=colab bash atena assistant
 ```
 
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 Uma célula Python alternativa (com fallback de `pip` no venv):
 
 ```python
