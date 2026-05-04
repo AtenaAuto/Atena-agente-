@@ -240,8 +240,11 @@ class AutoLearner:
     def __init__(self, memory: ConversationMemory):
         self.memory = memory
         self.patterns: Dict[str, Dict] = {}
+        self.token_stats: Dict[str, Dict[str, float]] = {}
         self.patterns_file = ROOT / "atena_evolution" / "learned_patterns.json"
+        self.token_stats_file = ROOT / "atena_evolution" / "learned_token_stats.json"
         self._load_patterns()
+        self._load_token_stats()
         self._lock = threading.RLock()
 
     def _load_patterns(self):
@@ -258,53 +261,103 @@ class AutoLearner:
         except Exception:
             pass
 
+    def _load_token_stats(self):
+        if self.token_stats_file.exists():
+            try:
+                self.token_stats = json.loads(self.token_stats_file.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+    def _save_token_stats(self):
+        try:
+            self.token_stats_file.parent.mkdir(parents=True, exist_ok=True)
+            self.token_stats_file.write_text(json.dumps(self.token_stats, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+
+    @staticmethod
+    def _score_feedback(feedback: Optional[str], response: str) -> float:
+        txt = (feedback or "").lower()
+        if "excelente" in txt or "ótimo" in txt or "otimo" in txt:
+            return 1.0
+        if "bom" in txt:
+            return 0.7
+        if "ruim" in txt or "péssimo" in txt or "pessimo" in txt:
+            return -0.7
+        if "erro" in response.lower() or "timeout" in response.lower():
+            return -0.4
+        # Sem feedback explícito: recompensa leve para aprendizado contínuo.
+        return 0.15
+
     def learn_from_interaction(self, user_input: str, response: str, feedback: Optional[str] = None):
         """Aprende com a interação."""
         with self._lock:
             # Extrai padrões da pergunta
             words = re.findall(r'\b[a-z]{4,}\b', user_input.lower())
             key = "_".join(sorted(set(words))[:5])
+            reward = self._score_feedback(feedback, response)
             
             if key not in self.patterns:
                 self.patterns[key] = {
                     "count": 0,
                     "success_count": 0,
                     "responses": [],
-                    "last_seen": None
+                    "last_seen": None,
+                    "avg_reward": 0.0,
                 }
             
             pattern = self.patterns[key]
             pattern["count"] += 1
-            if feedback and "bom" in feedback.lower():
+            if reward > 0:
                 pattern["success_count"] += 1
+            prev_avg = float(pattern.get("avg_reward", 0.0))
+            n = max(int(pattern["count"]), 1)
+            pattern["avg_reward"] = prev_avg + (reward - prev_avg) / n
             pattern["responses"].append({
                 "response": response[:1000],
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "feedback": feedback
+                "feedback": feedback,
+                "reward": reward,
             })
             # Mantém apenas últimas 10 respostas
             pattern["responses"] = pattern["responses"][-10:]
             pattern["last_seen"] = datetime.now(timezone.utc).isoformat()
+            for token in set(words):
+                slot = self.token_stats.setdefault(token, {"count": 0.0, "reward_sum": 0.0})
+                slot["count"] = float(slot.get("count", 0.0)) + 1.0
+                slot["reward_sum"] = float(slot.get("reward_sum", 0.0)) + reward
             
             self._save_patterns()
+            self._save_token_stats()
 
     def suggest_improvement(self, user_input: str) -> Optional[str]:
         """Sugere melhoria baseada em padrões aprendidos."""
         words = set(re.findall(r'\b[a-z]{4,}\b', user_input.lower()))
         best_match = None
-        best_score = 0
+        best_score = 0.0
         
         for key, pattern in self.patterns.items():
             key_words = set(key.split("_"))
-            overlap = len(words & key_words)
-            if overlap > best_score and pattern["success_count"] / max(pattern["count"], 1) > 0.5:
-                best_score = overlap
+            overlap = len(words & key_words) / max(len(words | key_words), 1)
+            success_rate = pattern["success_count"] / max(pattern["count"], 1)
+            avg_reward = float(pattern.get("avg_reward", 0.0))
+            token_bias = 0.0
+            if words:
+                vals = []
+                for w in words:
+                    st = self.token_stats.get(w, {})
+                    c = float(st.get("count", 0.0))
+                    if c > 0:
+                        vals.append(float(st.get("reward_sum", 0.0)) / c)
+                token_bias = sum(vals) / len(vals) if vals else 0.0
+            score = (0.55 * overlap) + (0.25 * success_rate) + (0.15 * avg_reward) + (0.05 * token_bias)
+            if score > best_score and success_rate > 0.35:
+                best_score = score
                 best_match = pattern
         
         if best_match and best_match["responses"]:
-            # Retorna a resposta com maior sucesso
-            best_response = max(best_match["responses"], 
-                               key=lambda x: x.get("feedback", "").count("bom") if x.get("feedback") else 0)
+            # Retorna resposta com maior recompensa observada
+            best_response = max(best_match["responses"], key=lambda x: float(x.get("reward", 0.0)))
             return best_response["response"]
         return None
 
@@ -1365,6 +1418,48 @@ def _is_playstore_build_request(text: str) -> bool:
     )
 
 
+<<<<<<< ours
+=======
+def _is_site_deploy_request(text: str) -> bool:
+    msg = (text or "").lower()
+    return (
+        ("site" in msg or "sait" in msg or "website" in msg)
+        and ("deploy" in msg or "produção" in msg or "producao" in msg or "pronto" in msg)
+        and ("cria" in msg or "criar" in msg or "crie" in msg or "gera" in msg or "fazer" in msg)
+    )
+
+
+def _build_site_delivery_pack(user_request: str) -> str:
+    status, report_path = run_saas_bootstrap("atena_site")
+    summary_path = ROOT / "generated" / "atena_site_delivery.md"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text(
+        "\n".join(
+            [
+                "# ATENA Site Delivery",
+                "",
+                f"Status bootstrap: **{status}**",
+                f"Report: `{report_path}`",
+                "",
+                "## Artefatos esperados",
+                "- app web (`atena_site_web`)",
+                "- API (`atena_site_api`)",
+                "- CLI (`atena_site_cli`)",
+                "- bundle compose em `atena_evolution/generated_apps/atena_site_bundle`",
+                "",
+                f"Pedido original: {user_request}",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return (
+        "Pedido de site pronto para deploy detectado. "
+        f"Bootstrap executado com status `{status}`. "
+        f"Resumo salvo em `{summary_path}` e relatório em `{report_path}`."
+    )
+
+
+>>>>>>> theirs
 def _build_playstore_delivery_pack(user_request: str) -> str:
     out_dir = ROOT / "generated" / "atena_playstore_delivery"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1988,7 +2083,13 @@ def main():
                 else:
                     structured_five = _wants_five_topics(task_msg)
                     effective_prompt = _build_five_topics_prompt(task_msg) if structured_five else task_msg
+<<<<<<< ours
                     if _is_playstore_build_request(task_msg):
+=======
+                    if _is_site_deploy_request(task_msg):
+                        answer = _build_site_delivery_pack(task_msg)
+                    elif _is_playstore_build_request(task_msg):
+>>>>>>> theirs
                         answer = _build_playstore_delivery_pack(task_msg)
                     else:
                         with atena_thinking("Processando..."):
@@ -2029,7 +2130,13 @@ def main():
                 else:
                     structured_five = _wants_five_topics(user_input)
                     effective_prompt = _build_five_topics_prompt(user_input) if structured_five else user_input
+<<<<<<< ours
                     if _is_playstore_build_request(user_input):
+=======
+                    if _is_site_deploy_request(user_input):
+                        answer = _build_site_delivery_pack(user_input)
+                    elif _is_playstore_build_request(user_input):
+>>>>>>> theirs
                         answer = _build_playstore_delivery_pack(user_input)
                     else:
                         with atena_thinking("Analisando..."):
