@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "POST /v1/auth/login": {
+      "body": [
+        "email",
+        "password"
+      ]
+    }
+  },
+  "chat": {
+    "POST /v1/chat/send": {
+      "body": [
+        "message",
+        "session_id"
+      ]
+    }
+  },
+  "missions": {
+    "GET /v1/missions": {
+      "query": [
+        "status",
+        "limit"
+      ]
+    }
+  }
+}
