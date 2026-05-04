@@ -1,0 +1,370 @@
+{
+  "status": "ok",
+  "total_checks": 45,
+  "passed": 45,
+  "failed": 0,
+  "failed_modules": [],
+  "timestamp": "2026-05-04T22:23:13.163145",
+  "results": [
+    {
+      "type": "module_import",
+      "target": "modules.CRYPTO-ANALYTICS",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:CRYPTO-ANALYTICS",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.architectactuator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:architectactuator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_advanced_essentials",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_advanced_essentials",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_agent_orchestrator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_agent_orchestrator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.Voice",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:Voice",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_code_module",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_code_module",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_codex",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_codex",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_control_bridge",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_control_bridge",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_browser_agent",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_browser_agent",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_langchain_bridge",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_langchain_bridge",
+      "stderr": "langgraph/langchain_core não instalados — atena_langchain_bridge rodando em modo stub\natena_engine não disponível — usando stub"
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_engine",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_engine",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_tot_engine",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_tot_engine",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_post_quantum_crypto",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_post_quantum_crypto",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_telemetry_hub",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_telemetry_hub",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_tasks",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_tasks",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.autom#U00e1tion_actuator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:autom#U00e1tion_actuator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.base",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:base",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.council_orchestrator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:council_orchestrator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.computer_actuator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:computer_actuator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.game_theory_simulator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:game_theory_simulator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.file_actuator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:file_actuator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.curiosity_engine",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:curiosity_engine",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.graph_memory",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:graph_memory",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.meu_util",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:meu_util",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.hydra_protocol",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:hydra_protocol",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.hyper_evolution",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:hyper_evolution",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.hyperparameter_optimizer",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:hyperparameter_optimizer",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.mission_orchestrator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:mission_orchestrator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.multi_agent_orchestrator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:multi_agent_orchestrator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.notification_actuator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:notification_actuator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.rlhf_engine",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:rlhf_engine",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.self_reflection",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:self_reflection",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.system_actuator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:system_actuator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.system_sync_service",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:system_sync_service",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.AtenaSysAware",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:AtenaSysAware",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.sentinela",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:sentinela",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.process_actuator",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:process_actuator",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.world_model",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:world_model",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_ui_engine",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_ui_engine",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.services",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:services",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.atena_advanced_portfolio_optimizer",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:atena_advanced_portfolio_optimizer",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.federated_learning",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:federated_learning",
+      "stderr": ""
+    },
+    {
+      "type": "module_import",
+      "target": "modules.vector_memory",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "OK:vector_memory",
+      "stderr": ""
+    },
+    {
+      "type": "extra_check",
+      "target": "internet_connectivity",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "type": "extra_check",
+      "target": "atena_launcher_import",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "ok",
+      "stderr": ""
+    }
+  ]
+}
