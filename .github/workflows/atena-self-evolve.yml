@@ -21,6 +21,7 @@ concurrency:
 env:
   USER: github-actions
   ATENA_AUTO_ENDPOINT_SETUP: "false"
+  ATENA_STRICT_ENDPOINT_READY: "false"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PYTHONDONTWRITEBYTECODE: "1"
 
@@ -80,6 +81,35 @@ jobs:
 
       - name: Validate delivery workflow
         run: ./scripts/test_atena_delivery.sh
+
+      - name: Build workflow summary
+        if: always()
+        run: |
+          {
+            echo "## ATENA Self-Evolve Summary"
+            echo ""
+            echo "- Workflow run: ${{ github.run_id }}"
+            echo "- Branch: ${{ github.ref_name }}"
+            echo "- Strict endpoint readiness: ${ATENA_STRICT_ENDPOINT_READY}"
+            echo "- Timestamp UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo ""
+            echo "### Available reports"
+            ls -1 analysis_reports 2>/dev/null | sed 's/^/- analysis_reports\//g' || echo "- (sem reports em analysis_reports)"
+            ls -1 atena_evolution/codex_reports 2>/dev/null | sed 's/^/- atena_evolution\/codex_reports\//g' || echo "- (sem reports em codex_reports)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifacts (reports)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atena-self-evolve-reports
+          path: |
+            analysis_reports/**
+            atena_evolution/codex_reports/**
+            docs/ATENA_GO_NO_GO_DAILY_*.md
+            docs/IA_TRENDS_2026_REPORT.md
+            docs/RELATORIO_EMPRESARIAL_ATENA_INTERNET_2026-05-04.md
+          if-no-files-found: ignore
 
       - name: Commit and push evolution artifacts
         run: |
