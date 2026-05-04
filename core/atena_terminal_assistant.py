@@ -254,11 +254,8 @@ class AutoLearner:
         self.token_stats: Dict[str, Dict[str, float]] = {}
         self.patterns_file = ROOT / "atena_evolution" / "learned_patterns.json"
         self.token_stats_file = ROOT / "atena_evolution" / "learned_token_stats.json"
-<<<<<<< ours
-=======
         self.local_model = SGDClassifier(loss="log_loss", max_iter=1, warm_start=True) if SGDClassifier is not None else None
         self.local_model_initialized = False
->>>>>>> theirs
         self._load_patterns()
         self._load_token_stats()
         self._lock = threading.RLock()
@@ -293,10 +290,7 @@ class AutoLearner:
 
     @staticmethod
     def _score_feedback(feedback: Optional[str], response: str) -> float:
-<<<<<<< ours
-=======
         """Score heurístico local (não-neural) para priorização de respostas."""
->>>>>>> theirs
         txt = (feedback or "").lower()
         if "excelente" in txt or "ótimo" in txt or "otimo" in txt:
             return 1.0
@@ -1459,11 +1453,6 @@ def _is_playstore_build_request(text: str) -> bool:
     )
 
 
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
 def _is_site_deploy_request(text: str) -> bool:
     msg = (text or "").lower()
     return (
@@ -1503,10 +1492,6 @@ def _build_site_delivery_pack(user_request: str) -> str:
     )
 
 
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
 def _build_playstore_delivery_pack(user_request: str) -> str:
     out_dir = ROOT / "generated" / "atena_playstore_delivery"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -2130,19 +2115,9 @@ def main():
                 else:
                     structured_five = _wants_five_topics(task_msg)
                     effective_prompt = _build_five_topics_prompt(task_msg) if structured_five else task_msg
-<<<<<<< ours
-<<<<<<< ours
-                    if _is_playstore_build_request(task_msg):
-=======
                     if _is_site_deploy_request(task_msg):
                         answer = _build_site_delivery_pack(task_msg)
                     elif _is_playstore_build_request(task_msg):
->>>>>>> theirs
-=======
-                    if _is_site_deploy_request(task_msg):
-                        answer = _build_site_delivery_pack(task_msg)
-                    elif _is_playstore_build_request(task_msg):
->>>>>>> theirs
                         answer = _build_playstore_delivery_pack(task_msg)
                     else:
                         with atena_thinking("Processando..."):
@@ -2183,19 +2158,9 @@ def main():
                 else:
                     structured_five = _wants_five_topics(user_input)
                     effective_prompt = _build_five_topics_prompt(user_input) if structured_five else user_input
-<<<<<<< ours
-<<<<<<< ours
-                    if _is_playstore_build_request(user_input):
-=======
                     if _is_site_deploy_request(user_input):
                         answer = _build_site_delivery_pack(user_input)
                     elif _is_playstore_build_request(user_input):
->>>>>>> theirs
-=======
-                    if _is_site_deploy_request(user_input):
-                        answer = _build_site_delivery_pack(user_input)
-                    elif _is_playstore_build_request(user_input):
->>>>>>> theirs
                         answer = _build_playstore_delivery_pack(user_input)
                     else:
                         with atena_thinking("Analisando..."):
@@ -2237,26 +2202,109 @@ def main():
     return 0
 
 
-# Função task_exec precisava ser definida - vamos adicionar
+def extract_commands_from_plan(plan_text: str) -> list[str]:
+    commands: list[str] = []
+    for raw in (plan_text or "").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        commands.append(line)
+    return commands
+
+
+def sanitize_task_exec_commands(commands: list[str]) -> list[str]:
+    sanitized: list[str] = []
+    blocked_exact = {"python", "python3", "./atena assistant", "bash atena assistant"}
+    allowed_prefixes = ("./", "python ", "python3 ", "pytest", "uv ", "pip ", "git ", "ls", "echo ", "cat ", "find ", "bash ")
+    for cmd in commands:
+        c = cmd.strip()
+        if not c:
+            continue
+        if c in blocked_exact:
+            continue
+        if not c.startswith(allowed_prefixes):
+            continue
+        sanitized.append(c)
+    return sanitized
+
+
+def extract_dag_commands(plan_text: str) -> list[dict]:
+    cmds = sanitize_task_exec_commands(extract_commands_from_plan(plan_text))
+    return [{"id": f"node_{i+1}", "command": cmd} for i, cmd in enumerate(cmds)]
+
+
+def build_local_task_exec_fallback(objective: str) -> list[str]:
+    text = (objective or "").lower()
+    if "tests" in text and ".py" in text:
+        return ['python3 -c "import glob; print(len(glob.glob(\'tests/**/*.py\', recursive=True)))"']
+    if "json" in text and "atena_evolution" in text:
+        return ['python3 -c "import glob; print(len(glob.glob(\'atena_evolution/**/*.json\', recursive=True)))"']
+    return ["./atena doctor"]
+
+
+def summarize_task_exec_report(report_path: str) -> str:
+    data = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    commands = data.get("commands", [])
+    results = data.get("results", [])
+    lines = [f"Comandos executados: {len(commands)}"]
+    if results:
+        tail = (results[0].get("stdout_tail") or "").strip()
+        if tail:
+            lines.append(f"saída: {tail}")
+    return "\n".join(lines)
+
+
+def append_learning_memory(payload: dict) -> None:
+    """Registra memória de aprendizado de forma resiliente."""
+    try:
+        path = ROOT / "atena_evolution" / "learning_memory.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
 def run_task_exec(router: AtenaLLMRouter, objective: str) -> tuple[str, str]:
-    """Executa planejamento de tarefas."""
+    """Executa planejamento de tarefas com política tier2."""
     planner_prompt = f"Planeje uma sequência de comandos seguros para: {objective}. Retorne 1 comando por linha usando ./atena, python3, pytest ou uv."
     try:
         plan = router_generate_with_timeout(router, planner_prompt, "task_executor", 30)
-        commands = [c.strip() for c in plan.splitlines() if c.strip() and not c.startswith("#")][:5]
+        dag_nodes = extract_dag_commands(plan)
+        if not dag_nodes:
+            parsed = sanitize_task_exec_commands(extract_commands_from_plan(plan))
+            dag_nodes = [{"id": f"node_{i+1}", "command": cmd} for i, cmd in enumerate(parsed)]
+        commands = [node["command"] for node in dag_nodes][:5]
     except Exception:
-        commands = ["./atena doctor", "python3 --version"]
-    
+        commands = []
+        dag_nodes = []
+
+    commands = sanitize_task_exec_commands(commands)
+    if not commands:
+        commands = build_local_task_exec_fallback(objective)
+        dag_nodes = [{"id": f"node_{i+1}", "command": c} for i, c in enumerate(commands)]
+
     results = []
     for cmd in commands:
-        rc, out, err = run_safe_command(cmd, context="task-exec", tier="tier1")
-        results.append({"command": cmd, "ok": rc == 0, "output": out[:500]})
-    
+        rc, out, err = run_safe_command(cmd, context="task-exec", tier="tier2")
+        results.append(
+            {
+                "command": cmd,
+                "ok": rc == 0,
+                "stdout_tail": (out or "")[-1000:],
+                "stderr_tail": (err or "")[-1000:],
+            }
+        )
+
     status = "ok" if all(r["ok"] for r in results) else "failed"
     report_dir = ROOT / "atena_evolution" / "task_reports"
     report_dir.mkdir(parents=True, exist_ok=True)
     report_path = report_dir / f"task_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    report_path.write_text(json.dumps({"objective": objective, "status": status, "results": results}, indent=2))
+    report_path.write_text(
+        json.dumps({"objective": objective, "status": status, "commands": commands, "dag_nodes": dag_nodes, "results": results}, indent=2),
+        encoding="utf-8",
+    )
+    append_learning_memory({"kind": "task_exec", "objective": objective, "status": status, "report_path": str(report_path)})
     return status, str(report_path)
 
 
