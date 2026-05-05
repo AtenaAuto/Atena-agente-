@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 <<<<<<< ours
+<<<<<<< ours
+=======
+from fastapi.responses import HTMLResponse
+>>>>>>> theirs
 =======
 from fastapi.responses import HTMLResponse
 >>>>>>> theirs
@@ -8,10 +12,13 @@ app = FastAPI(title="ATENA API", version="1.0.0")
 
 
 <<<<<<< ours
+<<<<<<< ours
 @app.get("/")
 def root() -> dict[str, str]:
     return {"service": "atena", "status": "ok"}
 =======
+=======
+>>>>>>> theirs
 @app.get("/", response_class=HTMLResponse)
 def root() -> str:
     return """
@@ -28,6 +35,9 @@ def root() -> str:
       </body>
     </html>
     """
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 
 
@@ -35,10 +45,16 @@ def root() -> str:
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 
 
 @app.get("/status")
 def status() -> dict[str, str]:
     return {"service": "atena", "status": "ok"}
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
