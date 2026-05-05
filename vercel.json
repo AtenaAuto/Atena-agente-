@@ -1,10 +1,15 @@
 {
+<<<<<<< ours
   "$schema": "https://openapi.vercel.sh/vercel.json",
 <<<<<<< ours
+=======
+  "version": 2,
+>>>>>>> theirs
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/api/main"
+<<<<<<< ours
 =======
   "functions": {
     "api/main.py": {
@@ -23,6 +28,8 @@
     {
       "source": "/status",
       "destination": "/api/main.py"
+>>>>>>> theirs
+=======
 >>>>>>> theirs
     }
   ]
