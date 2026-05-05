@@ -25,7 +25,7 @@ A IA em 2026 não é mais uma ferramenta de assistência, mas um **colaborador a
 
 ## 6. Evidências da pesquisa (captura de navegador)
 - URL pesquisada: https://duckduckgo.com/?q=AI+trends+2026+autonomous+agents+reasoning+models
-- Horário UTC da execução: 2026-05-04T23:02:21.377057+00:00
+- Horário UTC da execução: 2026-05-05T03:38:59.484731+00:00
 - Trecho capturado da página:
 
 > AI trends 2026 autonomous agents reasoning models at DuckDuckGo DuckDuckGo You are being redirected to the non-JavaScript site. Click here if it doesn't happen automatically.
