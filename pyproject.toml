@@ -53,6 +53,8 @@ dependencies = [
     "beautifulsoup4>=4.12.0",
     "lxml>=4.9.0",
     "playwright>=1.40.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
 ]
 
 [project.optional-dependencies]
@@ -78,8 +80,6 @@ ml = [
     "langchain>=0.1.0",
 ]
 web = [
-    "fastapi>=0.104.0",
-    "uvicorn[standard]>=0.24.0",
     "streamlit>=1.29.0",
     "gradio>=4.16.0",
 ]
