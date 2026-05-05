@@ -110,8 +110,10 @@ atena-self-test = "scripts.self_test:main"
 example = "modules.example_plugin:register"
 
 [tool.setuptools]
-packages = ["core", "modules", "protocols", "skills", "plugins"]
 include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["core*", "modules*", "protocols*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml", "*.yml", "*.json", "*.md", "*.txt", "*.html", "*.css", "*.js"]
