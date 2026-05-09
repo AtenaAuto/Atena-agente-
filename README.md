@@ -82,7 +82,7 @@ cd /path/to/your/projects
 rm -rf ATENA-
 
 # Clone the repository
-git clone https://github.com/AtenaAuto/ATENA-.git
+git clone https://github.com/AtenaAuto/atena-agente-.git
 
 # Enter directory
 cd ATENA-
@@ -151,8 +151,8 @@ Se estiver dando erro no Colab, use o bootstrap pronto:
 Depois execute:
 
 ```bash
-!cd /content/projects/ATENA- && bash atena doctor
-!cd /content/projects/ATENA- && ATENA_AUTO_ENDPOINT_SETUP=false USER=colab bash atena assistant
+!cd /content/projects/atena-agente- && bash atena doctor
+!cd /content/projects/atena-agente- && ATENA_AUTO_ENDPOINT_SETUP=false USER=colab bash atena assistant
 ```
 
 Uma célula única no Colab (clone + bootstrap + run):
