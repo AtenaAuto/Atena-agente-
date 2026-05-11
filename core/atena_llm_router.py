@@ -619,8 +619,8 @@ class AnthropicProvider(BaseLLMProvider):
 class DeepSeekProvider(BaseLLMProvider):
     def __init__(self, config: RouterConfig):
         super().__init__("deepseek", config)
-        self.api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY")
-        self.model = "deepseek-chat"  # Default
+        self.api_key = os.getenv("DEEPSEEK_API_KEY")
+        self.model = "deepseek-chat"
     
     async def generate(self, request: LLMRequest) -> LLMResponse:
         if not self.api_key:
@@ -668,6 +668,62 @@ class DeepSeekProvider(BaseLLMProvider):
         yield response.content
 
 
+class OpenAIProvider(BaseLLMProvider):
+    def __init__(self, config: RouterConfig):
+        super().__init__("openai", config)
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.model = os.getenv("ATENA_OPENAI_MODEL", "gpt-4.1-mini")
+    
+    async def generate(self, request: LLMRequest) -> LLMResponse:
+        if not self.api_key:
+            raise ValueError("OPENAI_API_KEY not set")
+        
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": request.system_prompt},
+                {"role": "user", "content": f"Contexto: {request.context}\n\nPrompt: {request.prompt}"}
+            ],
+            "temperature": request.temperature,
+            "max_tokens": request.max_tokens,
+        }
+        
+        base_url = os.getenv("OPENAI_API_BASE") or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1"
+        endpoint = f"{base_url.rstrip('/')}/chat/completions"
+        
+        timeout = aiohttp.ClientTimeout(total=REQUEST_TIMEOUT)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.post(
+                endpoint,
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                json=payload
+            ) as resp:
+                if resp.status != 200:
+                    text = await resp.text()
+                    raise Exception(f"OpenAI API error {resp.status}: {text}")
+                
+                data = await resp.json()
+                content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                
+                return LLMResponse(
+                    content=content.strip(),
+                    provider=self.name,
+                    model=self.model,
+                    latency_ms=0,
+                    tokens_used=data.get("usage", {}).get("total_tokens", 0)
+                )
+
+    async def _generate_async(self, request: LLMRequest) -> LLMResponse:
+        return await self.generate(request)
+
+    async def generate_stream(self, request: LLMRequest) -> AsyncIterator[str]:
+        response = await self.generate(request)
+        yield response.content
+
+
 # ========== ROTEADOR PRINCIPAL ==========
 class AtenaLLMRouterAdvanced:
     """Roteador de alta performance com todas as features avançadas"""
@@ -705,7 +761,7 @@ class AtenaLLMRouterAdvanced:
         return self._backend
 
     def list_options(self) -> List[str]:
-        return ["auto", "deepseek:auto", "anthropic:auto", "public-api:auto", "local:stub"]
+        return ["auto", "openai:auto", "deepseek:auto", "anthropic:auto", "public-api:auto", "local:stub"]
 
     def _has_internet(self) -> bool:
         probes = [
@@ -755,6 +811,9 @@ class AtenaLLMRouterAdvanced:
             ok, _ = self.set_backend("qwen:qwen-plus")
             self._backend = "qwen:qwen-plus"
             return True, "seleção automática: qwen:qwen-plus"
+        if "openai" in self._providers:
+            self._backend = "openai:auto"
+            return True, "Auto-orquestração selecionou OpenAI."
         if "deepseek" in self._providers:
             self._backend = "deepseek:auto"
             return True, "Auto-orquestração selecionou DeepSeek."
@@ -814,7 +873,9 @@ class AtenaLLMRouterAdvanced:
                 "Defina OPENAI_API_KEY/DEEPSEEK_API_KEY/ANTHROPIC_API_KEY para respostas reais."
             )
         prefer = None
-        if self._backend.startswith("deepseek"):
+        if self._backend.startswith("openai"):
+            prefer = "openai"
+        elif self._backend.startswith("deepseek"):
             prefer = "deepseek"
         elif self._backend.startswith("anthropic"):
             prefer = "anthropic"
@@ -973,10 +1034,13 @@ class AtenaLLMRouterAdvanced:
         if os.getenv("ANTHROPIC_API_KEY"):
             self._providers["anthropic"] = AnthropicProvider(self.config)
         
-        if os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY"):
+        if os.getenv("DEEPSEEK_API_KEY"):
             self._providers["deepseek"] = DeepSeekProvider(self.config)
+
+        if os.getenv("OPENAI_API_KEY"):
+            self._providers["openai"] = OpenAIProvider(self.config)
         
-        # TODO: Adicionar Qwen, OpenAI, Local
+        # TODO: Adicionar Qwen, Local
         
         # Atualiza load balancer com métricas iniciais
         for name, provider in self._providers.items():
