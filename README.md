@@ -164,36 +164,40 @@ Uma célula única no Colab (clone + bootstrap + run):
 Uma célula Python alternativa (com fallback de `pip` no venv):
 
 ```python
-import os
-import subprocess
+# Ir para uma pasta onde você quer baixar o projeto
+# Colab usa um ambiente Linux, então caminhos Windows como C:\Users não são válidos.
+# Usaremos /content como um diretório de trabalho comum no Colab.
+%cd /content
 
-project_path = '/content/projects'
-os.makedirs(project_path, exist_ok=True)
-os.chdir(project_path)
+# Remover pasta existente (se existir)
+# 'Remove-Item' é um comando PowerShell. No Linux, 'rm -rf' é usado.
+!rm -rf Atena-agente-
 
-subprocess.run('rm -rf ATENA-', shell=True, check=False)
-subprocess.run('git clone https://github.com/AtenaAuto/ATENA-.git', shell=True, check=True)
-os.chdir('ATENA-')
+# Clonar o repositório
+!git clone https://github.com/AtenaAuto/Atena-agente-.git
 
-subprocess.run('python3 -m venv venv', shell=True, check=True)
-venv_python = os.path.join(project_path, 'ATENA-', 'venv', 'bin', 'python3')
+# Entrar na pasta
+%cd Atena-agente-
 
-# Fallback quando ensurepip falha no Colab
-pip_check = subprocess.run([venv_python, '-m', 'pip', '--version'], capture_output=True)
-if pip_check.returncode != 0:
-    get_pip = os.path.join(project_path, 'get-pip.py')
-    subprocess.run(f'wget -q https://bootstrap.pypa.io/get-pip.py -O {get_pip}', shell=True, check=True)
-    subprocess.run([venv_python, get_pip], check=True)
-    os.remove(get_pip)
+# Ir para setup
+%cd setup
 
-subprocess.run([venv_python, '-m', 'pip', 'install', '--upgrade', 'pip'], check=True)
-subprocess.run([venv_python, '-m', 'pip', 'install', '-r', 'setup/requirements-pinned.txt'], check=True)
-subprocess.run([venv_python, '-m', 'pip', 'install', '-r', 'setup/requirements-dev.txt'], check=True)
-subprocess.run([venv_python, '-m', 'pip', 'install', 'playwright'], check=True)
-subprocess.run([venv_python, '-m', 'playwright', 'install', 'chromium'], check=True)
+# Instalar dependências
+!pip install -r requirements-pinned.txt
+!pip install -r requirements-dev.txt
 
-cmd = f'export PATH={project_path}/ATENA-/venv/bin:$PATH && cd {project_path}/ATENA- && bash atena assistant'
-subprocess.run(['bash', '-c', cmd], check=True)
+# Voltar para raiz
+%cd ..
+
+# Conceder permissão de execução ao script 'atena'
+!chmod +x atena
+
+# Rodar o assistente
+# '.\atena assistant' é um caminho de executável Windows.
+# Assumindo que 'atena' é um executável ou script disponibilizado após a instalação via pip,
+# podemos tentar executá-lo diretamente.
+# O executável 'atena' está na raiz do repositório, então usamos './atena'
+!./atena assistant
 ```
 
 > Dica: no Colab prefira `bash atena ...` em vez de `./atena ...` para evitar erro de permissão em alguns mounts.
