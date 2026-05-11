@@ -47,16 +47,16 @@
 
 ```bash
 # Ir para uma pasta onde você quer baixar o projeto
-cd C:\Users\SeuUsuario
+cd C:\Users\AtenaAuto
 
 # Remover pasta existente (se existir)
-Remove-Item -Recurse -Force ATENA- -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force Atena-agente- - -ErrorAction SilentlyContinue
 
 # Clonar o repositório
-git clone https://github.com/AtenaAuto/ATENA-.git
+git clone https://github.com/AtenaAuto/Atena-agente-.git
 
 # Entrar na pasta
-cd ATENA-
+cd Atena-agente-
 
 # Ir para setup
 cd setup
