@@ -32,7 +32,7 @@ PY
 mod_status=$?
 
 echo "Running critical agent tests..."
-pytest -q tests/unit/test_computer_actuator.py tests/unit/test_terminal_assistant_internet_flow.py
+python3 -m pytest -q tests/unit/test_computer_actuator.py tests/unit/test_terminal_assistant_internet_flow.py
 test_status=$?
 set -e
 if [[ $mod_status -ne 0 || $test_status -ne 0 ]]; then
