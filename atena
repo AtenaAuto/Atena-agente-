@@ -337,7 +337,7 @@ run_doctor() {
     echo -e "${BOLD}Informações do Sistema:${NC}"
     echo "  OS: $(uname -a)"
     echo "  Shell: $SHELL"
-    echo "  Usuário: $USER"
+    echo "  Usuário: ${USER:-$(id -un 2>/dev/null || echo unknown)}"
     echo "  Diretório: $ROOT_DIR"
     echo ""
     
