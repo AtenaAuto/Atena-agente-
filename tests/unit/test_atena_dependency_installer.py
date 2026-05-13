@@ -58,7 +58,10 @@ def test_run_dependency_install_apply_uses_subprocess(monkeypatch, tmp_path):
     assert calls[0][0][:4] == [installer.sys.executable, "-m", "pip", "install"]
     assert calls[0][1]["timeout"] == 7
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 
 
 def test_install_atena_dependencies_returns_terminal_compatible_result(monkeypatch, tmp_path):
@@ -77,4 +80,7 @@ def test_install_atena_dependencies_returns_terminal_compatible_result(monkeypat
     assert payload["steps"][0]["name"] == "pip install"
     assert payload["steps"][0]["status"] == "planned"
     assert payload["steps"][-1]["name"] == "system dependencies"
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
