@@ -70,7 +70,7 @@ class AccessLevel(Enum):
 
 # Padrões de segredos para redação
 SECRET_PATTERNS = [
-    (re.compile(r"ghp_[A-Za-z0-9]{36,}"), "GITHUB_TOKEN"),
+    (re.compile(r"ghp_[A-Za-z0-9]{18,}"), "GITHUB_TOKEN"),
     (re.compile(r"github_pat_[A-Za-z0-9_]{30,}"), "GITHUB_PAT"),
     (re.compile(r"sk-[A-Za-z0-9]{30,}"), "OPENAI_KEY"),
     (re.compile(r"sk-ant-[A-Za-z0-9_\-]{30,}"), "ANTHROPIC_KEY"),
@@ -146,7 +146,7 @@ def redact_secrets(text: str) -> str:
     """Redige segredos no texto."""
     redacted = text
     for pattern, label in SECRET_PATTERNS:
-        redacted = pattern.sub(f"[{label}_REDACTED]", redacted)
+        redacted = pattern.sub("[REDACTED_SECRET]", redacted)
     return redacted
 
 
@@ -189,7 +189,7 @@ class BM25:
     def index(self, corpus: List[str]):
         """Indexa corpus para BM25."""
         self.corpus = corpus
-        self.doc_tokens = [tokenize(doc) for doc in corpus]
+        self.doc_tokens = [list(tokenize(doc)) for doc in corpus]
         self.avgdl = sum(len(tokens) for tokens in self.doc_tokens) / max(1, len(self.doc_tokens))
     
     def score(self, query: str, doc_idx: int) -> float:
@@ -559,7 +559,8 @@ class TenantMemoryRAG:
                     "tenant_id": tenant_id,
                     "question": question,
                     "results": [],
-                    "total_found": 0
+                    "total_found": 0,
+                    "citations_required": True,
                 }
             
             # Prepara corpus para BM25
@@ -594,7 +595,7 @@ class TenantMemoryRAG:
                 access_count = row[7]
                 
                 # Score BM25 (normalizado)
-                bm25_norm = min(1.0, bm25_score / 10.0)
+                bm25_norm = min(1.0, bm25_score)
                 
                 # Score semântico
                 semantic_score = 0.0
@@ -665,6 +666,7 @@ class TenantMemoryRAG:
             "question": question,
             "results": [r.to_dict() for r in formatted_results],
             "total_found": len(formatted_results),
+            "citations_required": True,
             "semantic_search_enabled": self.enable_embeddings,
             "bm25_enabled": True
         }
@@ -741,12 +743,17 @@ class TenantMemoryRAG:
                         "tenant_id": tenant_id,
                         "created_at": created_at
                     })
-                    self._log_audit(
-                        tenant_id, "auto_purge", row_id,
-                        details={"retention_days": retention, "expired_at": created_at}
-                    )
+                    # Audit log é gravado após commit para evitar lock SQLite reentrante.
             
             conn.commit()
+
+        for detail in deleted_details:
+            self._log_audit(
+                detail["tenant_id"],
+                "auto_purge",
+                detail["id"],
+                details={"retention_days": retention_days.get(detail["classification"], retention_days.get("default", 365)), "expired_at": detail["created_at"]},
+            )
         
         # Reconstrói índices afetados
         tenants_affected = set(d["tenant_id"] for d in deleted_details)
