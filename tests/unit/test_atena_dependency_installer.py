@@ -59,7 +59,10 @@ def test_run_dependency_install_apply_uses_subprocess(monkeypatch, tmp_path):
     assert calls[0][1]["timeout"] == 7
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 =======
 >>>>>>> theirs
 
@@ -81,6 +84,9 @@ def test_install_atena_dependencies_returns_terminal_compatible_result(monkeypat
     assert payload["steps"][0]["status"] == "planned"
     assert payload["steps"][-1]["name"] == "system dependencies"
 <<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 =======
 >>>>>>> theirs
