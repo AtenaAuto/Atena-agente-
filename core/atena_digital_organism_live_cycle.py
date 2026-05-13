@@ -499,14 +499,37 @@ def run_live_daemon(
     if strict and daemon_status != "ok":
         daemon_status = "fail"
 
-    return {
-        "status":                   daemon_status,
-        "seed_topic":               seed_topic,
-        "final_topic":              topic,
-        "batches":                  batches,
-        "iterations_per_batch":     iterations_per_batch,
-        "avg_success_rate":         avg_success,
+    root_evo = root / "atena_evolution"
+    root_reports = root / "analysis_reports"
+    root_evo.mkdir(parents=True, exist_ok=True)
+    root_reports.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    daemon_json = root_evo / f"digital_organism_live_daemon_{ts}.json"
+    daemon_markdown = root_reports / f"ATENA_Organismo_Digital_Live_Daemon_{date}.md"
+
+    summary = {
+        "status": daemon_status,
+        "seed_topic": seed_topic,
+        "final_topic": topic,
+        "batches": batches,
+        "iterations_per_batch": iterations_per_batch,
+        "avg_success_rate": avg_success,
         "all_batches_consistently_learning": all_consistent,
-        "min_success_rate":         min_success_rate,
-        "history":                  history,
+        "min_success_rate": min_success_rate,
+        "daemon_json": str(daemon_json),
+        "daemon_markdown": str(daemon_markdown),
     }
+    payload = {**summary, "summary": summary, "history": history}
+    daemon_json.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    daemon_markdown.write_text(
+        "\n".join([
+            f"# ATENA — Live Daemon ({date})",
+            f"- status={summary['status']}",
+            f"- batches={summary['batches']}",
+            f"- avg_success_rate={summary['avg_success_rate']}",
+            f"- all_batches_consistently_learning={summary['all_batches_consistently_learning']}",
+        ]) + "\n",
+        encoding="utf-8",
+    )
+    return payload
