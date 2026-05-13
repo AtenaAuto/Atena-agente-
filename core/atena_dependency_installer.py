@@ -16,8 +16,14 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 <<<<<<< ours
+<<<<<<< ours
 from pathlib import Path
 from typing import Sequence
+=======
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Sequence
+>>>>>>> theirs
 =======
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -37,7 +43,10 @@ DEFAULT_GROUPS = ("core", "dev")
 
 
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 @dataclass(frozen=True)
 class DependencyInstallStep:
     """Etapa resumida para consumo pelo assistente terminal."""
@@ -74,6 +83,9 @@ class AtenaDependencyInstallResult:
         }
 
 
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 def _existing_requirement_files(groups: Sequence[str]) -> list[Path]:
     """Retorna arquivos de requirements existentes para os grupos pedidos."""
@@ -205,7 +217,10 @@ def run_dependency_install(
 
 
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 def install_atena_dependencies(
     *,
     dry_run: bool = True,
@@ -255,6 +270,9 @@ def install_atena_dependencies(
     )
 
 
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Planeja/instala dependências da ATENA")
