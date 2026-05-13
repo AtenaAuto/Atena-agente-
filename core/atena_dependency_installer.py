@@ -15,8 +15,14 @@ import os
 import subprocess
 import sys
 from datetime import datetime, timezone
+<<<<<<< ours
 from pathlib import Path
 from typing import Sequence
+=======
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Sequence
+>>>>>>> theirs
 
 ROOT = Path(__file__).resolve().parents[1]
 SETUP_DIR = ROOT / "setup"
@@ -30,6 +36,45 @@ REQUIREMENT_GROUPS: dict[str, list[Path]] = {
 DEFAULT_GROUPS = ("core", "dev")
 
 
+<<<<<<< ours
+=======
+@dataclass(frozen=True)
+class DependencyInstallStep:
+    """Etapa resumida para consumo pelo assistente terminal."""
+
+    name: str
+    status: str
+    command: list[str] = field(default_factory=list)
+    returncode: int | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "status": self.status,
+            "command": self.command,
+            "returncode": self.returncode,
+        }
+
+
+@dataclass(frozen=True)
+class AtenaDependencyInstallResult:
+    """Resultado compatível com o comando /install-deps do terminal."""
+
+    status: str
+    report_path: str
+    steps: list[DependencyInstallStep]
+    payload: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status": self.status,
+            "report_path": self.report_path,
+            "steps": [step.to_dict() for step in self.steps],
+            "payload": self.payload,
+        }
+
+
+>>>>>>> theirs
 def _existing_requirement_files(groups: Sequence[str]) -> list[Path]:
     """Retorna arquivos de requirements existentes para os grupos pedidos."""
     files: list[Path] = []
@@ -159,6 +204,58 @@ def run_dependency_install(
     return payload
 
 
+<<<<<<< ours
+=======
+def install_atena_dependencies(
+    *,
+    dry_run: bool = True,
+    include_ultimate: bool = False,
+    include_system: bool = False,
+    timeout: int | None = None,
+) -> AtenaDependencyInstallResult:
+    """Compatibilidade para o comando interativo ``/install-deps``.
+
+    O terminal assistant chama esta função e espera um objeto com ``to_dict`` e
+    uma lista de etapas. A instalação de dependências de sistema é registrada
+    como etapa planejada, mas permanece fora do escopo deste instalador Python.
+    """
+    groups = ["core", "dev"]
+    if include_ultimate:
+        groups.append("ultimate")
+
+    payload = run_dependency_install(groups, apply=not dry_run, timeout=timeout)
+    status = str(payload.get("status", "failed"))
+    steps: list[DependencyInstallStep] = []
+
+    for command in payload.get("commands", []):
+        if isinstance(command, list):
+            steps.append(
+                DependencyInstallStep(
+                    name="pip install",
+                    status="planned" if dry_run else status,
+                    command=[str(part) for part in command],
+                    returncode=None if dry_run else int(payload.get("returncode", 0)),
+                )
+            )
+
+    if include_system:
+        steps.append(
+            DependencyInstallStep(
+                name="system dependencies",
+                status="planned",
+                command=["setup/bootstrap_portable.py", "--full-auto"],
+            )
+        )
+
+    return AtenaDependencyInstallResult(
+        status=status,
+        report_path=str(payload.get("report_path", "")),
+        steps=steps,
+        payload=payload,
+    )
+
+
+>>>>>>> theirs
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Planeja/instala dependências da ATENA")
     parser.add_argument(
