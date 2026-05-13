@@ -51,6 +51,9 @@ if str(ROOT) not in sys.path:
 from core.atena_llm_router import AtenaLLMRouter
 from core.internet_challenge import run_internet_challenge, recommend_public_apis, discover_any_apis, rank_api_candidates
 from core.atena_module_preloader import preload_all_modules
+from core.atena_terminal_python_script import create_and_run_terminal_python_script
+from core.atena_dependency_installer import install_atena_dependencies
+from core.atena_github_evolution_scan import run_github_evolution_scan
 
 # --- Tentativa de importar módulos avançados ---
 try:
@@ -1163,6 +1166,9 @@ def print_help():
             ("/api-filter <tarefa>", "Filtra e ranqueia APIs por aderência à tarefa"),
             ("/api-pick <tarefa>", "Escolhe 1 API e gera exemplo de request"),
             ("/task-exec <objetivo>", "Planeja e executa comandos seguros"),
+            ("/python-script <objetivo>", "Cria e executa um script Python local"),
+            ("/install-deps [--apply]", "Planeja ou instala dependências da ATENA"),
+            ("/github-evolution-scan [--absorb] [--clone] [--incorporate] <tema>", "Vasculha GitHub e pode incorporar snapshots no core"),
             ("/self-test [quick|full|security|perf]", "Executa validações automáticas"),
             ("/release-governor", "Executa gates security/release/perf"),
             ("/saas-bootstrap <nome>", "Gera stack SaaS web/api/cli"),
@@ -1189,7 +1195,7 @@ def print_help():
         
         CONSOLE.print(Panel(table, title="[bold cyan]Comandos Disponíveis[/bold cyan]", border_style="cyan"))
     else:
-        print("\nComandos: /task, /internet, /api-scan, /api-filter, /api-pick, /task-exec, /self-test, /release-governor, /saas-bootstrap, /telemetry-insights, /orchestrate, /memory-suggest, /benchmark, /device-control, /security-scan, /secret-audit, /policy, /plugins, /memory, /plan, /run, /context, /model, /clear, /exit\n")
+        print("\nComandos: /task, /internet, /api-scan, /api-filter, /api-pick, /task-exec, /python-script, /install-deps, /github-evolution-scan, /self-test, /release-governor, /saas-bootstrap, /telemetry-insights, /orchestrate, /memory-suggest, /benchmark, /device-control, /security-scan, /secret-audit, /policy, /plugins, /memory, /plan, /run, /context, /model, /clear, /exit\n")
 
 
 # =============================================================================
@@ -1968,6 +1974,114 @@ def main():
                 CONSOLE.print(f"[bold {color}]Secret audit: {status.upper()}[/bold {color}]")
                 if status != "ok":
                     CONSOLE.print("[yellow]Possíveis segredos detectados. Apenas versão mascarada foi salva.[/yellow]")
+                continue
+
+            if user_input.startswith("/python-script"):
+                objective = user_input[len("/python-script"):].strip() or "criar script Python no terminal"
+                with atena_thinking("Criando e executando script Python..."):
+                    result = create_and_run_terminal_python_script(objective)
+                payload = result.to_dict()
+                color = "green" if payload["status"] == "ok" else "red"
+                CONSOLE.print(f"[bold {color}]Python script: {payload['status'].upper()}[/bold {color}]")
+                CONSOLE.print(f"[dim]Arquivo:[/dim] {payload['script_path']}")
+                if payload.get("stdout"):
+                    CONSOLE.print(payload["stdout"].rstrip())
+                if payload.get("stderr"):
+                    CONSOLE.print(f"[yellow]{payload['stderr'].rstrip()}[/yellow]")
+                continue
+
+            if user_input.startswith("/install-deps"):
+                raw = user_input[len("/install-deps"):].strip()
+                try:
+                    dep_args = shlex.split(raw) if raw else []
+                except ValueError as exc:
+                    CONSOLE.print(f"[red]Argumentos inválidos: {exc}[/red]")
+                    continue
+                apply = "--apply" in dep_args
+                include_ultimate = "--ultimate" in dep_args
+                include_system = "--system" in dep_args
+                with atena_thinking("Preparando dependências da ATENA..."):
+                    result = install_atena_dependencies(
+                        dry_run=not apply,
+                        include_ultimate=include_ultimate,
+                        include_system=include_system,
+                    )
+                payload = result.to_dict()
+                color = "green" if payload["status"] in {"ok", "planned"} else "red"
+                CONSOLE.print(f"[bold {color}]Install deps: {payload['status'].upper()}[/bold {color}]")
+                CONSOLE.print(f"[dim]Report:[/dim] {payload.get('report_path')}")
+                for step in payload.get("steps", [])[:8]:
+                    CONSOLE.print(f"- {step['status']}: {step['name']}")
+                if not apply:
+                    CONSOLE.print("[yellow]Plano criado. Rode /install-deps --apply para instalar de verdade.[/yellow]")
+                continue
+
+            if user_input.startswith("/github-evolution-scan"):
+                raw = user_input[len("/github-evolution-scan"):].strip()
+                try:
+                    scan_args = shlex.split(raw) if raw else []
+                except ValueError as exc:
+                    CONSOLE.print(f"[red]Argumentos inválidos: {exc}[/red]")
+                    continue
+                absorb = "--absorb" in scan_args
+                clone = "--clone" in scan_args
+                incorporate = "--incorporate" in scan_args
+                clone_limit = None
+                incorporate_limit = 3
+                objective_parts = []
+                skip_next = False
+                for idx, part in enumerate(scan_args):
+                    if skip_next:
+                        skip_next = False
+                        continue
+                    if part in {"--absorb", "--clone", "--incorporate"}:
+                        continue
+                    if part in {"--clone-limit", "--incorporate-limit"}:
+                        if idx + 1 >= len(scan_args):
+                            CONSOLE.print(f"[red]Valor ausente para {part}[/red]")
+                            skip_next = False
+                            continue
+                        try:
+                            value = int(scan_args[idx + 1])
+                        except ValueError:
+                            CONSOLE.print(f"[red]Valor inválido para {part}: {scan_args[idx + 1]}[/red]")
+                            skip_next = True
+                            continue
+                        if part == "--clone-limit":
+                            clone_limit = value
+                        else:
+                            incorporate_limit = value
+                        skip_next = True
+                        continue
+                    objective_parts.append(part)
+                objective = " ".join(objective_parts).strip() or "evolução de agentes autônomos"
+                with atena_thinking("Vasculhando GitHub para evolução da ATENA..."):
+                    payload = run_github_evolution_scan(
+                        objective,
+                        absorb=absorb,
+                        clone=clone,
+                        clone_limit=clone_limit,
+                        incorporate=incorporate,
+                        incorporate_limit=incorporate_limit,
+                    )
+                color = "green" if payload.get("status") == "ok" else "yellow"
+                CONSOLE.print(f"[bold {color}]GitHub evolution scan: {str(payload.get('status')).upper()}[/bold {color}]")
+                CONSOLE.print(f"[dim]Repos:[/dim] {payload.get('repo_count')}  [dim]Report:[/dim] {payload.get('markdown_path')}")
+                summary = payload.get("findings_summary", {})
+                found = ", ".join(summary.get("answer_what_she_found", [])[:5]) or "nenhum repositório relevante"
+                CONSOLE.print(f"[bold]O que ela achou:[/bold] {found}")
+                CONSOLE.print(f"[bold]Interessante?[/bold] {summary.get('verdict', 'n/a')}")
+                CONSOLE.print(f"[bold]Sempre acha coisas interessantes?[/bold] {summary.get('does_she_always_find_interesting_things', False)}")
+                if payload.get("cloned"):
+                    clone_result = payload.get("clone_result", {})
+                    CONSOLE.print(f"[green]Clones locais:[/green] {clone_result.get('ok', 0)}/{clone_result.get('requested', 0)} em {clone_result.get('clone_dir')}")
+                if payload.get("incorporated"):
+                    incorporation_result = payload.get("incorporation_result", {})
+                    CONSOLE.print(f"[green]Incorporado no core:[/green] {incorporation_result.get('ok', 0)}/{incorporation_result.get('requested', 0)} em {incorporation_result.get('core_dir')}")
+                if payload.get("absorbed"):
+                    CONSOLE.print(f"[green]Absorvido no repositório:[/green] {payload.get('absorbed_path')}")
+                for action in payload.get("evolution_actions", [])[:5]:
+                    CONSOLE.print(f"- {action}")
                 continue
 
             if user_input.startswith("/run "):
