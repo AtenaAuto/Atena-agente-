@@ -1050,51 +1050,118 @@ def run_internet_challenge(topic: str, adaptive_sources: bool = True) -> dict[st
     }
 
 
+
+def _build_topic_variants(topic: str) -> list[str]:
+    """Gera variantes semânticas simples para melhorar consultas multilíngues."""
+    raw = (topic or "").strip()
+    lowered = raw.lower()
+    replacements = {
+        "segurança": "security",
+        "agentes": "agents",
+        "estratégia": "strategy",
+        "empresarial": "enterprise",
+        "copilotos": "copilots",
+        "bancos": "banking",
+        "requisitos": "requirements",
+        "regulatórios": "regulatory",
+        "regulatorios": "regulatory",
+    }
+    translated = lowered
+    for src, dst in replacements.items():
+        translated = translated.replace(src, dst)
+    translated = " ".join(translated.split())
+    variants: list[str] = []
+    if translated and translated != lowered:
+        variants.append(translated)
+    if raw:
+        variants.append(raw)
+    return list(dict.fromkeys(variants or ["artificial intelligence"]))[:3]
+
+
+def _next_evolution_topic(topic: str, payload: dict[str, object], cycle: int) -> str:
+    synthesis = payload.get("synthesis", {}) if isinstance(payload, dict) else {}
+    if not isinstance(synthesis, dict):
+        synthesis = {}
+    high = synthesis.get("high_quality_sources") or payload.get("high_quality_sources", [])
+    failed = synthesis.get("failed_sources") or []
+    high_txt = " ".join(str(item) for item in list(high)[:2])
+    failed_txt = " ".join(str(item) for item in list(failed)[:2])
+    return f"{topic} cycle {cycle} quality {high_txt} retry {failed_txt}".strip()
+
 def run_continuous_internet_evolution(topic: str, cycles: int = 3) -> dict[str, object]:
-    """Executa ciclos contínuos de evolução com refinamento de tópico."""
+    """Executa ciclos contínuos de evolução com refinamento de tópico e gate de qualidade."""
     safe_cycles = max(1, min(int(cycles), 12))
     runs: list[dict[str, object]] = []
     current_topic = (topic or "").strip() or "artificial intelligence"
-    
+
     for cycle_idx in range(1, safe_cycles + 1):
-        payload = run_internet_challenge(current_topic)
-        
+        variants = _build_topic_variants(current_topic)
+        best_variant = variants[0]
+        best_payload: dict[str, object] | None = None
+        best_confidence = -1.0
+        # Evita multiplicar chamadas para tópicos que já estão em inglês/simples.
+        candidates = variants[:1] if variants[0] == current_topic else variants
+        for variant in candidates:
+            payload = run_internet_challenge(variant)
+            confidence = float(payload.get("weighted_confidence", 0.0) or 0.0)
+            if confidence > best_confidence:
+                best_confidence = confidence
+                best_variant = variant
+                best_payload = payload
+        payload = best_payload or {}
+        synthesis = payload.get("synthesis", {}) if isinstance(payload.get("synthesis"), dict) else {}
         runs.append({
             "cycle": cycle_idx,
             "topic": current_topic,
+            "query_variant_used": best_variant,
             "status": payload.get("status"),
             "weighted_confidence": payload.get("weighted_confidence"),
-            "high_quality_sources": payload.get("high_quality_sources", []),
+            "difficulty_score": payload.get("difficulty_score"),
+            "high_quality_sources": payload.get("high_quality_sources", synthesis.get("high_quality_sources", [])),
+            "failed_sources": synthesis.get("failed_sources", []),
+            "evolution_signal": payload.get("evolution_signal", {}),
         })
-        
-        # Refina tópico para próximo ciclo baseado nos resultados
         if cycle_idx < safe_cycles:
-            high_quality = payload.get("high_quality_sources", [])
-            if high_quality:
-                current_topic = f"{current_topic} | validando com {high_quality[0]}"
-    
+            current_topic = _next_evolution_topic(current_topic, payload, cycle_idx + 1)
+
     confidences = [float(r.get("weighted_confidence", 0.0) or 0.0) for r in runs]
     best_confidence = round(max(confidences), 2) if confidences else 0.0
     final_confidence = round(confidences[-1], 2) if confidences else 0.0
-    
+    delta = round(final_confidence - confidences[0], 2) if confidences else 0.0
+    if delta > 0.05:
+        trend = "improving"
+    elif delta < -0.05:
+        trend = "degrading"
+    else:
+        trend = str((runs[-1].get("evolution_signal") or {}).get("trend", "stable")) if runs else "stable"
+
+    gate_reasons = []
+    if final_confidence < 0.3:
+        gate_reasons.append("final_confidence_below_0_3")
+    if best_confidence < 0.5:
+        gate_reasons.append("best_confidence_below_0_5")
+    quality_gate = {"passed": not gate_reasons, "reasons": gate_reasons}
+
     report = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "base_topic": topic,
         "cycles": safe_cycles,
+        "trend": trend,
         "best_weighted_confidence": best_confidence,
         "final_weighted_confidence": final_confidence,
+        "delta_weighted_confidence": delta,
+        "quality_gate": quality_gate,
         "runs": runs,
         "performance_summary": {
             "top_sources": _performance_tracker.get_top_sources(5),
             "source_weights": {s: round(w, 2) for s, w in SOURCE_WEIGHTS.items()}
         }
     }
-    
+
     report_path = ROOT / "analysis_reports" / "ATENA_Continuous_Internet_Evolution.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     report["report_path"] = str(report_path.relative_to(ROOT))
-    
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
 
 
