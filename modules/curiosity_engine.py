@@ -116,8 +116,9 @@ class CuriosityEngine:
         epsilon_decay: float = 0.995,
         enable_external_sources: bool = True
     ):
-        self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self._db_path = Path(db_path)
+        self.db_path = str(self._db_path)
+        self._db_path.parent.mkdir(parents=True, exist_ok=True)
         
         # Parâmetros de exploração
         self.epsilon = epsilon_start
@@ -157,7 +158,7 @@ class CuriosityEngine:
     def _init_db(self):
         """Inicializa banco de dados com schema otimizado."""
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = sqlite3.connect(str(self._db_path))
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS curiosity_topics (
                     topic TEXT PRIMARY KEY,
@@ -180,16 +181,16 @@ class CuriosityEngine:
     
     def _recover_database(self):
         """Recupera banco de dados corrompido."""
-        backup_path = f"{self.db_path}.corrupted_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        backup_path = f"{self._db_path}.corrupted"
         try:
-            if self.db_path.exists():
-                os.replace(str(self.db_path), backup_path)
+            if self._db_path.exists():
+                os.replace(str(self._db_path), backup_path)
                 logger.warning(f"📦 Backup do banco corrompido salvo em {backup_path}")
         except Exception as e:
             logger.error(f"❌ Falha ao fazer backup: {e}")
         
         # Recria banco
-        conn = sqlite3.connect(str(self.db_path))
+        conn = sqlite3.connect(str(self._db_path))
         conn.execute("""
             CREATE TABLE IF NOT EXISTS curiosity_topics (
                 topic TEXT PRIMARY KEY,
@@ -208,7 +209,7 @@ class CuriosityEngine:
     def _load_topics(self):
         """Carrega tópicos do banco para cache."""
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = sqlite3.connect(str(self._db_path))
             conn.row_factory = sqlite3.Row
             cursor = conn.execute("SELECT * FROM curiosity_topics")
             
@@ -232,7 +233,7 @@ class CuriosityEngine:
     def _save_topic(self, topic: CuriosityTopic):
         """Salva tópico no banco de dados."""
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = sqlite3.connect(str(self._db_path))
             conn.execute("""
                 INSERT OR REPLACE INTO curiosity_topics
                 (topic, interest_score, last_explored, discovery_count, reward_sum, source, tags)
@@ -389,8 +390,9 @@ class CuriosityEngine:
         
         # Decisão epsilon-greedy
         if random.random() < self.epsilon:
-            # Exploração: escolhe aleatório
-            topic = random.choice(list(candidate_topics.keys()))
+            # Exploração: prioriza tópicos contextuais quando eles foram fornecidos.
+            exploration_pool = contextual_topics or list(candidate_topics.keys())
+            topic = random.choice(exploration_pool)
             logger.debug(f"🎲 Exploração aleatória: {topic}")
         else:
             # Exploitation: escolhe melhor score
@@ -544,8 +546,8 @@ class CuriosityEngine:
             self.epsilon = 0.3
             
             # Recria banco
-            if self.db_path.exists():
-                os.remove(self.db_path)
+            if self._db_path.exists():
+                os.remove(self._db_path)
             self._init_db()
             
             logger.warning("🗑️ Histórico de curiosidade resetado")
