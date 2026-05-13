@@ -43,6 +43,7 @@ from fastapi import FastAPI, HTTPException, Request, Response, Depends, Backgrou
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.security import APIKeyHeader, HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.websockets import WebSocket, WebSocketDisconnect
@@ -169,7 +170,7 @@ class SLORequest(BaseModel):
 
 class ProgrammingProbeRequest(BaseModel):
     prefix: str = Field("api_probe", min_length=1, max_length=50)
-    site_template: str = Field("dashboard", pattern="^(dashboard|api|cli)$")
+    site_template: str = Field("dashboard", pattern="^(dashboard|api|cli|basic)$")
     output_format: str = Field("json", pattern="^(json|yaml|markdown)$")
     include_tests: bool = True
     publish_to_marketplace: bool = False
@@ -184,7 +185,7 @@ class IssueToPRRequest(BaseModel):
 
 
 class RagGovernanceRequest(BaseModel):
-    role: str = Field(..., pattern="^(admin|developer|analyst|auditor)$")
+    role: str = Field(..., pattern="^(admin|developer|analyst|auditor|operator)$")
     data_classification: str = Field(..., pattern="^(public|internal|confidential|restricted)$")
     has_citations: bool = False
     require_approval: bool = False
@@ -193,7 +194,7 @@ class RagGovernanceRequest(BaseModel):
 
 class SecurityCheckRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=1000)
-    action: str = Field("open_url", pattern="^(open_url|execute_cmd|read_file|write_file)$")
+    action: str = Field("open_url", pattern="^(open_url|execute_cmd|execute_shell|read_file|write_file)$")
     user_context: Dict[str, Any] = Field(default_factory=dict)
     require_confirmation: bool = True
 
@@ -217,10 +218,10 @@ class MarketPublishRequest(BaseModel):
 # 3. MIDDLEWARES PERSONALIZADOS
 # ============================================================================
 
-class RequestIDMiddleware:
+class RequestIDMiddleware(BaseHTTPMiddleware):
     """Adiciona Request ID para tracing de requisições"""
     
-    async def __call__(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
         request.state.request_id = request_id
         
@@ -240,15 +241,16 @@ class RequestIDMiddleware:
         return response
 
 
-class RateLimitMiddleware:
+class RateLimitMiddleware(BaseHTTPMiddleware):
     """Rate limiting baseado em IP/API key"""
     
-    def __init__(self, config: RateLimitConfig):
+    def __init__(self, app, config: RateLimitConfig):
+        super().__init__(app)
         self.config = config
         self._requests: Dict[str, List[float]] = defaultdict(list)
         self._lock = asyncio.Lock()
     
-    async def __call__(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         if not APIConfig().enable_rate_limit:
             return await call_next(request)
         
@@ -291,17 +293,18 @@ class RateLimitMiddleware:
         return response
 
 
-class CircuitBreakerMiddleware:
+class CircuitBreakerMiddleware(BaseHTTPMiddleware):
     """Circuit breaker para endpoints problemáticos"""
     
-    def __init__(self, failure_threshold: int = 5, recovery_timeout: int = 60):
+    def __init__(self, app, failure_threshold: int = 5, recovery_timeout: int = 60):
+        super().__init__(app)
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self._failures: Dict[str, int] = defaultdict(int)
         self._last_failure: Dict[str, float] = {}
         self._state: Dict[str, str] = defaultdict(lambda: "CLOSED")
     
-    async def __call__(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         endpoint = request.url.path
         
         # Verifica se circuito está aberto
@@ -349,13 +352,17 @@ class CircuitBreakerMiddleware:
             self._failures[endpoint] = max(0, self._failures[endpoint] - 1)
 
 
-class MetricsMiddleware:
+class MetricsMiddleware(BaseHTTPMiddleware):
     """Coleta métricas para Prometheus"""
+
+    _shared_metrics: Dict[str, Dict] = defaultdict(lambda: {"count": 0, "total_time": 0})
+
+    def __init__(self, app=None):
+        if app is not None:
+            super().__init__(app)
+        self._metrics = self._shared_metrics
     
-    def __init__(self):
-        self._metrics: Dict[str, Dict] = defaultdict(lambda: {"count": 0, "total_time": 0})
-    
-    async def __call__(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         start_time = time.time()
         response = await call_next(request)
         duration_ms = (time.time() - start_time) * 1000
@@ -557,7 +564,7 @@ if api_config.allowed_hosts != ["*"]:
 @app.get("/health", tags=["System"])
 async def health() -> Dict[str, str]:
     """Liveness probe - verifica se API está rodando"""
-    return {"status": "alive", "timestamp": datetime.now().isoformat()}
+    return {"status": "ok", "liveness": "alive", "timestamp": datetime.now().isoformat()}
 
 
 @app.get("/health/readiness", tags=["System"])
