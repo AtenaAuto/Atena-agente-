@@ -752,6 +752,29 @@ class SmartURLDeduplicator:
 
 
 # =============================================================================
+# Backwards-compatible public aliases
+# =============================================================================
+
+class RateLimiter(AdvancedRateLimiter):
+    """Compatibilidade com a API histórica que retornava apenas booleano."""
+
+    def acquire(self, url: str, block: bool = True, timeout: float = 30.0) -> bool:  # type: ignore[override]
+        allowed, _wait_time = super().acquire(url, block=block, timeout=timeout)
+        return allowed
+
+
+class URLDeduplicator(SmartURLDeduplicator):
+    """Compatibilidade com a API histórica de deduplicação."""
+
+    def check_and_mark(self, url: str) -> bool:  # type: ignore[override]
+        is_duplicate, _hit_count = super().check_and_mark(url)
+        return is_duplicate
+
+    def stats(self) -> Dict[str, Any]:
+        return self.get_stats()
+
+
+# =============================================================================
 # Instâncias Globais
 # =============================================================================
 
