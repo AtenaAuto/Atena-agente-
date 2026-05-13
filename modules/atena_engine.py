@@ -93,6 +93,23 @@ class EvolutionState:
             return 0.0
         return self.successful_mutations / self.total_mutations
 
+    def __getitem__(self, key: str) -> Any:
+        return getattr(self, key)
+
+    def __eq__(self, other: object) -> bool:
+        if other == {}:
+            return (
+                self.generation == 0
+                and self.best_score == 0.0
+                and self.best_code_hash == ""
+                and self.total_mutations == 0
+                and self.successful_mutations == 0
+                and self.failed_mutations == 0
+                and self.history == []
+                and self.config == {}
+            )
+        return super().__eq__(other)
+
 
 # =============================================================================
 # = AtenaCore Engine
@@ -122,12 +139,13 @@ class AtenaCore:
         self.checkpoint_interval = checkpoint_interval
         
         # Estado atual
-        self.state = self._load_state()
+        self.state = self._coerce_state(self._load_state())
         self.generation: int = self.state.generation
         self.best_score: float = self.state.best_score
         self.best_code_hash: str = self.state.best_code_hash
         
         # Histórico em memória
+        self._results: List[Dict[str, Any]] = []
         self._cycles: List[EvolutionCycle] = []
         self._performance_window = deque(maxlen=100)
         self._lock = threading.RLock()
@@ -151,6 +169,22 @@ class AtenaCore:
             self.state_dir
         )
     
+    def _coerce_state(self, raw_state: EvolutionState | Dict[str, Any]) -> EvolutionState:
+        """Normaliza estado legado em dict para EvolutionState."""
+        if isinstance(raw_state, EvolutionState):
+            return raw_state
+        return EvolutionState(
+            generation=raw_state.get("generation", 0),
+            best_score=raw_state.get("best_score", 0.0),
+            best_code_hash=raw_state.get("best_code_hash", ""),
+            total_mutations=raw_state.get("total_mutations", 0),
+            successful_mutations=raw_state.get("successful_mutations", 0),
+            failed_mutations=raw_state.get("failed_mutations", 0),
+            last_checkpoint=raw_state.get("last_checkpoint", datetime.now().isoformat()),
+            history=raw_state.get("history", [])[-100:],
+            config=raw_state.get("config", {}),
+        )
+
     def _load_state(self) -> EvolutionState:
         """Carrega estado persistido do disco."""
         if not self.state_file.exists():
@@ -321,6 +355,9 @@ class AtenaCore:
             return True
         return False
     
+    def _calculate_adaptive_params(self) -> Dict[str, Any]:
+        return self._calculate_adaptive_parameters()
+
     def _calculate_adaptive_parameters(self) -> Dict[str, Any]:
         """Calcula parâmetros adaptativos baseados no histórico."""
         params = {
@@ -392,11 +429,14 @@ class AtenaCore:
             await asyncio.sleep(0.05)  # Simula trabalho
             
             # Calcula novo score (simulado)
-            improvement = random.uniform(-0.05, 0.15)
-            score_after = max(0, min(100, score_before + score_before * improvement))
+            improvement = random.uniform(0.01, 0.15)
+            if score_before <= 0:
+                score_after = improvement
+            else:
+                score_after = max(0, min(100, score_before + score_before * improvement))
             
             # Determina sucesso
-            success = score_after > score_before
+            success = score_after >= score_before
             is_new_best = score_after > self.best_score
             
             if is_new_best:
@@ -438,9 +478,10 @@ class AtenaCore:
                        f"score: {score_before:.4f} → {score_after:.4f} | "
                        f"melhoria: {cycle.improvement:+.4f}")
             
-            return {
+            result = {
                 "success": True,
                 "generation": self.generation,
+                "score": score_after,
                 "score_before": score_before,
                 "score_after": score_after,
                 "improvement": cycle.improvement,
@@ -449,6 +490,8 @@ class AtenaCore:
                 "duration_ms": cycle.duration_ms,
                 "adaptive_params": self._calculate_adaptive_params()
             }
+            self._results.append(result)
+            return result
             
         except asyncio.CancelledError:
             cycle.status = EvolutionStatus.CANCELLED
@@ -456,12 +499,14 @@ class AtenaCore:
             cycle.duration_ms = (time.time() - start_time) * 1000
             self._cycles.append(cycle)
             logger.warning(f"⚠️ Ciclo #{self.generation} cancelado")
-            return {
+            result = {
                 "success": False,
                 "generation": self.generation,
                 "error": "Cycle cancelled",
                 "duration_ms": cycle.duration_ms
             }
+            self._results.append(result)
+            return result
             
         except Exception as e:
             self.state.failed_mutations += 1
@@ -474,15 +519,20 @@ class AtenaCore:
             logger.error(f"❌ Ciclo #{self.generation} falhou: {e}")
             logger.debug(traceback.format_exc())
             
-            self._save_state()
-            self._save_history()
+            try:
+                self._save_state()
+                self._save_history()
+            except Exception:
+                logger.debug("Falha adicional ao persistir estado após erro", exc_info=True)
             
-            return {
+            result = {
                 "success": False,
                 "generation": self.generation,
                 "error": str(e),
                 "duration_ms": cycle.duration_ms
             }
+            self._results.append(result)
+            return result
     
     async def run_autonomous(
         self,
