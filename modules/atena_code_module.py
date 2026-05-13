@@ -9,7 +9,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Literal
 
-ProjectType = Literal["site", "api", "cli"]
+ProjectType = Literal["site", "api", "cli", "microservice", "library"]
 SiteTemplate = Literal["basic", "landing-page", "portfolio", "dashboard", "blog"]
 
 
@@ -48,6 +48,10 @@ class AtenaCodeModule:
             self._build_api(out, safe_name)
         elif project_type == "cli":
             self._build_cli(out, safe_name)
+        elif project_type == "microservice":
+            self._build_microservice(out, safe_name)
+        elif project_type == "library":
+            self._build_library(out, safe_name)
         else:
             return BuildResult(False, project_type, project_name, template, str(out), "Tipo de projeto inválido")
 
@@ -446,6 +450,181 @@ class AtenaCodeModule:
             ),
             encoding="utf-8",
         )
+
+    def _build_library(self, out: Path, name: str) -> None:
+        package_name = name.replace("-", "_")
+        package_dir = out / package_name
+        package_dir.mkdir(parents=True, exist_ok=True)
+        (out / "README.md").write_text(
+            dedent(
+                f"""\
+                # {name}
+
+                Biblioteca Python gerada automaticamente pela ATENA.
+
+                ## Como validar
+
+                ```bash
+                python main.py
+                ```
+
+                A biblioteca inclui API pública tipada, docstrings e teste de exemplo determinístico.
+                """
+            ),
+            encoding="utf-8",
+        )
+        library_source = f'''\
+"""Biblioteca gerada pela ATENA para validação completa."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from statistics import mean
+
+
+@dataclass(frozen=True)
+class DeliveryScore:
+    """Representa uma pontuação auditável de entrega."""
+
+    name: str
+    checks_passed: int
+    checks_total: int
+
+    @property
+    def ratio(self) -> float:
+        """Retorna a razão de checks aprovados."""
+        if self.checks_total <= 0:
+            return 0.0
+        return round(self.checks_passed / self.checks_total, 4)
+
+
+def summarize_delivery(scores: list[DeliveryScore]) -> dict[str, float | int]:
+    """Agrega pontuações de entrega em métricas simples."""
+    ratios = [score.ratio for score in scores]
+    return {{
+        "count": len(scores),
+        "average_ratio": round(mean(ratios), 4) if ratios else 0.0,
+        "perfect": sum(1 for score in scores if score.ratio == 1.0),
+    }}
+
+
+__all__ = ["DeliveryScore", "summarize_delivery"]
+'''
+        (package_dir / "__init__.py").write_text(dedent(library_source), encoding="utf-8")
+        main_source = f'''\
+#!/usr/bin/env python3
+"""Smoke test local da biblioteca {name}."""
+
+from __future__ import annotations
+
+import json
+
+from {package_name} import DeliveryScore, summarize_delivery
+
+
+def main() -> None:
+    """Executa demonstração determinística da biblioteca."""
+    payload = summarize_delivery([
+        DeliveryScore(name="site", checks_passed=3, checks_total=3),
+        DeliveryScore(name="api", checks_passed=3, checks_total=3),
+        DeliveryScore(name="cli", checks_passed=3, checks_total=3),
+    ])
+    print(json.dumps(payload, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
+'''
+        (out / "main.py").write_text(dedent(main_source), encoding="utf-8")
+
+    def _build_microservice(self, out: Path, name: str) -> None:
+        (out / "README.md").write_text(
+            dedent(
+                f"""\
+                # {name}
+
+                Microserviço gerado automaticamente pela ATENA para testes completos.
+
+                ## Como executar
+
+                ```bash
+                python main.py --self-test
+                ```
+
+                ## Endpoints simulados
+
+                - `GET /health` retorna status operacional.
+                - `POST /jobs` registra uma tarefa determinística em memória.
+                - `GET /metrics` expõe contadores simples para observabilidade.
+                """
+            ),
+            encoding="utf-8",
+        )
+        service_source = f'''\
+#!/usr/bin/env python3
+"""Microserviço determinístico gerado pela ATENA."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Any
+
+
+@dataclass
+class JobStore:
+    """Armazena jobs em memória para smoke tests locais."""
+
+    service: str
+    jobs: list[dict[str, Any]] = field(default_factory=list)
+
+    def health(self) -> dict[str, str]:
+        """Retorna status operacional do microserviço."""
+        return {{"status": "ok", "service": self.service}}
+
+    def create_job(self, title: str) -> dict[str, Any]:
+        """Cria uma tarefa determinística com timestamp UTC."""
+        job = {{
+            "id": len(self.jobs) + 1,
+            "title": title,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }}
+        self.jobs.append(job)
+        return job
+
+    def metrics(self) -> dict[str, int]:
+        """Expõe métricas simples para validação."""
+        return {{"jobs_total": len(self.jobs)}}
+
+
+def run_self_test() -> dict[str, Any]:
+    """Executa teste integrado local sem depender de rede."""
+    store = JobStore(service="{name}")
+    first_job = store.create_job("validar entrega ATENA")
+    payload = {{
+        "health": store.health(),
+        "job": first_job,
+        "metrics": store.metrics(),
+        "passed": first_job["id"] == 1 and store.metrics()["jobs_total"] == 1,
+    }}
+    return payload
+
+
+def main() -> None:
+    """Entrada CLI do microserviço gerado."""
+    parser = argparse.ArgumentParser(prog="{name}")
+    parser.add_argument("--self-test", action="store_true", help="executa validação local")
+    args = parser.parse_args()
+    payload = run_self_test() if args.self_test else JobStore(service="{name}").health()
+    print(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
+'''
+        (out / "main.py").write_text(dedent(service_source), encoding="utf-8")
 
     def _build_api(self, out: Path, name: str) -> None:
         (out / "requirements.txt").write_text("fastapi\nuvicorn\n", encoding="utf-8")
