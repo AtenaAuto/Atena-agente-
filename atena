@@ -466,6 +466,8 @@ ${BOLD}Comandos:${NC}
     benchmark           Executa benchmark completo
     self-test           Auto-validação da ATENA
     release-gate        Avalia readiness para release
+    install-deps        Planeja/instala dependências (use --apply para executar)
+    github-scan         Vasculha GitHub para evolução da ATENA
 
 ${BOLD}Variáveis de Ambiente:${NC}
     ATENA_FORCE         Força execução mesmo com lock
@@ -478,6 +480,8 @@ ${BOLD}Exemplos:${NC}
     $0 --auto                    # Modo autônomo (CI/CD)
     $0 --doctor                  # Diagnóstico completo
     $0 --venv assistant          # Modo assistente com venv
+    $0 install-deps --apply      # Instala dependências da ATENA
+    $0 github-scan ai agents     # Busca sinais no GitHub para evolução
     $0 --update                  # Auto-atualização
 
 ${DIM}Documentação: https://github.com/AtenaAuto/ATENA-${NC}
@@ -550,7 +554,11 @@ main() {
                 mode="release-gate"
                 shift
                 ;;
-            assistant|manus|codex|claude-code|benchmark|self-test)
+            --install-deps)
+                mode="install-deps"
+                shift
+                ;;
+            assistant|manus|codex|claude-code|benchmark|self-test|release-gate|install-deps|github-scan)
                 mode="$1"
                 shift
                 ;;
@@ -562,7 +570,7 @@ main() {
     done
     
     # Banner
-    if [[ "$mode" != "doctor" ]] && [[ "$mode" != "update" ]]; then
+    if [[ "$mode" != "doctor" ]] && [[ "$mode" != "update" ]] && [[ "$mode" != "install-deps" ]]; then
         echo -e "${CYAN}${BOLD}"
         echo "  █████╗ ████████╗███████╗███╗   ██╗ █████╗ "
         echo " ██╔══██╗╚══██╔══╝██╔════╝████╗  ██║██╔══██╗"
@@ -615,6 +623,14 @@ main() {
         release-gate)
             log INFO "Executando release gate..."
             exec $PYTHON_CMD "$CORE_DIR/atena_release_gate.py" "${args[@]}"
+            ;;
+        install-deps)
+            log INFO "Planejando/instalando dependências..."
+            exec $PYTHON_CMD "$CORE_DIR/atena_dependency_installer.py" "${args[@]}"
+            ;;
+        github-scan)
+            log INFO "Vasculhando GitHub para evolução..."
+            exec $PYTHON_CMD "$CORE_DIR/atena_github_evolution_scan.py" "${args[@]}"
             ;;
         assistant|manus|codex|claude-code)
             log INFO "Iniciando assistente de terminal..."
@@ -1106,6 +1122,10 @@ main_enhanced() {
                 mode="release-gate"
                 shift
                 ;;
+            --install-deps)
+                mode="install-deps"
+                shift
+                ;;
             --dev)
                 mode="dev"
                 shift
@@ -1126,7 +1146,7 @@ main_enhanced() {
                 mode="config_save"
                 shift
                 ;;
-            assistant|manus|codex|claude-code|benchmark|self-test)
+            assistant|manus|codex|claude-code|benchmark|self-test|release-gate|install-deps|github-scan)
                 mode="$1"
                 shift
                 ;;
@@ -1138,7 +1158,7 @@ main_enhanced() {
     done
     
     # Banner (condicional)
-    if [[ "$mode" != "doctor" ]] && [[ "$mode" != "update" ]] && [[ "$mode" != "health" ]]; then
+    if [[ "$mode" != "doctor" ]] && [[ "$mode" != "update" ]] && [[ "$mode" != "health" ]] && [[ "$mode" != "install-deps" ]]; then
         echo -e "${CYAN}${BOLD}"
         echo "  █████╗ ████████╗███████╗███╗   ██╗ █████╗ "
         echo " ██╔══██╗╚══██╔══╝██╔════╝████╗  ██║██╔══██╗"
@@ -1170,6 +1190,20 @@ main_enhanced() {
         config_save)
             save_user_config
             exit $?
+            ;;
+        install-deps)
+            detect_environment
+            setup_environment_vars
+            setup_venv
+            log INFO "Planejando/instalando dependências..."
+            exec $PYTHON_CMD "$CORE_DIR/atena_dependency_installer.py" "${args[@]}"
+            ;;
+        github-scan)
+            detect_environment
+            setup_environment_vars
+            setup_venv
+            log INFO "Vasculhando GitHub para evolução..."
+            exec $PYTHON_CMD "$CORE_DIR/atena_github_evolution_scan.py" "${args[@]}"
             ;;
     esac
     
