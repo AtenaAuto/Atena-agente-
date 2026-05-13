@@ -97,6 +97,22 @@ logging.basicConfig(
 )
 logger = logging.getLogger("atena.launcher")
 
+
+def _run_with_auto_dep_repair(
+    script: Path,
+    script_args: list[str] | None = None,
+    env: dict[str, str] | None = None,
+    *,
+    interactive: bool = False,
+) -> int:
+    """Executa script preservando I/O interativo quando solicitado."""
+    command = [sys.executable, str(script), *(script_args or [])]
+    kwargs: dict[str, object] = {"cwd": ROOT, "env": env or os.environ.copy()}
+    if not interactive:
+        kwargs.update({"capture_output": True, "text": True})
+    completed = subprocess.run(command, **kwargs)
+    return int(completed.returncode)
+
 # ========== ENUMS E MODELOS ==========
 class CommandStatus(Enum):
     PENDING = "pending"
