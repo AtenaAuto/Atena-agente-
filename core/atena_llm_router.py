@@ -104,6 +104,10 @@ class RouterConfig:
     retry_on_status_codes: Set[int] = field(default_factory=lambda: {408, 429, 500, 502, 503, 504})
     max_retries: int = int(os.getenv("ATENA_LLM_MAX_RETRIES", "3"))
 
+    # Acesso aberto/local-first
+    open_access_mode: bool = os.getenv("ATENA_OPEN_ACCESS_MODE", "0") == "1"
+    allow_paid_providers: bool = os.getenv("ATENA_ALLOW_PAID_PROVIDERS", "1") == "1"
+
 
 # ========== MODELOS DE DADOS ==========
 class ProviderStatus(Enum):
@@ -761,7 +765,16 @@ class AtenaLLMRouterAdvanced:
         return self._backend
 
     def list_options(self) -> List[str]:
-        return ["auto", "openai:auto", "deepseek:auto", "anthropic:auto", "public-api:auto", "local:stub"]
+        return [
+            "auto",
+            "open-access",
+            "local:brain",
+            "public-api:auto",
+            "local:stub",
+            "openai:auto",
+            "deepseek:auto",
+            "anthropic:auto",
+        ]
 
     def _has_internet(self) -> bool:
         probes = [
@@ -794,8 +807,27 @@ class AtenaLLMRouterAdvanced:
         return True, f"Backend definido para: {spec}"
 
     def prepare_free_local_model(self) -> Tuple[bool, str]:
+        brain = self._get_local_brain()
+        if brain is not None and hasattr(brain, "prepare_runtime_model"):
+            try:
+                brain.prepare_runtime_model()
+            except Exception:
+                pass
+            self._backend = "local:brain"
+            return True, "Modelo local gratuito preparado (local-brain)."
         self._backend = "local:stub"
         return True, "Modelo local gratuito preparado (stub)."
+
+    def open_access_plan(self) -> Dict[str, object]:
+        """Describe how ATENA runs without paid token-gated APIs."""
+        return {
+            "status": "ok",
+            "mode": "open-access",
+            "paid_provider_required": False,
+            "token_gate_policy": "preferir execução local, cache, scaffolds e APIs públicas antes de qualquer provedor pago",
+            "fallback_order": ["local:brain", "public-api:auto", "local:stub"],
+            "paid_providers_enabled": self.config.allow_paid_providers and not self.config.open_access_mode,
+        }
 
     def _get_local_brain(self):
         """Ponto de extensão para testes e integração com local LM."""
@@ -805,7 +837,26 @@ class AtenaLLMRouterAdvanced:
         except Exception:
             return None
 
+    def _activate_open_access_backend(self) -> Tuple[bool, str]:
+        brain = self._get_local_brain()
+        if brain is not None and hasattr(brain, "prepare_runtime_model"):
+            try:
+                brain.prepare_runtime_model()
+            except Exception:
+                pass
+            ok, _ = self.set_backend("local:brain")
+            self._backend = "local:brain"
+            return True, "open-access: local-brain pronto sem API paga"
+        if self._has_internet():
+            self._backend = "public-api:auto"
+            return True, "open-access: APIs públicas gratuitas ativas sem token pago"
+        self._backend = "local:stub"
+        return True, "open-access: modo local stub ativo sem token pago"
+
     def auto_orchestrate_llm(self) -> Tuple[bool, str]:
+        if self.config.open_access_mode or not self.config.allow_paid_providers:
+            return self._activate_open_access_backend()
+
         dashscope = os.getenv("DASHSCOPE_API_KEY")
         if dashscope:
             ok, _ = self.set_backend("qwen:qwen-plus")
@@ -838,7 +889,14 @@ class AtenaLLMRouterAdvanced:
         return False, "Sem provedores e sem internet detectada; usando modo local stub."
 
     def generate(self, prompt: str, context: str = "", **kwargs) -> str:
-        if not self._providers:
+        if self._backend == "open-access":
+            self._activate_open_access_backend()
+
+        if self.config.open_access_mode or not self.config.allow_paid_providers:
+            if not self._backend.startswith(("local", "public-api")):
+                self._activate_open_access_backend()
+
+        if not self._providers or self._backend.startswith(("local", "public-api")):
             if self._backend.startswith("public-api"):
                 scaffold = self._build_local_scaffold_response(prompt)
                 if scaffold:
@@ -868,9 +926,11 @@ class AtenaLLMRouterAdvanced:
                     return f"[public-api] {summary}\nConfiança: {confidence}{best_line}"
                 except Exception as exc:
                     return f"Modo public-api indisponível no momento: {exc}"
+            plan = self.open_access_plan()
             return (
-                "Modo local (stub) ativo: nenhum provedor de LLM configurado. "
-                "Defina OPENAI_API_KEY/DEEPSEEK_API_KEY/ANTHROPIC_API_KEY para respostas reais."
+                "Modo open-access local ativo: nenhum provedor pago é necessário. "
+                f"Ordem de fallback: {', '.join(plan['fallback_order'])}. "
+                "Use ATENA_OPEN_ACCESS_MODE=1 para manter a política local-first mesmo quando chaves privadas existirem."
             )
         prefer = None
         if self._backend.startswith("openai"):
