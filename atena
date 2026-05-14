@@ -468,6 +468,7 @@ ${BOLD}Comandos:${NC}
     release-gate        Avalia readiness para release
     install-deps        Planeja/instala dependências (use --apply para executar)
     github-scan         Vasculha GitHub para evolução da ATENA
+    future-ai-fabric    Cria blueprint de tecnologia futura de IA
 
 ${BOLD}Variáveis de Ambiente:${NC}
     ATENA_FORCE         Força execução mesmo com lock
@@ -558,7 +559,7 @@ main() {
                 mode="install-deps"
                 shift
                 ;;
-            assistant|manus|codex|claude-code|benchmark|self-test|release-gate|install-deps|github-scan)
+            assistant|manus|codex|claude-code|benchmark|self-test|release-gate|install-deps|github-scan|future-ai-fabric|production-center)
                 mode="$1"
                 shift
                 ;;
@@ -569,6 +570,14 @@ main() {
         esac
     done
     
+    # JSON-producing production center must not be polluted by banner/logs.
+    if [[ "$mode" == "production-center" ]]; then
+        if [[ -x "$VENV_DIR/bin/python" ]]; then
+            PYTHON_CMD="$VENV_DIR/bin/python"
+        fi
+        exec "$PYTHON_CMD" "$CORE_DIR/atena_production_center.py" "${args[@]}"
+    fi
+
     # Banner
     if [[ "$mode" != "doctor" ]] && [[ "$mode" != "update" ]] && [[ "$mode" != "install-deps" ]]; then
         echo -e "${CYAN}${BOLD}"
@@ -631,6 +640,13 @@ main() {
         github-scan)
             log INFO "Vasculhando GitHub para evolução..."
             exec $PYTHON_CMD "$CORE_DIR/atena_github_evolution_scan.py" "${args[@]}"
+            ;;
+        future-ai-fabric)
+            log INFO "Criando tecnologia futura de IA..."
+            exec $PYTHON_CMD "$CORE_DIR/atena_neurocausal_memory_fabric.py" "${args[@]}"
+            ;;
+        production-center)
+            exec $PYTHON_CMD "$CORE_DIR/atena_production_center.py" "${args[@]}"
             ;;
         assistant|manus|codex|claude-code)
             log INFO "Iniciando assistente de terminal..."
@@ -1146,7 +1162,7 @@ main_enhanced() {
                 mode="config_save"
                 shift
                 ;;
-            assistant|manus|codex|claude-code|benchmark|self-test|release-gate|install-deps|github-scan)
+            assistant|manus|codex|claude-code|benchmark|self-test|release-gate|install-deps|github-scan|future-ai-fabric|production-center)
                 mode="$1"
                 shift
                 ;;
