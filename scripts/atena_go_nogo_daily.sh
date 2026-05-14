@@ -26,10 +26,7 @@ run_step "pytest -q tests/unit/test_terminal_assistant_task_exec.py tests/unit/t
 run_step "python protocols/atena_module_smoke_mission.py" "Module smoke mission"
 run_step "python protocols/atena_complex_research_mission.py" "Missão internet complexa"
 run_step "python protocols/atena_enterprise_internet_strategy_mission.py" "Missão internet empresarial"
-<<<<<<< ours
-=======
 run_step "python scripts/atena_scorecard.py" "Scorecard ATENA (nota final)"
->>>>>>> theirs
 
 {
   echo "# ATENA GO/NO-GO Diário"
