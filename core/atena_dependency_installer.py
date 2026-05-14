@@ -14,27 +14,10 @@ import json
 import os
 import subprocess
 import sys
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-from pathlib import Path
-from typing import Sequence
-=======
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
->>>>>>> theirs
-=======
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Sequence
->>>>>>> theirs
-=======
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Sequence
->>>>>>> theirs
 
 ROOT = Path(__file__).resolve().parents[1]
 SETUP_DIR = ROOT / "setup"
@@ -48,14 +31,6 @@ REQUIREMENT_GROUPS: dict[str, list[Path]] = {
 DEFAULT_GROUPS = ("core", "dev")
 
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 @dataclass(frozen=True)
 class DependencyInstallStep:
     """Etapa resumida para consumo pelo assistente terminal."""
@@ -92,13 +67,6 @@ class AtenaDependencyInstallResult:
         }
 
 
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 def _existing_requirement_files(groups: Sequence[str]) -> list[Path]:
     """Retorna arquivos de requirements existentes para os grupos pedidos."""
     files: list[Path] = []
@@ -228,14 +196,6 @@ def run_dependency_install(
     return payload
 
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 def install_atena_dependencies(
     *,
     dry_run: bool = True,
@@ -285,13 +245,6 @@ def install_atena_dependencies(
     )
 
 
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Planeja/instala dependências da ATENA")
     parser.add_argument(
