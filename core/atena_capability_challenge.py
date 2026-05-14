@@ -10,11 +10,7 @@ criteria, verification steps, and optional code-generation evidence.
 
 from __future__ import annotations
 
-<<<<<<< ours
-from dataclasses import dataclass, asdict
-=======
 from dataclasses import asdict, dataclass
->>>>>>> theirs
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -30,8 +26,6 @@ class CapabilityTask:
     expected_terms: tuple[str, ...]
 
 
-<<<<<<< ours
-=======
 @dataclass(frozen=True)
 class CapabilityDomain:
     """Domain-level challenge used by the universal suite."""
@@ -52,7 +46,6 @@ class ExtremeProbe:
     evidence_terms: tuple[str, ...]
 
 
->>>>>>> theirs
 BASE_TASKS: tuple[CapabilityTask, ...] = (
     CapabilityTask(
         name="objective_decomposition",
@@ -86,8 +79,6 @@ BASE_TASKS: tuple[CapabilityTask, ...] = (
     ),
 )
 
-<<<<<<< ours
-=======
 UNIVERSAL_DOMAINS: tuple[CapabilityDomain, ...] = (
     CapabilityDomain(
         name="code_generation",
@@ -133,7 +124,6 @@ UNIVERSAL_DOMAINS: tuple[CapabilityDomain, ...] = (
     ),
 )
 
-
 EXTREME_PROBES: tuple[ExtremeProbe, ...] = (
     ExtremeProbe(
         name="ambiguous_goal_resolution",
@@ -167,7 +157,6 @@ EXTREME_PROBES: tuple[ExtremeProbe, ...] = (
     ),
 )
 
->>>>>>> theirs
 
 def _normalise_objective(objective: str) -> str:
     cleaned = " ".join(objective.strip().split())
@@ -214,8 +203,6 @@ def _score_answer(answer: str, expected_terms: tuple[str, ...]) -> dict[str, Any
     }
 
 
-<<<<<<< ours
-=======
 def _build_domain_result(domain: CapabilityDomain, objective: str) -> dict[str, Any]:
     """Build a domain result that states proof requirements instead of unlimited claims."""
     guardrails = [
@@ -256,7 +243,6 @@ def _build_extreme_result(probe: ExtremeProbe, objective: str) -> dict[str, Any]
     }
 
 
->>>>>>> theirs
 def _run_codegen_evidence(root: Path | None) -> dict[str, Any]:
     """Optionally run the programming probe full suite as hard evidence."""
     if root is None:
@@ -283,11 +269,6 @@ def run_capability_challenge(
     *,
     include_codegen: bool = False,
     root: Path | None = None,
-<<<<<<< ours
-) -> dict[str, Any]:
-    """Run an auditable challenge against a broad ATENA objective."""
-    normalized = _normalise_objective(objective)
-=======
     suite: str = "core",
 ) -> dict[str, Any]:
     """Run an auditable challenge against a broad ATENA objective."""
@@ -295,7 +276,7 @@ def run_capability_challenge(
     selected_suite = suite.strip().lower() or "core"
     if selected_suite not in {"core", "universal", "extreme"}:
         raise ValueError("suite must be 'core', 'universal' or 'extreme'")
->>>>>>> theirs
+
     task_results: list[dict[str, Any]] = []
     for task in BASE_TASKS:
         answer = _build_answer(task, normalized)
@@ -310,13 +291,6 @@ def run_capability_challenge(
     if include_codegen:
         codegen_evidence = _run_codegen_evidence(root)
 
-<<<<<<< ours
-    base_passed = sum(1 for item in task_results if item["ok"])
-    base_total = len(task_results)
-    codegen_ok = not include_codegen or codegen_evidence.get("status") == "ok"
-    total = base_total + (1 if include_codegen else 0)
-    passed = base_passed + (1 if include_codegen and codegen_ok else 0)
-=======
     domain_results = [
         _build_domain_result(domain, normalized)
         for domain in (UNIVERSAL_DOMAINS if selected_suite in {"universal", "extreme"} else ())
@@ -332,33 +306,32 @@ def run_capability_challenge(
     extreme_passed = sum(1 for item in extreme_results if item["ok"])
     codegen_ok = not include_codegen or codegen_evidence.get("status") == "ok"
     total = base_total + len(domain_results) + len(extreme_results) + (1 if include_codegen else 0)
-    passed = base_passed + domain_passed + extreme_passed + (1 if include_codegen and codegen_ok else 0)
->>>>>>> theirs
+    passed = (
+        base_passed + domain_passed + extreme_passed + (1 if include_codegen and codegen_ok else 0)
+    )
     score = round(passed / max(1, total), 4)
     status = "pass" if passed == total else "warn" if score >= 0.8 else "fail"
 
     return {
         "status": status,
         "objective": normalized,
-<<<<<<< ours
-=======
         "suite": selected_suite,
->>>>>>> theirs
-        "claim": "ATENA deve provar capacidades por evidência executável, não por promessa absoluta.",
+        "claim": (
+            "ATENA deve provar capacidades por evidência executável, não por promessa absoluta."
+        ),
         "score": score,
         "passed": passed,
         "total": total,
         "tasks": task_results,
-<<<<<<< ours
-=======
         "domain_results": domain_results,
         "extreme_results": extreme_results,
         "risk_report": {
-            "high_risk_domains": [item["name"] for item in domain_results if item["risk_level"] == "high"],
+            "high_risk_domains": [
+                item["name"] for item in domain_results if item["risk_level"] == "high"
+            ],
             "requires_human_review": any(item["risk_level"] == "high" for item in domain_results),
             "destructive_actions_allowed": False,
         },
->>>>>>> theirs
         "codegen_evidence": codegen_evidence,
         "recommendation": (
             "Aprovada para desafio operacional controlado. Para afirmar excelência, repita com "
