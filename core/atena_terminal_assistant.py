@@ -2368,6 +2368,63 @@ def summarize_task_exec_report(report_path: str) -> str:
     return "\n".join(lines)
 
 
+def _slugify_asset_name(text: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "_", (text or "atena_asset").lower()).strip("_")
+    return slug[:64] or "atena_asset"
+
+
+def materialize_self_generated_assets(topic: str, payload: dict) -> list[dict]:
+    """Materializa artefatos simples de autoevolução a partir de uma pesquisa."""
+    sources = payload.get("sources", []) if isinstance(payload, dict) else []
+    if not sources:
+        return []
+
+    slug = _slugify_asset_name(topic)
+    digest = hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:10]
+    base_name = f"{slug}_{digest}"
+
+    module_path = Path("modules") / f"generated_{base_name}.py"
+    skill_path = Path("docs") / "generated_skills" / f"{base_name}.md"
+    plugin_path = Path("plugins") / f"generated_{base_name}.json"
+
+    for full_path, content in (
+        (ROOT / module_path, '"""Artefato auto-gerado pela ATENA para aprendizado contínuo."""\n\n' f"TOPIC = {topic!r}\n" f"SOURCE_COUNT = {len(sources)}\n"),
+        (ROOT / skill_path, f"# Skill gerada: {topic}\n\nResumo seguro de sinais coletados para evolução futura da ATENA.\n"),
+        (ROOT / plugin_path, json.dumps({"topic": topic, "source_count": len(sources), "kind": "self_generated"}, ensure_ascii=False, indent=2) + "\n"),
+    ):
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        full_path.write_text(content, encoding="utf-8")
+
+    created = [{"module_path": str(module_path), "skill_path": str(skill_path), "plugin_path": str(plugin_path)}]
+    manifest_path = ROOT / "atena_evolution" / "self_generated_assets.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    existing = {"assets": []}
+    if manifest_path.exists():
+        try:
+            existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            existing = {"assets": []}
+    existing.setdefault("assets", []).extend(created)
+    manifest_path.write_text(json.dumps(existing, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return created
+
+
+def run_background_internet_learning_cycle(topic: str) -> dict:
+    """Executa um ciclo curto de aprendizado contínuo via internet."""
+    payload = run_internet_challenge(topic)
+    created = materialize_self_generated_assets(topic, payload)
+    append_learning_memory({"kind": "background_internet_learning", "topic": topic, "created": created, "status": payload.get("status")})
+    return {"status": payload.get("status", "unknown"), "created": created, "payload": payload}
+
+
+def parse_background_topics(raw: str | None) -> list[str]:
+    """Converte tópicos separados por vírgula em lista com padrões úteis."""
+    if not raw:
+        return ["autonomous agents", "agent memory", "ai safety"]
+    topics = [part.strip() for part in raw.split(",") if part.strip()]
+    return topics or ["autonomous agents", "agent memory"]
+
+
 def append_learning_memory(payload: dict) -> None:
     """Registra memória de aprendizado de forma resiliente."""
     try:
