@@ -1,33 +1,11 @@
-<<<<<<< ours
-from fastapi import FastAPI
-<<<<<<< ours
-<<<<<<< ours
-=======
-from fastapi.responses import HTMLResponse
->>>>>>> theirs
-=======
-from fastapi.responses import HTMLResponse
->>>>>>> theirs
+from __future__ import annotations
 
-app = FastAPI(title="ATENA API", version="1.0.0")
-
-
-<<<<<<< ours
-<<<<<<< ours
-@app.get("/")
-def root() -> dict[str, str]:
-    return {"service": "atena", "status": "ok"}
-=======
-=======
->>>>>>> theirs
-=======
 import os
 from datetime import datetime, timezone
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 app = FastAPI(title="ATENA API", version="1.0.0")
 STARTED_AT = datetime.now(timezone.utc).isoformat()
@@ -55,7 +33,6 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     )
 
 
->>>>>>> theirs
 @app.get("/", response_class=HTMLResponse)
 def root() -> str:
     return """
@@ -72,37 +49,15 @@ def root() -> str:
       </body>
     </html>
     """
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 
 
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 
 
 @app.get("/status")
 def status() -> dict[str, str]:
-<<<<<<< ours
-    return {"service": "atena", "status": "ok"}
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
     return {
         "service": "atena",
         "status": "ok",
@@ -110,4 +65,3 @@ def status() -> dict[str, str]:
         "environment": ENVIRONMENT,
         "started_at": STARTED_AT,
     }
->>>>>>> theirs
