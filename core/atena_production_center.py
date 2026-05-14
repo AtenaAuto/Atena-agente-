@@ -5,10 +5,11 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,6 +28,7 @@ from core.production_advanced_suite import (
     run_security_check,
 )
 from core.atena_subagent_solver import solve_with_subagent
+from core.atena_capability_challenge import run_capability_challenge
 from core.production_gate import evaluate_go_live
 from core.production_contracts import validate_contract
 from core.production_guardrails import Action, AuditLogger, PolicyEngine, Role
@@ -232,12 +234,31 @@ def build_parser() -> argparse.ArgumentParser:
     p_gate.add_argument("--max-cost-units", type=float, default=100.0)
 
     sub.add_parser("self-audit", help="Autoanálise completa de prontidão da ATENA")
-    p_prog = sub.add_parser("programming-probe", help="Testa se a ATENA consegue programar (site/api/cli)")
+    p_prog = sub.add_parser("programming-probe", help="Testa se a ATENA consegue programar (site/api/cli/microservice)")
     p_prog.add_argument("--prefix", default="probe")
     p_prog.add_argument(
         "--site-template",
         choices=["basic", "landing-page", "portfolio", "dashboard", "blog"],
         default="dashboard",
+    )
+    p_prog.add_argument(
+        "--full",
+        action="store_true",
+        help="Executa a bateria completa incluindo microserviço, além de site/API/CLI",
+    )
+
+    p_cap = sub.add_parser("capability-challenge", help="Testa uma afirmação ampla com critérios auditáveis")
+    p_cap.add_argument("--objective", required=True, help="Objetivo ou desafio a ser validado")
+    p_cap.add_argument(
+        "--suite",
+        choices=["core", "universal", "extreme"],
+        default="core",
+        help="Bateria core rápida, universal por domínios ou extrema com stress probes",
+    )
+    p_cap.add_argument(
+        "--include-codegen",
+        action="store_true",
+        help="Inclui evidência pesada de geração de código via programming-probe completo",
     )
 
     p_quota = sub.add_parser("quota-check", help="Valida uso atual contra quota")
@@ -536,9 +557,26 @@ def main() -> int:
         return 0 if payload["status"] == "ok" else 2
 
     if args.cmd == "programming-probe":
-        payload = run_programming_probe(ROOT, prefix=args.prefix, site_template=args.site_template)
+        with redirect_stdout(io.StringIO()):
+            payload = run_programming_probe(
+                ROOT,
+                prefix=args.prefix,
+                site_template=args.site_template,
+                validate_all=args.full,
+            )
         _emit("programming-probe", payload, full_text=args.full_text)
         return 0 if payload["status"] == "ok" else 2
+
+    if args.cmd == "capability-challenge":
+        with redirect_stdout(io.StringIO()):
+            payload = run_capability_challenge(
+                args.objective,
+                include_codegen=args.include_codegen,
+                root=ROOT,
+                suite=args.suite,
+            )
+        _emit("capability-challenge", payload, full_text=args.full_text)
+        return 0 if payload["status"] == "pass" else 2
 
     if args.cmd == "eval-run":
         payload = run_eval_suite(telemetry)
