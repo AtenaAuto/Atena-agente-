@@ -1,3 +1,4 @@
+<<<<<<< ours
 from __future__ import annotations
 
 import os
@@ -65,3 +66,12 @@ def status() -> dict[str, str]:
         "environment": ENVIRONMENT,
         "started_at": STARTED_AT,
     }
+=======
+"""Compatibility entrypoint for deployments that still route to api/main.py."""
+
+from __future__ import annotations
+
+from api import app as app
+
+__all__ = ["app"]
+>>>>>>> theirs
