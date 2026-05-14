@@ -17,8 +17,14 @@ import sys
 from datetime import datetime, timezone
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 from pathlib import Path
 from typing import Sequence
+=======
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Sequence
+>>>>>>> theirs
 =======
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -44,7 +50,10 @@ DEFAULT_GROUPS = ("core", "dev")
 
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 =======
 >>>>>>> theirs
 @dataclass(frozen=True)
@@ -84,6 +93,9 @@ class AtenaDependencyInstallResult:
 
 
 <<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 =======
 >>>>>>> theirs
@@ -218,7 +230,10 @@ def run_dependency_install(
 
 <<<<<<< ours
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
 =======
 >>>>>>> theirs
 def install_atena_dependencies(
@@ -271,6 +286,9 @@ def install_atena_dependencies(
 
 
 <<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 =======
 >>>>>>> theirs
