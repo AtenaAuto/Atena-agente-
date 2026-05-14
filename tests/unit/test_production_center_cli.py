@@ -224,6 +224,54 @@ def test_programming_probe_command():
     assert "generated_projects" in payload
 
 
+def test_programming_probe_full_command():
+    proc = run_cli("programming-probe", "--prefix", "test_full_probe", "--full")
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert payload["contract_valid"] is True
+    assert payload["status"] == "ok"
+    assert payload["score"] == 1.0
+    assert {"microservice", "library"}.issubset(payload["generated_projects"])
+    assert payload["generated_projects"]["microservice"]["compile_ok"] is True
+    assert payload["generated_projects"]["library"]["compile_ok"] is True
+
+
+def test_capability_challenge_command():
+    proc = run_cli(
+        "capability-challenge",
+        "--objective",
+        "validar se a ATENA consegue entregar qualquer tarefa",
+        "--suite",
+        "universal",
+    )
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert payload["contract_valid"] is True
+    assert payload["status"] == "pass"
+    assert payload["suite"] == "universal"
+    assert payload["score"] == 1.0
+    assert payload["passed"] == payload["total"]
+    assert payload["domain_results"]
+    assert "promessa absoluta" in payload["claim"]
+
+
+def test_capability_challenge_extreme_command():
+    proc = run_cli(
+        "capability-challenge",
+        "--objective",
+        "executar teste extremo",
+        "--suite",
+        "extreme",
+    )
+    assert proc.returncode == 0
+    payload = json.loads(proc.stdout)
+    assert payload["contract_valid"] is True
+    assert payload["status"] == "pass"
+    assert payload["suite"] == "extreme"
+    assert payload["extreme_results"]
+    assert payload["risk_report"]["destructive_actions_allowed"] is False
+
+
 def test_advanced_commands():
     eval_proc = run_cli("eval-run")
     assert eval_proc.returncode in {0, 2}
