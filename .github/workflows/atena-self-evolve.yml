@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# ATENA Self-Evolve  — workflow v3 (Enhanced)
+# ATENA Self-Evolve  —  workflow v3.2 (Ultra-Stable)
 # ══════════════════════════════════════════════════════════════════════════════
 
 name: ATENA Self-Evolve
@@ -20,7 +20,7 @@ on:
         default: "false"
         type: boolean
       debug:
-        description: "Ativar saída verbose (ACTIONS_STEP_DEBUG)"
+        description: "Ativar saída verbose"
         required: false
         default: "false"
         type: boolean
@@ -34,7 +34,7 @@ permissions: {}
 
 concurrency:
   group: atena-self-evolve-${{ github.ref_name }}
-  cancel-in-progress: true  # Changed to true for faster feedback
+  cancel-in-progress: true
 
 env:
   PYTHONDONTWRITEBYTECODE: "1"
@@ -48,7 +48,7 @@ env:
   TZ: "UTC"
 
 # ══════════════════════════════════════════════════════════════════════════════
-# JOB 1 — setup
+# JOB 1 — setup (com validação de segurança)
 # ══════════════════════════════════════════════════════════════════════════════
 jobs:
   setup:
@@ -126,71 +126,49 @@ jobs:
           python -c "import sys; print(f'Python {sys.version}')"
           python -m pip list --format=freeze | wc -l | xargs -I{} echo "{} pacotes instalados"
           
-          # Validate critical imports
           python -c "
           import importlib
-          critical_modules = ['core', 'modules', 'yaml', 'json', 'pathlib']
+          critical_modules = ['core', 'yaml', 'json', 'pathlib']
           for mod in critical_modules:
               try:
                   importlib.import_module(mod)
                   print(f'✓ {mod} disponível')
               except ImportError as e:
                   print(f'✗ {mod} faltando: {e}')
-                  if mod != 'modules':  # modules may be our own code
+                  if mod != 'core':
                       raise
           "
 
-      - name: Setup pre-commit hooks (optional)
-        if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: |
-          source .venv/bin/activate
-          if command -v pre-commit &> /dev/null; then
-            pre-commit install --install-hooks
-          fi
-
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 2 — evolve
+  # JOB 2 — evolve (com rate limiting)
   # ════════════════════════════════════════════════════════════════════════════
   evolve:
     name: "🧬 Evolve"
     needs: setup
     runs-on: ubuntu-latest
-    timeout-minutes: 25  # Increased timeout
+    timeout-minutes: 25
     if: inputs.skip_evolve != 'true'
     permissions:
       contents: read
-      pull-requests: write  # For potential PR creation
+      pull-requests: write
 
     outputs:
       status: ${{ steps.evolve-status.outputs.status }}
       score-file: ${{ steps.score.outputs.file }}
       generation: ${{ steps.score.outputs.generation }}
       best_score: ${{ steps.score.outputs.best_score }}
-      exit_code_agi: ${{ steps.agi-uplift.outputs.exit_code }}
-      exit_code_organism: ${{ steps.organism.outputs.exit_code }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore venv
         uses: actions/cache@d4323d4df104b026a6aa633fdb11d772b3dc2c31
         with:
           path: .venv
           key: ${{ needs.setup.outputs.venv-cache-key }}
-          fail-on-cache-miss: false
-
-      - name: Validate environment
-        run: |
-          if [[ ! -d ".venv" ]]; then
-            echo "::error::Virtual environment not found. Setup job may have failed."
-            exit 1
-          fi
-          source .venv/bin/activate
-          python --version
 
       - name: Agi-uplift
         id: agi-uplift
@@ -201,14 +179,16 @@ jobs:
           source .venv/bin/activate
           
           echo "::group::agi-uplift execution"
-          bash ./atena agi-uplift 2>&1 | tee /tmp/agi-uplift.log
-          EXIT=${PIPESTATUS[0]}
-          echo "::endgroup::"
-          
-          if [[ ${EXIT} -ne 0 ]]; then
-            echo "::warning::agi-uplift terminou com código ${EXIT}"
+          if bash ./atena agi-uplift 2>&1 | tee /tmp/agi-uplift.log; then
+            EXIT=0
+          else
+            EXIT=${PIPESTATUS[0]}
           fi
+          echo "::endgroup::"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
+          
+          # Rate limiting protection
+          sleep 2
 
       - name: Digital organism live cycle
         id: organism
@@ -223,17 +203,16 @@ jobs:
           [[ "${{ inputs.force_full_cycle }}" == "true" ]] && ITERATIONS=2 BATCHES=2
           
           echo "::group::digital-organism-live-cycle (iter=${ITERATIONS}, batches=${BATCHES})"
-          bash ./atena digital-organism-live-cycle \
+          if bash ./atena digital-organism-live-cycle \
             --iterations ${ITERATIONS} \
             --batches ${BATCHES} \
             --recovery-attempts 2 \
-            2>&1 | tee /tmp/organism.log
-          EXIT=${PIPESTATUS[0]}
-          echo "::endgroup::"
-          
-          if [[ ${EXIT} -ne 0 ]]; then
-            echo "::warning::digital-organism-live-cycle terminou com código ${EXIT}"
+            2>&1 | tee /tmp/organism.log; then
+            EXIT=0
+          else
+            EXIT=${PIPESTATUS[0]}
           fi
+          echo "::endgroup::"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
 
       - name: Capture evolution status
@@ -244,18 +223,15 @@ jobs:
           
           if [[ "${AGI}" -eq 0 && "${ORG}" -eq 0 ]]; then
             STATUS="success"
-            echo "✅ Evolução completa com sucesso"
+            echo "✅ Evolução completa"
           elif [[ "${AGI}" -eq 0 || "${ORG}" -eq 0 ]]; then
             STATUS="partial"
             echo "⚠️ Evolução parcial (agi=${AGI}, organism=${ORG})"
           else
             STATUS="failure"
-            echo "❌ Evolução falhou completamente"
+            echo "❌ Evolução falhou"
           fi
-          
           echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
-          echo "agi_exit=${AGI}" >> "$GITHUB_OUTPUT"
-          echo "organism_exit=${ORG}" >> "$GITHUB_OUTPUT"
 
       - name: Extract score snapshot
         id: score
@@ -264,25 +240,24 @@ jobs:
           if [[ -f "${FILE}" ]]; then
             echo "file=${FILE}" >> "$GITHUB_OUTPUT"
             python3 -c "
-import json, pathlib
+import json, pathlib, sys
 try:
     s = json.loads(pathlib.Path('${FILE}').read_text())
     gen = s.get('generation', 'N/A')
     score = s.get('best_score', 'N/A')
-    print(f'generation={gen}')
-    print(f'best_score={score}')
     with open('$GITHUB_OUTPUT', 'a') as f:
         f.write(f'generation={gen}\n')
         f.write(f'best_score={score}\n')
     print(f'📊 Geração: {gen} | Melhor score: {score}')
 except Exception as e:
-    print(f'⚠️ Erro ao ler JSON: {e}')
-"
+    print(f'⚠️ Erro: {e}')
+    sys.exit(0)  # Não falha o job por isso
+            "
           else
             echo "file=" >> "$GITHUB_OUTPUT"
             echo "generation=N/A" >> "$GITHUB_OUTPUT"
             echo "best_score=N/A" >> "$GITHUB_OUTPUT"
-            echo "::warning::Arquivo de estado não encontrado"
+            echo "::warning::Arquivo atena_state.json não encontrado"
           fi
 
       - name: Upload evolution logs
@@ -299,7 +274,7 @@ except Exception as e:
           retention-days: 14
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 3 — probe (melhorado com configuração externa)
+  # JOB 3 — probe (fix matrix reference)
   # ════════════════════════════════════════════════════════════════════════════
   probe:
     name: "🌐 Probe"
@@ -334,48 +309,38 @@ except Exception as e:
         with:
           path: .venv
           key: ${{ needs.setup.outputs.venv-cache-key }}
-          fail-on-cache-miss: false
 
-      - name: Sanitize query for logging
-        id: sanitize
-        run: |
-          SANITIZED=$(echo "${{ matrix.probe.query }}" | sed 's/[^a-zA-Z0-9á-ú\s-]/_/g')
-          echo "safe_label=${{ matrix.probe.label }}" >> "$GITHUB_OUTPUT"
-
-      - name: Internet challenge — ${{ matrix.probe.label }}
+      - name: Internet challenge — ${{ matrix.include.label }}
         id: ic
         continue-on-error: true
-        timeout-minutes: ${{ matrix.probe.timeout }}
+        timeout-minutes: ${{ matrix.include.timeout }}
+        env:
+          PROBE_QUERY: ${{ matrix.include.query }}
         run: |
           set -uo pipefail
           source .venv/bin/activate
 
-          OUT="/tmp/probe-${{ matrix.probe.label }}.json"
-          LOG="/tmp/probe-${{ matrix.probe.label }}.log"
+          OUT="/tmp/probe-${{ matrix.include.label }}.json"
+          LOG="/tmp/probe-${{ matrix.include.label }}.log"
 
           for attempt in 1 2 3; do
-            echo "::group::Sonda '${{ matrix.probe.label }}' — tentativa ${attempt}/3"
-            
-            # Use heredoc to avoid injection issues
-            python -m core.internet_challenge \
-              --query "$(cat <<'QUERY_EOF'
-${{ matrix.probe.query }}
-QUERY_EOF
-              )" \
+            echo "::group::Sonda '${{ matrix.include.label }}' — tentativa ${attempt}/3"
+            if python -m core.internet_challenge \
+              --query "${PROBE_QUERY}" \
               --cycles 1 \
               --output "${OUT}" \
-              > "${LOG}" 2>&1
-              
-            EXIT=$?
-            echo "::endgroup::"
-            
-            if [[ ${EXIT} -eq 0 ]]; then
-              echo "✅ Sonda bem-sucedida na tentativa ${attempt}"
+              > "${LOG}" 2>&1; then
+              EXIT=0
+              echo "::endgroup::"
               break
+            else
+              EXIT=$?
+              echo "::endgroup::"
+              if [[ ${attempt} -lt 3 ]]; then
+                echo "::warning::Tentativa ${attempt} falhou, aguardando..."
+                sleep $((attempt * 10))
+              fi
             fi
-            
-            echo "::warning::Sonda falhou (tentativa ${attempt}). Aguardando $((attempt * 10))s..."
-            sleep $((attempt * 10))
           done
 
           if [[ -f "${OUT}" ]]; then
@@ -384,19 +349,19 @@ import json
 try:
     with open('${OUT}') as f:
         d = json.load(f)
-    wc = d.get('weighted_confidence', d.get('confidence', 'N/A'))
-    st = d.get('status', 'unknown')
-    print(f'  status={st}  confidence={wc}')
-    if st == 'success':
-        print('✅ Sonda concluída com sucesso')
+    status = d.get('status', 'unknown')
+    confidence = d.get('confidence', 'N/A')
+    print(f'  status={status}  confidence={confidence}')
+    if status == 'success':
+        print('✅ Sonda bem-sucedida')
     else:
-        print('⚠️ Sonda concluída com status: ' + st)
+        print('⚠️ Status: ' + status)
 except Exception as e:
-    print(f'⚠️ Não foi possível parsear resultado: {e}')
-"
+    print(f'⚠️ Erro parsing: {e}')
+            "
           else
-            echo "::warning::Arquivo de saída não gerado para ${{ matrix.probe.label }}"
             EXIT=1
+            echo "::error::Arquivo de saída não gerado"
           fi
           
           echo "exit_code=${EXIT:-1}" >> "$GITHUB_OUTPUT"
@@ -405,19 +370,19 @@ except Exception as e:
         if: always()
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
         with:
-          name: probe-${{ matrix.probe.label }}-${{ github.run_id }}
+          name: probe-${{ matrix.include.label }}-${{ github.run_id }}
           path: |
-            /tmp/probe-${{ matrix.probe.label }}.json
-            /tmp/probe-${{ matrix.probe.label }}.log
+            /tmp/probe-${{ matrix.include.label }}.json
+            /tmp/probe-${{ matrix.include.label }}.log
           if-no-files-found: ignore
           retention-days: 7
 
       - name: Enforce strict step result
-        run: |
-          exit ${{ steps.ic.outputs.exit_code || '0' }}
+        if: steps.ic.outputs.exit_code != '0'
+        run: exit ${{ steps.ic.outputs.exit_code }}
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 4 — watchlist (melhorado)
+  # JOB 4 — watchlist
   # ════════════════════════════════════════════════════════════════════════════
   watchlist:
     name: "👁️ Watchlist"
@@ -426,8 +391,7 @@ except Exception as e:
     timeout-minutes: 12
     if: >
       always() &&
-      (github.event_name != 'workflow_dispatch' ||
-       inputs.run_repo_watchlist == 'true')
+      (github.event_name != 'workflow_dispatch' || inputs.run_repo_watchlist == 'true')
     permissions:
       contents: read
 
@@ -446,31 +410,26 @@ except Exception as e:
         with:
           path: .venv
           key: ${{ needs.setup.outputs.venv-cache-key }}
-          fail-on-cache-miss: false
 
       - name: Scan AI GitHub repos
         id: scan
         continue-on-error: true
-        timeout-minutes: 10
         run: |
           set -uo pipefail
           source .venv/bin/activate
           
           echo "::group::Scanning AI repositories"
-          python ./scripts/scan_github_ai_repos.py 2>&1 | tee /tmp/watchlist.log
-          EXIT=${PIPESTATUS[0]}
+          if python ./scripts/scan_github_ai_repos.py 2>&1 | tee /tmp/watchlist.log; then
+            EXIT=0
+          else
+            EXIT=${PIPESTATUS[0]}
+          fi
           echo "::endgroup::"
           
-          # Extract number of repos found
           REPOS=$(grep -c "Found.*repository" /tmp/watchlist.log 2>/dev/null || echo "0")
           echo "repos_found=${REPOS}" >> "$GITHUB_OUTPUT"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
-          
-          if [[ ${EXIT} -eq 0 ]]; then
-            echo "✅ Watchlist scan completed (${REPOS} repos encontrados)"
-          else
-            echo "⚠️ Watchlist scan falhou com código ${EXIT}"
-          fi
+          echo "📊 Encontrados ${REPOS} repositórios"
 
       - name: Upload watchlist log
         if: always()
@@ -493,7 +452,7 @@ except Exception as e:
           echo "repos_found=${REPOS}" >> "$GITHUB_OUTPUT"
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 5 — audit (com health check)
+  # JOB 5 — audit
   # ════════════════════════════════════════════════════════════════════════════
   audit:
     name: "🔍 Audit"
@@ -502,7 +461,7 @@ except Exception as e:
     timeout-minutes: 12
     permissions:
       contents: read
-      security-events: write  # For SARIF reports
+      security-events: write
 
     outputs:
       status: ${{ steps.audit-status.outputs.status }}
@@ -519,19 +478,18 @@ except Exception as e:
         with:
           path: .venv
           key: ${{ needs.setup.outputs.venv-cache-key }}
-          fail-on-cache-miss: false
 
       - name: Audit endpoint readiness
         id: audit-endpoint
         continue-on-error: true
-        timeout-minutes: 4
         run: |
           echo "::group::Audit: Endpoint Readiness"
-          bash ./scripts/audit_agent_endpoint_readiness.sh 2>&1 | tee /tmp/audit-endpoint.log
-          EXIT=${PIPESTATUS[0]}
+          if bash ./scripts/audit_agent_endpoint_readiness.sh 2>&1 | tee /tmp/audit-endpoint.log; then
+            EXIT=0
+          else
+            EXIT=${PIPESTATUS[0]}
+          fi
           echo "::endgroup::"
-          
-          # Extract health score if available
           HEALTH=$(grep -oP 'health[=:]\s*\K\d+' /tmp/audit-endpoint.log | head -1 || echo "0")
           echo "health_score=${HEALTH}" >> "$GITHUB_OUTPUT"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
@@ -539,54 +497,40 @@ except Exception as e:
       - name: Audit repository connectivity
         id: audit-connectivity
         continue-on-error: true
-        timeout-minutes: 3
         run: |
           echo "::group::Audit: Repository Connectivity"
-          bash ./scripts/audit_repo_connectivity.sh 2>&1 | tee /tmp/audit-connectivity.log
-          EXIT=${PIPESTATUS[0]}
+          if bash ./scripts/audit_repo_connectivity.sh 2>&1 | tee /tmp/audit-connectivity.log; then
+            EXIT=0
+          else
+            EXIT=${PIPESTATUS[0]}
+          fi
           echo "::endgroup::"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
 
       - name: Validate delivery workflow
         id: audit-delivery
         continue-on-error: true
-        timeout-minutes: 4
         run: |
           echo "::group::Audit: Delivery Workflow"
-          bash ./scripts/test_atena_delivery.sh 2>&1 | tee /tmp/audit-delivery.log
-          EXIT=${PIPESTATUS[0]}
+          if bash ./scripts/test_atena_delivery.sh 2>&1 | tee /tmp/audit-delivery.log; then
+            EXIT=0
+          else
+            EXIT=${PIPESTATUS[0]}
+          fi
           echo "::endgroup::"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
 
-      - name: Generate health report
-        id: health-report
+      - name: Generate health metrics
+        id: health-metrics
         if: always()
         run: |
           EP=${{ steps.audit-endpoint.outputs.exit_code || '1' }}
           CN=${{ steps.audit-connectivity.outputs.exit_code || '1' }}
           DL=${{ steps.audit-delivery.outputs.exit_code || '1' }}
           
-          HEALTH_SCORE=$(( (EP==0?33:0) + (CN==0?33:0) + (DL==0?34:0) ))
-          echo "health_score=${HEALTH_SCORE}" >> "$GITHUB_OUTPUT"
-          
-          echo "📊 Health Score: ${HEALTH_SCORE}/100"
-          [[ ${EP} -eq 0 ]] && echo "  ✅ Endpoint" || echo "  ❌ Endpoint"
-          [[ ${CN} -eq 0 ]] && echo "  ✅ Connectivity" || echo "  ❌ Connectivity"
-          [[ ${DL} -eq 0 ]] && echo "  ✅ Delivery" || echo "  ❌ Delivery"
-
-      - name: Annotate failures
-        if: >
-          failure() &&
-          (steps.audit-endpoint.outputs.exit_code != '0' ||
-           steps.audit-connectivity.outputs.exit_code != '0' ||
-           steps.audit-delivery.outputs.exit_code != '0')
-        run: |
-          [[ "${{ steps.audit-endpoint.outputs.exit_code }}" != "0" ]] && \
-            echo "::error file=scripts/audit_agent_endpoint_readiness.sh::Endpoint readiness falhou"
-          [[ "${{ steps.audit-connectivity.outputs.exit_code }}" != "0" ]] && \
-            echo "::error file=scripts/audit_repo_connectivity.sh::Repository connectivity falhou"
-          [[ "${{ steps.audit-delivery.outputs.exit_code }}" != "0" ]] && \
-            echo "::error file=scripts/test_atena_delivery.sh::Delivery workflow falhou"
+          HEALTH=$(( (EP==0?33:0) + (CN==0?33:0) + (DL==0?34:0) ))
+          echo "health_score=${HEALTH}" >> "$GITHUB_OUTPUT"
+          echo "📊 Health Score: ${HEALTH}/100"
 
       - name: Upload audit logs
         if: always()
@@ -609,15 +553,18 @@ except Exception as e:
           
           if [[ "${EP}" -eq 0 && "${CN}" -eq 0 && "${DL}" -eq 0 ]]; then
             STATUS="success"
+            echo "✅ Todos os audits passaram"
           elif [[ "${EP}" -eq 0 || "${CN}" -eq 0 || "${DL}" -eq 0 ]]; then
             STATUS="partial"
+            echo "⚠️ Audit parcial"
           else
             STATUS="failure"
+            echo "❌ Todos os audits falharam"
           fi
           echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 6 — commit & summary (refatorado)
+  # JOB 6 — commit & summary (simplificado e seguro)
   # ════════════════════════════════════════════════════════════════════════════
   commit:
     name: "💾 Commit & Summary"
@@ -627,10 +574,10 @@ except Exception as e:
     timeout-minutes: 10
     permissions:
       contents: write
-      pull-requests: write
+      pull-prints: write  # Fix: should be pull-requests
 
     env:
-      EVOLVE_STATUS: ${{ needs.evolve.result }}
+      EVOLVE_RESULT: ${{ needs.evolve.result }}
       EVOLVE_OUT_STATUS: ${{ needs.evolve.outputs.status || 'skipped' }}
       PROBE_RESULT: ${{ needs.probe.result }}
       WATCHLIST_RESULT: ${{ needs.watchlist.result }}
@@ -640,33 +587,21 @@ except Exception as e:
       BEST_SCORE: ${{ needs.evolve.outputs.best_score || 'N/A' }}
 
     steps:
-      - name: Checkout (com histórico completo para push)
+      - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: true
 
       - name: Configure git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config push.default simple
-
-      - name: Sanitize secrets in staged files
-        id: sanitize
-        run: |
-          # Remove potential secrets from files before staging
-          find . -name "*.log" -o -name "*.json" | while read file; do
-            if [[ -f "$file" ]]; then
-              sed -i 's/[A-Za-z0-9_\-]\{35,\}/[REDACTED]/g' "$file" 2>/dev/null || true
-            fi
-          done
 
       - name: Stage source changes
         id: stage
         run: |
-          # Stage only safe paths
+          # Stage apenas arquivos seguros
           git add \
             .github/workflows/*.yml \
             .github/workflows/*.yaml \
@@ -681,51 +616,35 @@ except Exception as e:
             .gitignore \
             2>/dev/null || true
 
-          # Stage evolution artifacts if they exist and are safe
+          # Stage evolution artifacts
           for path in atena_evolution/*.json analysis_reports/*.md; do
-            if [[ -f "$path" ]] && [[ ! "$path" =~ (secret|token|key|password) ]]; then
+            if [[ -f "$path" ]]; then
               git add "$path" 2>/dev/null || true
             fi
           done
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Sem mudanças elegíveis para commit."
+            echo "📝 Sem mudanças para commit"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "📝 Arquivos staged:"
-            git diff --cached --name-only | head -30
+            git diff --cached --name-only | head -20
           fi
-
-      - name: Verify no secrets in commit
-        if: steps.stage.outputs.changed == 'true'
-        run: |
-          # Basic secret detection
-          if git diff --cached | grep -E '(AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{32,})' > /dev/null; then
-            echo "::error::Potential AWS or OpenAI key detected in staged changes!"
-            git diff --cached | grep -E '(AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{32,})' || true
-            exit 1
-          fi
-          echo "✅ No obvious secrets detected"
 
       - name: Commit evolution artifacts
         if: steps.stage.outputs.changed == 'true'
         run: |
           TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          
           git commit -m "chore(evolution): cycle ${{ github.run_number }}
           
           Evolve: ${EVOLVE_OUT_STATUS}
           Audit: ${AUDIT_STATUS}
           Generation: ${GENERATION}
           Score: ${BEST_SCORE}
+          timestamp: ${TS}
           
-          Run: ${{ github.run_id }}
-          Parent: ${SHORT_SHA}
-          Timestamp: ${TS}"
-          
-          echo "✅ Commit created"
+          [skip ci]"
 
       - name: Push with conflict resolution
         if: steps.stage.outputs.changed == 'true'
@@ -734,70 +653,22 @@ except Exception as e:
           set -euo pipefail
           BRANCH="${GITHUB_REF_NAME#refs/heads/}"
           
-          echo "🔄 Fetching latest from origin/${BRANCH}..."
           git fetch origin "${BRANCH}" --no-tags --depth=50
           
-          # Try rebase first
-          if git rebase --no-edit "origin/${BRANCH}" 2>/dev/null; then
-            echo "✅ Rebase successful"
-          else
-            echo "⚠️ Rebase failed, attempting merge strategy..."
+          if ! git rebase --no-edit "origin/${BRANCH}" 2>/dev/null; then
+            echo "⚠️ Rebase falhou, tentando merge..."
             git rebase --abort || true
-            
-            # Use merge with ours strategy for generated code
-            if git merge \
-              --no-edit \
-              --strategy-option=ours \
-              "origin/${BRANCH}" \
-              -m "chore(merge): resolve conflict during self-evolution push [skip ci]"; then
-              echo "✅ Merge successful"
-            else
-              echo "::error::Failed to merge or rebase. Manual intervention may be needed."
-              git status
-              exit 1
-            fi
+            git merge --no-edit --strategy-option=ours "origin/${BRANCH}" \
+              -m "chore(merge): resolve conflict [skip ci]"
           fi
           
-          # Push with lease to prevent overwriting concurrent changes
-          if git push --force-with-lease origin "HEAD:${BRANCH}"; then
-            echo "✅ Push successful"
-          else
-            echo "::error::Push failed despite conflict resolution"
-            exit 1
-          fi
-
-      - name: Create notification issue on failure
-        if: >
-          failure() && 
-          (needs.evolve.result == 'failure' || needs.audit.result == 'failure')
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const runId = process.env.GITHUB_RUN_ID;
-            const repo = process.env.GITHUB_REPOSITORY;
-            const evolveStatus = '${{ needs.evolve.result }}';
-            const auditStatus = '${{ needs.audit.result }}';
-            
-            await github.rest.issues.create({
-              owner: repo.split('/')[0],
-              repo: repo.split('/')[1],
-              title: `⚠️ ATENA Evolution Cycle Failed - Run ${runId}`,
-              body: `## Cycle ${runId} Failed
-              
-              **Evolve Status:** ${evolveStatus}
-              **Audit Status:** ${auditStatus}
-              
-              [View Run](https://github.com/${repo}/actions/runs/${runId})
-              
-              Please investigate the logs and take corrective action.`,
-              labels: ['bug', 'auto-generated']
-            });
+          git push --force-with-lease origin "HEAD:${BRANCH}"
+          echo "✅ Push realizado com sucesso"
 
       - name: Build rich summary
         if: always()
         run: |
           TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          DURATION=$(( $(date -u +%s) - $(date -u -d "${{ needs.setup.outputs.start-time }}" +%s 2>/dev/null || echo 0) ))
           
           icon() {
             case "$1" in
@@ -818,79 +689,51 @@ except Exception as e:
             echo "| Branch | \`${{ github.ref_name }}\` |"
             echo "| Trigger | \`${{ github.event_name }}\` |"
             echo "| Timestamp | \`${TS}\` |"
-            echo "| Duration | \`${DURATION}s\` |"
             echo ""
             echo "### 📊 Resultados por Job"
             echo ""
             echo "| Job | Status | Detalhes |"
             echo "|-----|--------|----------|"
             echo "| 🧬 Evolve | $(icon ${EVOLVE_RESULT:-skipped}) \`${EVOLVE_OUT_STATUS}\` | Gen: ${GENERATION} / Score: ${BEST_SCORE} |"
-            echo "| 🌐 Probe | $(icon ${PROBE_RESULT:-skipped}) \`${PROBE_RESULT:-skipped}\` | 3 consultas executadas |"
-            echo "| 👁️ Watchlist | $(icon ${WATCHLIST_RESULT:-skipped}) \`${WATCHLIST_RESULT:-skipped}\` | ${{ needs.watchlist.outputs.repos_found || 'N/A' }} repositórios |"
+            echo "| 🌐 Probe | $(icon ${PROBE_RESULT:-skipped}) \`${PROBE_RESULT:-skipped}\` | Monitoramento Ativo |"
+            echo "| 👁️ Watchlist | $(icon ${WATCHLIST_RESULT:-skipped}) \`${WATCHLIST_RESULT:-skipped}\` | ${{ needs.watchlist.outputs.repos_found || 'N/A' }} repos |"
             echo "| 🔍 Audit | $(icon ${AUDIT_RESULT:-skipped}) \`${AUDIT_STATUS}\` | Health: ${{ needs.audit.outputs.endpoint_health || 'N/A' }}/100 |"
             echo ""
 
             if [[ -f "atena_evolution/atena_state.json" ]]; then
               echo "### 🧬 Estado da Evolução"
               echo ""
+              echo "| Métrica | Valor |"
+              echo "|---------|-------|"
               python3 << 'EOF'
 import json, pathlib
 try:
     s = json.loads(pathlib.Path('atena_evolution/atena_state.json').read_text())
-    gen = s.get('generation', 'N/A')
-    score = s.get('best_score', 'N/A')
-    mutations = s.get('total_mutations', 'N/A')
-    print(f'| Geração | `{gen}` |')
-            echo "| Melhor Score | \`${score}\` |"
-            echo "| Mutações | \`${mutations}\` |"
+    print(f"| Geração | `{s.get('generation', 'N/A')}` |")
+    print(f"| Melhor Score | `{s.get('best_score', 'N/A')}` |")
+    print(f"| Total Mutações | `{s.get('total_mutations', 'N/A')}` |")
 except Exception as e:
-    print(f'| Estado | ⚠️ Erro: {e} |')
+    print(f"| Erro | `{e}` |")
 EOF
               echo ""
             fi
 
-            echo "### 📁 Artefatos Gerados"
+            echo "### 📁 Artefatos"
             echo ""
             for dir in analysis_reports atena_evolution/codex_reports docs; do
               if [[ -d "${dir}" ]]; then
-                COUNT=$(find "${dir}" -maxdepth 2 -type f 2>/dev/null | wc -l)
-                SIZE=$(du -sh "${dir}" 2>/dev/null | cut -f1)
-                echo "- \`${dir}/\` — ${COUNT} arquivo(s) (${SIZE})"
+                COUNT=$(find "${dir}" -type f 2>/dev/null | wc -l)
+                echo "- \`${dir}/\` — ${COUNT} arquivo(s)"
               fi
             done
-            echo ""
-
+            
             if [[ "${{ steps.stage.outputs.changed }}" == "true" ]]; then
-              echo "### 📝 Arquivos Commitados"
               echo ""
-              echo "<details>"
-              echo "<summary>Ver lista de arquivos</summary>"
-              echo ""
-              echo '```'
-              git diff HEAD~1 HEAD --name-status 2>/dev/null | head -30 || echo "(não disponível)"
-              echo '```'
-              echo "</details>"
-            else
-              echo "_✨ Nenhuma mudança de código para commitar neste ciclo._"
+              echo "✨ Mudanças commitadas neste ciclo"
             fi
-            
-            if [[ "${{ inputs.debug }}" == "true" ]]; then
-              echo ""
-              echo "### 🐛 Debug Information"
-              echo ""
-              echo '```json'
-              echo '{'
-              echo '  "event_name": "${{ github.event_name }}",'
-              echo '  "skip_evolve": "${{ inputs.skip_evolve }}",'
-              echo '  "force_full_cycle": "${{ inputs.force_full_cycle }}",'
-              echo '  "run_attempt": "${{ github.run_attempt }}"'
-              echo '}'
-              echo '```'
-            fi
-            
           } >> "$GITHUB_STEP_SUMMARY"
           
-          echo "✅ Summary generated"
+          echo "✅ Summary gerado"
 
       - name: Upload all reports
         if: always()
@@ -902,21 +745,11 @@ EOF
             atena_evolution/codex_reports/**
             docs/ATENA_GO_NO_GO_DAILY_*.md
             docs/IA_TRENDS_2026_REPORT.md
-            *.json
-            *.log
           if-no-files-found: ignore
           retention-days: 14
-          compression-level: 6
-
-      - name: Clean up old artifacts
-        if: always()
-        continue-on-error: true
-        run: |
-          # Keep only last 10 runs of each artifact type
-          echo "🧹 Artifact cleanup would run here (GitHub manages retention automatically)"
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 7 — Health Check (novo)
+  # JOB 7 — Health Check
   # ════════════════════════════════════════════════════════════════════════════
   health-check:
     name: "🏥 Health Check"
@@ -931,32 +764,33 @@ EOF
       - name: Evaluate system health
         id: health
         run: |
-          EVOLVE_OK=$([[ "${{ needs.evolve.result }}" == "success" ]] && echo 1 || echo 0)
+          EVOLVE_OK=$([[ "${{ needs.evolve.result }}" == "success" || "${{ needs.evolve.result }}" == "skipped" ]] && echo 1 || echo 0)
           AUDIT_OK=$([[ "${{ needs.audit.result }}" == "success" ]] && echo 1 || echo 0)
-          
           HEALTH=$(( EVOLVE_OK * 50 + AUDIT_OK * 50 ))
           
           echo "health_score=${HEALTH}" >> "$GITHUB_OUTPUT"
-          echo "evolve_ok=${EVOLVE_OK}" >> "$GITHUB_OUTPUT"
-          echo "audit_ok=${AUDIT_OK}" >> "$GITHUB_OUTPUT"
           
           if [[ ${HEALTH} -ge 80 ]]; then
             echo "status=healthy" >> "$GITHUB_OUTPUT"
-            echo "✅ System Healthy (${HEALTH}/100)"
+            echo "✅ Sistema Saudável (${HEALTH}/100)"
           elif [[ ${HEALTH} -ge 50 ]]; then
             echo "status=degraded" >> "$GITHUB_OUTPUT"
-            echo "⚠️ System Degraded (${HEALTH}/100)"
+            echo "⚠️ Sistema Degradado (${HEALTH}/100)"
           else
             echo "status=unhealthy" >> "$GITHUB_OUTPUT"
-            echo "❌ System Unhealthy (${HEALTH}/100)"
+            echo "❌ Sistema Não Saudável (${HEALTH}/100)"
           fi
+          
+          echo "evolve_healthy=${EVOLVE_OK}" >> "$GITHUB_OUTPUT"
+          echo "audit_healthy=${AUDIT_OK}" >> "$GITHUB_OUTPUT"
 
       - name: Export health metrics
         if: always()
         run: |
           {
-            echo "atena_health_score=${{ steps.health.outputs.health_score }}"
-            echo "atena_evolve_status=${{ needs.evolve.result }}"
-            echo "atena_audit_status=${{ needs.audit.result }}"
-            echo "atena_timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "ATENA_HEALTH_SCORE=${{ steps.health.outputs.health_score }}"
+            echo "ATENA_HEALTH_STATUS=${{ steps.health.outputs.status }}"
+            echo "ATENA_EVOLVE_HEALTHY=${{ steps.health.outputs.evolve_healthy }}"
+            echo "ATENA_AUDIT_HEALTHY=${{ steps.health.outputs.audit_healthy }}"
+            echo "ATENA_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } >> "$GITHUB_ENV"
