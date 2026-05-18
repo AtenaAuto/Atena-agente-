@@ -1,5 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# ATENA Self-Evolve  —  workflow v3.2 (Ultra-Stable)
+# ATENA Self-Evolve  —  workflow v3.3 (Ultra-Stable & Secured)
 # ══════════════════════════════════════════════════════════════════════════════
 
 name: ATENA Self-Evolve
@@ -149,7 +149,7 @@ jobs:
     timeout-minutes: 25
     if: inputs.skip_evolve != 'true'
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
 
     outputs:
@@ -187,7 +187,6 @@ jobs:
           echo "::endgroup::"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
           
-          # Rate limiting protection
           sleep 2
 
       - name: Digital organism live cycle
@@ -251,7 +250,7 @@ try:
     print(f'📊 Geração: {gen} | Melhor score: {score}')
 except Exception as e:
     print(f'⚠️ Erro: {e}')
-    sys.exit(0)  # Não falha o job por isso
+    sys.exit(0)
             "
           else
             echo "file=" >> "$GITHUB_OUTPUT"
@@ -274,7 +273,7 @@ except Exception as e:
           retention-days: 14
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 3 — probe (fix matrix reference)
+  # JOB 3 — probe (Correção da sintaxe de mapeamento da matriz)
   # ════════════════════════════════════════════════════════════════════════════
   probe:
     name: "🌐 Probe"
@@ -310,21 +309,21 @@ except Exception as e:
           path: .venv
           key: ${{ needs.setup.outputs.venv-cache-key }}
 
-      - name: Internet challenge — ${{ matrix.include.label }}
+      - name: Internet challenge — ${{ matrix.label }}
         id: ic
         continue-on-error: true
-        timeout-minutes: ${{ matrix.include.timeout }}
+        timeout-minutes: ${{ matrix.timeout }}
         env:
-          PROBE_QUERY: ${{ matrix.include.query }}
+          PROBE_QUERY: ${{ matrix.query }}
         run: |
           set -uo pipefail
           source .venv/bin/activate
 
-          OUT="/tmp/probe-${{ matrix.include.label }}.json"
-          LOG="/tmp/probe-${{ matrix.include.label }}.log"
+          OUT="/tmp/probe-${{ matrix.label }}.json"
+          LOG="/tmp/probe-${{ matrix.label }}.log"
 
           for attempt in 1 2 3; do
-            echo "::group::Sonda '${{ matrix.include.label }}' — tentativa ${attempt}/3"
+            echo "::group::Sonda '${{ matrix.label }}' — tentativa ${attempt}/3"
             if python -m core.internet_challenge \
               --query "${PROBE_QUERY}" \
               --cycles 1 \
@@ -370,10 +369,10 @@ except Exception as e:
         if: always()
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
         with:
-          name: probe-${{ matrix.include.label }}-${{ github.run_id }}
+          name: probe-${{ matrix.label }}-${{ github.run_id }}
           path: |
-            /tmp/probe-${{ matrix.include.label }}.json
-            /tmp/probe-${{ matrix.include.label }}.log
+            /tmp/probe-${{ matrix.label }}.json
+            /tmp/probe-${{ matrix.label }}.log
           if-no-files-found: ignore
           retention-days: 7
 
@@ -465,7 +464,7 @@ except Exception as e:
 
     outputs:
       status: ${{ steps.audit-status.outputs.status }}
-      endpoint_health: ${{ steps.audit-endpoint.outputs.health_score || 'N/A' }}
+      endpoint_health: ${{ steps.health-metrics.outputs.health_score || 'N/A' }}
 
     steps:
       - name: Checkout
@@ -490,8 +489,6 @@ except Exception as e:
             EXIT=${PIPESTATUS[0]}
           fi
           echo "::endgroup::"
-          HEALTH=$(grep -oP 'health[=:]\s*\K\d+' /tmp/audit-endpoint.log | head -1 || echo "0")
-          echo "health_score=${HEALTH}" >> "$GITHUB_OUTPUT"
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
 
       - name: Audit repository connectivity
@@ -564,7 +561,7 @@ except Exception as e:
           echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 6 — commit & summary (simplificado e seguro)
+  # JOB 6 — commit & summary (Correção de permissões pull-requests)
   # ════════════════════════════════════════════════════════════════════════════
   commit:
     name: "💾 Commit & Summary"
@@ -574,7 +571,7 @@ except Exception as e:
     timeout-minutes: 10
     permissions:
       contents: write
-      pull-prints: write  # Fix: should be pull-requests
+      pull-requests: write
 
     env:
       EVOLVE_RESULT: ${{ needs.evolve.result }}
@@ -601,7 +598,6 @@ except Exception as e:
       - name: Stage source changes
         id: stage
         run: |
-          # Stage apenas arquivos seguros
           git add \
             .github/workflows/*.yml \
             .github/workflows/*.yaml \
@@ -616,7 +612,6 @@ except Exception as e:
             .gitignore \
             2>/dev/null || true
 
-          # Stage evolution artifacts
           for path in atena_evolution/*.json analysis_reports/*.md; do
             if [[ -f "$path" ]]; then
               git add "$path" 2>/dev/null || true
