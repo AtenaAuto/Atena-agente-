@@ -1,21 +1,5 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# ATENA Self-Evolve  —  workflow v2
-#
-# Melhorias sobre v1:
-#   ✅ Actions com SHA pinned (supply-chain hardening)
-#   ✅ permissions mínimas por job (princípio do menor privilégio)
-#   ✅ Jobs paralelos: evolve ║ probe ║ audit  (40–60 % mais rápido)
-#   ✅ Cache de venv com hash dos requirements (cache hit garante 0 pip installs)
-#   ✅ Retry automático em passos de rede (pip, python -m core.*)
-#   ✅ Captura explícita de status por step → sem falhas silenciosas
-#   ✅ Anotações ::error / ::warning no log do GitHub
-#   ✅ Summary rico com tabela de resultados, score delta e links de artefato
-#   ✅ git push seguro com --force-with-lease + fallback de rebase
-#   ✅ Artefato com timestamp único e retenção configurada
-#   ✅ Concurrency com timeout — cancela runs obsoletos automaticamente
-#   ✅ Variáveis de ambiente centralizadas em env global + por job
-#   ✅ Limpeza de artefatos antigos antes de gerar novos
-#   ✅ Job de commit isolado — só roda se algo mudou
+# ATENA Self-Evolve  —  workflow v2 (Refined)
 # ══════════════════════════════════════════════════════════════════════════════
 
 name: ATENA Self-Evolve
@@ -41,14 +25,12 @@ on:
         default: "false"
         type: boolean
 
-# ── Sem permissão global — cada job declara o mínimo que precisa ─────────────
 permissions: {}
 
 concurrency:
   group: atena-self-evolve-${{ github.ref_name }}
-  cancel-in-progress: false          # Nunca mata uma evolução em progresso
+  cancel-in-progress: false
 
-# ── Variáveis compartilhadas por todos os jobs ────────────────────────────────
 env:
   PYTHONDONTWRITEBYTECODE: "1"
   PYTHONUNBUFFERED: "1"
@@ -57,11 +39,10 @@ env:
   ATENA_AUTO_ENDPOINT_SETUP: "false"
   ATENA_STRICT_ENDPOINT_READY: "false"
   PYTHON_VERSION: "3.11"
-  # Hash do requirements para invalidar cache quando deps mudam
   REQS_HASH: ${{ hashFiles('setup/requirements-pinned.txt', 'setup/requirements-dev.txt') }}
 
 # ══════════════════════════════════════════════════════════════════════════════
-# JOB 1 — setup  (instala deps + popula cache do venv)
+# JOB 1 — setup
 # ══════════════════════════════════════════════════════════════════════════════
 jobs:
   setup:
@@ -77,13 +58,11 @@ jobs:
 
     steps:
       - name: Checkout
-        # SHA de actions/checkout@v4.2.2  (atualizar trimestralmente)
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 1
 
       - name: Setup Python ${{ env.PYTHON_VERSION }}
-        # SHA de actions/setup-python@v5.3.0
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -97,7 +76,6 @@ jobs:
 
       - name: Restore venv cache
         id: cache-restore
-        # SHA de actions/cache@v4.2.0
         uses: actions/cache@d4323d4df104b026a6aa633fdb11d772b3dc2c31
         with:
           path: .venv
@@ -111,14 +89,12 @@ jobs:
           source .venv/bin/activate
           python -m pip install --upgrade pip
 
-          # Retry 3× com backoff — pip falha por timeout de rede ocasionalmente
           for attempt in 1 2 3; do
             echo "::group::pip install tentativa ${attempt}/3"
-            pip install \
-              -r setup/requirements-pinned.txt \
-              -r setup/requirements-dev.txt \
-              && echo "::endgroup::" \
-              && break
+            if pip install -r setup/requirements-pinned.txt -r setup/requirements-dev.txt; then
+              echo "::endgroup::"
+              break
+            fi
             echo "::endgroup::"
             if [[ ${attempt} -lt 3 ]]; then
               echo "::warning::pip falhou na tentativa ${attempt}. Aguardando $((attempt * 15))s..."
@@ -136,7 +112,7 @@ jobs:
           python -m pip list --format=freeze | wc -l | xargs -I{} echo "{} pacotes instalados"
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 2 — evolve  (ciclo de auto-evolução da ATENA)
+  # JOB 2 — evolve
   # ════════════════════════════════════════════════════════════════════════════
   evolve:
     name: "🧬 Evolve"
@@ -215,12 +191,12 @@ jobs:
           if [[ -f "${FILE}" ]]; then
             echo "file=${FILE}" >> "$GITHUB_OUTPUT"
             echo "Score atual:"
-            python -c "
-          import json, pathlib
-          s = json.loads(pathlib.Path('${FILE}').read_text())
-          print(f'  generation : {s.get(\"generation\", \"?\")}')
-          print(f'  best_score : {s.get(\"best_score\", \"?\")}')
-          "
+            python3 -c "
+import json, pathlib
+s = json.loads(pathlib.Path('${FILE}').read_text())
+print(f'  generation : {s.get(\"generation\", \"?\")}')
+print(f'  best_score : {s.get(\"best_score\", \"?\")}')
+            "
           else
             echo "file=" >> "$GITHUB_OUTPUT"
           fi
@@ -238,8 +214,7 @@ jobs:
           retention-days: 7
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 3 — probe  (sondas de API + watchlist de repos)
-  # Roda em paralelo com evolve
+  # JOB 3 — probe
   # ════════════════════════════════════════════════════════════════════════════
   probe:
     name: "🌐 Probe"
@@ -248,9 +223,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-
-    outputs:
-      status: ${{ steps.probe-status.outputs.status }}
 
     strategy:
       fail-fast: false
@@ -297,18 +269,17 @@ jobs:
             sleep $((attempt * 10))
           done
 
-          # Extrai confidence do JSON produzido (se existir)
           if [[ -f "${OUT}" ]]; then
-            python -c "
-          import json, sys
-          try:
-              d = json.loads(open('${OUT}').read())
-              wc = d.get('weighted_confidence', d.get('confidence', 'N/A'))
-              st = d.get('status', 'unknown')
-              print(f'  status={st}  confidence={wc}')
-          except Exception as e:
-              print(f'  (não foi possível parsear resultado: {e})')
-          "
+            python3 -c "
+import json
+try:
+    d = json.loads(open('${OUT}').read())
+    wc = d.get('weighted_confidence', d.get('confidence', 'N/A'))
+    st = d.get('status', 'unknown')
+    print(f'  status={st}  confidence={wc}')
+except Exception as e:
+    print(f'  (não foi possível parsear resultado: {e})')
+"
           fi
           echo "exit_code=${EXIT}" >> "$GITHUB_OUTPUT"
 
@@ -321,16 +292,12 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Capture probe status
-        id: probe-status
+      - name: Enforce strict step result
         run: |
-          EXIT=${{ steps.ic.outputs.exit_code || '0' }}
-          STATUS=$([[ "${EXIT}" -eq 0 ]] && echo "success" || echo "failure")
-          echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
+          exit ${{ steps.ic.outputs.exit_code || '0' }}
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 4 — watchlist  (scanner de repos de IA — opcional)
-  # Roda em paralelo com evolve e probe
+  # JOB 4 — watchlist
   # ════════════════════════════════════════════════════════════════════════════
   watchlist:
     name: "👁️ Watchlist"
@@ -384,7 +351,7 @@ jobs:
           echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 5 — audit  (scripts de auditoria — roda em paralelo)
+  # JOB 5 — audit
   # ════════════════════════════════════════════════════════════════════════════
   audit:
     name: "🔍 Audit"
@@ -471,21 +438,20 @@ jobs:
           echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
 
   # ════════════════════════════════════════════════════════════════════════════
-  # JOB 6 — commit  (agrega resultados, gera summary e faz push)
-  # Roda apenas depois que todos os jobs paralelos terminam
+  # JOB 6 — commit & summary
   # ════════════════════════════════════════════════════════════════════════════
   commit:
     name: "💾 Commit & Summary"
     needs: [evolve, probe, watchlist, audit]
-    # Sempre roda mesmo que jobs anteriores falhem
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write        # Único job que precisa escrever no repo
+      contents: write
 
     env:
       EVOLVE_STATUS:    ${{ needs.evolve.outputs.status    || 'skipped' }}
+      PROBE_RESULT:     ${{ needs.probe.result              || 'skipped' }}
       WATCHLIST_STATUS: ${{ needs.watchlist.outputs.status || 'skipped' }}
       AUDIT_STATUS:     ${{ needs.audit.outputs.status     || 'skipped' }}
 
@@ -494,7 +460,6 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-          # Usa o GITHUB_TOKEN default — write permission já declarada acima
           token: ${{ github.token }}
 
       - name: Configure git identity
@@ -505,7 +470,6 @@ jobs:
       - name: Stage source changes
         id: stage
         run: |
-          # Stage apenas artefatos de código rastreáveis — nunca dados voláteis gerados
           git add \
             .github/workflows/ \
             core/ \
@@ -529,7 +493,6 @@ jobs:
 
       - name: Commit evolution artifacts
         if: steps.stage.outputs.changed == 'true'
-        id: commit
         run: |
           TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           git commit -m "chore(evolution): cycle ${{ github.run_number }} evolve=${EVOLVE_STATUS} audit=${AUDIT_STATUS} ts=${TS}"
@@ -540,12 +503,10 @@ jobs:
           set -euo pipefail
           BRANCH="${GITHUB_REF_NAME}"
 
-          # Traz atualizações remotas sem sobrescrever trabalho local
           git fetch origin "${BRANCH}" --no-tags
 
-          # Tenta rebase não-interativo; se conflito → merge com ours
           if ! git rebase --no-edit "origin/${BRANCH}"; then
-            echo "::warning::Rebase falhou — tentando merge strategy=ours"
+            echo "::warning::Rebase falhou — tentando resolver mantendo alterações geradas de código"
             git rebase --abort || true
             git merge \
               --no-edit \
@@ -554,16 +515,14 @@ jobs:
               -m "chore(merge): resolve conflict during self-evolution push"
           fi
 
-          # --force-with-lease garante que não sobrescrevemos um push concorrente
           git push --force-with-lease origin "HEAD:${BRANCH}"
-          echo "✅ Push concluído."
+          echo "✅ Push concluído com sucesso."
 
       - name: Build rich summary
         if: always()
         run: |
           TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-          # Ícones por status
           icon() {
             case "$1" in
               success) echo "✅" ;;
@@ -589,23 +548,25 @@ jobs:
             echo "| Job | Status |"
             echo "|-----|--------|"
             echo "| 🧬 Evolve    | $(icon ${EVOLVE_STATUS})   \`${EVOLVE_STATUS}\`    |"
-            echo "| 🌐 Probe     | $(icon ${{ needs.probe.outputs.status || 'skipped' }})   \`${{ needs.probe.outputs.status || 'skipped' }}\`    |"
+            echo "| 🌐 Probe     | $(icon ${PROBE_RESULT})   \`${PROBE_RESULT}\`    |"
             echo "| 👁️ Watchlist | $(icon ${WATCHLIST_STATUS}) \`${WATCHLIST_STATUS}\` |"
             echo "| 🔍 Audit     | $(icon ${AUDIT_STATUS})    \`${AUDIT_STATUS}\`     |"
             echo ""
 
-            # Score atual se disponível
             if [[ -f "atena_evolution/atena_state.json" ]]; then
               echo "### 📊 Estado da evolução"
               echo ""
-              python3 -c "
-          import json, pathlib
-          s = json.loads(pathlib.Path('atena_evolution/atena_state.json').read_text())
-          gen   = s.get('generation', 'N/A')
-          score = s.get('best_score', 'N/A')
-          print(f'| Geração | \`{gen}\` |')
-          print(f'| Melhor score | \`{score}\` |')
-          " 2>/dev/null || echo "| Estado | não disponível |"
+              python3 << 'EOF'
+import json, pathlib
+try:
+    s = json.loads(pathlib.Path('atena_evolution/atena_state.json').read_text())
+    gen = s.get('generation', 'N/A')
+    score = s.get('best_score', 'N/A')
+    print(f'| Geração | `{gen}` |')
+    print(f'| Melhor score | `{score}` |')
+except Exception as e:
+    print(f'| Estado | Erro ao ler JSON: {e} |')
+EOF
               echo ""
             fi
 
@@ -619,7 +580,6 @@ jobs:
             done
             echo ""
 
-            # Mudanças commitadas
             if [[ "${{ steps.stage.outputs.changed }}" == "true" ]]; then
               echo "### 📝 Arquivos commitados"
               echo ""
@@ -636,7 +596,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
         with:
-          # Nome único por run — facilita comparação de ciclos
           name: atena-reports-${{ github.run_number }}-${{ github.run_id }}
           path: |
             analysis_reports/**
