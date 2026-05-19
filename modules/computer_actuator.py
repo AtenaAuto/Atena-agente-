@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 modules/computer_actuator.py — Atuador de Controle do Sistema para ATENA Ω
-Permite que a IA execute comandos, gerencie arquivos e interaja com o sistema operacional.
+Permite que a Atena execute comandos, gerencie arquivos e interaja com o sistema operacional.
 """
 
 import os
